@@ -1,0 +1,16 @@
+[package]
+name = "haylcon"
+version = "0.1.0"
+edition = "2021"
+authors = [ "PwnWriter < hey@pwnwriter.xyz >", "ashokcpg < hey@ashokcpg.com >" ]
+description = "Blazingly fast tool to grab screenshots of url/webpages from terminal."
+readme = "README.md"
+repository = "https://github.com/pwnwriter/haylcon"
+homepage = "https://github.com/haylcon/haylcon.git"
+license = "MIT"
+keywords = ["screenshots", "bug-bounty", "recon", "pwn", "OSINT" ]
+categories = ["accessibility", "command-line-utilities", "CLI" ]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
