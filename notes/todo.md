@@ -2,13 +2,13 @@
 
 # Crates to use 
 
-- clap 
-- url 
-- reqwest 
-- magick_rust
-- tokio 
-- chromiumoxide 
-- futures 
+- [clap](https://crates.io/crates/clap) 
+- [url](https://crates.io/crate/url)
+- [reqwest](https://crates.io/crate/reqwst)
+- [magick_rust](https://crates.io/crate/magick_rust)
+- [tokio](https://crates.io/crate/tokio )
+- [chromiumoxide](https://crates.io/crate/chromiumoxide ) 
+- [futures](https://crates.io/crate/futures ) 
 
 # Features
 
