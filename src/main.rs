@@ -162,7 +162,7 @@ async fn take_screenshots(
                 url
             );
         } else {
-            println!("\x1b[0;31m[-] Timed out URL=\x1b[0m {}", url);
+            println!("{RED}[-] Timed out URL={YELLOW}{}", url);
         }
     }
 
