@@ -9,7 +9,6 @@ use std::{
     time::Duration,
 };
 
-use clap::{crate_authors, crate_description, crate_name, crate_version, App, Arg};
 use reqwest::get;
 
 use tokio::{fs, time::timeout};
@@ -22,37 +21,56 @@ use chromiumoxide::cdp::browser_protocol::page::{
 };
 use chromiumoxide::handler::viewport::Viewport;
 use chromiumoxide::Page;
+use clap::{Parser, Subcommand};
+
+#[derive(Parser)]
+#[command(author, version, about, long_about = "None")]
+struct Cli {
+    #[command(subcommand)]
+    commands: Commands,
+}
+
+#[derive(Subcommand)]
+enum Commands {
+    New {
+        #[arg(short, long)]
+        /// Website URL/filename of file containing URLs
+        url: String,
+        #[arg(short, long)]
+        /// Output directory to save screenshots (default is 'screenshots')
+        outdir: Option<String>,
+        #[arg(short, long)]
+        /// "Maximum number of parallel tabs (default 4)"
+        max: Option<usize>,
+    },
+}
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     println!("{RED}{}{RESET}", HYALCON);
-    let matches = App::new(crate_name!())
-        .version(crate_version!())
-        .author(crate_authors!())
-        .about(crate_description!())
-        .arg(
-            Arg::with_name("URL")
-                .help("Website URL / Filename of file containing URLs")
-                .required(true)
-                .takes_value(true),
-        )
-        .arg(
-            Arg::with_name("OUTDIR")
-                .help("Output directory to save screenshots (default 'screenshots')")
-                .takes_value(true)
-                .short("o")
-                .long("output"),
-        )
-        .arg(
-            Arg::with_name("MAX")
-                .help("Maximum number of parallel tabs (default 4)")
-                .takes_value(true)
-                .short("m")
-                .long("max"),
-        )
-        .get_matches();
 
-    let outdir = matches.value_of("OUTDIR").unwrap_or("screenshots");
+    let cli = Cli::parse();
+
+    match cli.commands {
+        Commands::New { url, outdir, max } => {
+            run(url, outdir, max)
+                .await
+                .expect("An error occurred while running :(");
+        }
+    }
+    Ok(())
+}
+
+async fn run(
+    url: String,
+    outdir: Option<String>,
+    max: Option<usize>,
+) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    let outdir = if outdir.is_some() {
+        outdir.unwrap()
+    } else {
+        "screenshots".to_string()
+    };
 
     let (browser, mut handler) = Browser::launch(
         BrowserConfig::builder()
@@ -72,65 +90,54 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
 
     let _handle = tokio::task::spawn(async move {
         loop {
-            let _ = handler.next().await.unwrap();
+            let _ = handler.next().await;
         }
     });
 
-    let mut parallel_tabs: usize = 4;
-    if let Some(max) = matches.value_of("MAX") {
-        parallel_tabs = max.parse()?;
+    let parallel_tabs: usize = if max.is_some() { max.unwrap() } else { 4 };
+
+    if fs::metadata(&outdir).await.is_err() {
+        fs::create_dir(&outdir).await?;
     }
 
-    if fs::metadata(outdir).await.is_err() {
-        fs::create_dir(outdir).await?;
-    }
+    if fs::metadata(&url).await.is_ok() {
+        let file = std::fs::File::open(url)?;
+        let lines = BufReader::new(file).lines();
 
-    if let Some(url) = matches.value_of("URL") {
-        if fs::metadata(url).await.is_ok() {
-            let file = std::fs::File::open(url)?;
-            let lines = BufReader::new(file).lines();
+        let mut urls = vec![Vec::new(); parallel_tabs];
+        let mut pt = 0;
 
-            let mut urls = vec![Vec::new(); parallel_tabs];
-            let mut pt = 0;
-
-            // Only take valid URLs
-            // push them in urls in round robin manner
-            for line in lines.flatten() {
-                if let Ok(url) = url::Url::parse(&line) {
-                    urls[pt].push(url);
-                    pt += 1;
-                    pt %= parallel_tabs;
-                }
+        // Only take valid URLs
+        // push them in urls in round robin manner
+        for line in lines.flatten() {
+            if let Ok(url) = url::Url::parse(&line) {
+                urls[pt].push(url);
+                pt += 1;
+                pt %= parallel_tabs;
             }
+        }
 
-            // Set current working directory to output directory
-            // So that we can save screenshots in it without specifying whole path.
-            env::set_current_dir(Path::new(outdir))?;
+        // Set current working directory to output directory
+        // So that we can save screenshots in it without specifying whole path.
+        env::set_current_dir(Path::new(&outdir))?;
 
-            let mut handles = Vec::new();
+        let mut handles = Vec::new();
 
-            for chunk in urls {
-                let n_tab = browser.new_page("about:blank").await?;
-                let h = tokio::spawn(take_screenshots(n_tab, chunk));
-                handles.push(h);
-            }
-
-            for handle in handles {
-                handle.await?.expect(
-                    "Something went wrong while waiting for taking screenshot and saving to file",
-                );
-            }
-        } else if let Ok(valid_url) = url::Url::parse(url) {
-            env::set_current_dir(Path::new(outdir))?;
+        for chunk in urls {
             let n_tab = browser.new_page("about:blank").await?;
-            take_screenshots(n_tab, vec![valid_url]).await?;
-        } else {
-            eprintln!(
-                "{RED}[!] Invalid URL {} {:?}",
-                url,
-                url::Url::parse(url)
+            let h = tokio::spawn(take_screenshots(n_tab, chunk));
+            handles.push(h);
+        }
+
+        for handle in handles {
+            handle.await?.expect(
+                "Something went wrong while waiting for taking screenshot and saving to file",
             );
         }
+    } else if let Ok(valid_url) = url::Url::parse(&url) {
+        env::set_current_dir(Path::new(&outdir))?;
+        let n_tab = browser.new_page("about:blank").await?;
+        take_screenshots(n_tab, vec![valid_url]).await?;
     }
 
     println!("{GREEN}[{CYAN}{GREEN}] {YELLOW_BRIGHT}Screenshots Taken {GREEN}[{CYAN}{GREEN}]");
