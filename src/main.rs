@@ -36,12 +36,12 @@ enum Commands {
         #[arg(short, long)]
         /// Website URL/filename of file containing URLs
         url: String,
-        #[arg(short, long)]
+        #[arg(short, long, default_value = "screenshots")]
         /// Output directory to save screenshots (default is 'screenshots')
-        outdir: Option<String>,
+        outdir: String,
         #[arg(short, long)]
         /// "Maximum number of parallel tabs (default 4)"
-        max: Option<usize>,
+        tabs: Option<usize>,
     },
 }
 
@@ -52,8 +52,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let cli = Cli::parse();
 
     match cli.commands {
-        Commands::New { url, outdir, max } => {
-            run(url, outdir, max)
+        Commands::New { url, outdir, tabs } => {
+            run(url, Some(outdir), tabs)
                 .await
                 .expect("An error occurred while running :(");
         }
@@ -64,7 +64,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
 async fn run(
     url: String,
     outdir: Option<String>,
-    max: Option<usize>,
+    tabs: Option<usize>,
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let outdir = if outdir.is_some() {
         outdir.unwrap()
@@ -94,8 +94,6 @@ async fn run(
         }
     });
 
-    let parallel_tabs: usize = if max.is_some() { max.unwrap() } else { 4 };
-
     if fs::metadata(&outdir).await.is_err() {
         fs::create_dir(&outdir).await?;
     }
@@ -104,7 +102,7 @@ async fn run(
         let file = std::fs::File::open(url)?;
         let lines = BufReader::new(file).lines();
 
-        let mut urls = vec![Vec::new(); parallel_tabs];
+        let mut urls = vec![Vec::new(); tabs.unwrap()];
         let mut pt = 0;
 
         // Only take valid URLs
@@ -113,7 +111,7 @@ async fn run(
             if let Ok(url) = url::Url::parse(&line) {
                 urls[pt].push(url);
                 pt += 1;
-                pt %= parallel_tabs;
+                pt %= tabs.unwrap();
             }
         }
 
