@@ -1,7 +1,7 @@
 pub const HYALCON: &str = r"
 ╦ ╦┌─┐┬ ┬┬  ┌─┐┌─┐┌┐┌
 ╠═╣├─┤└┬┘│  │  │ ││││
-╩ ╩┴ ┴ ┴ ┴─┘└─┘└─┘┘└┘
- Eyes on the blink  
+╩ ╩┴ ┴ ┴ ┴─┘└─┘└─┘┘└┘v1.0.0
+ Shoot before the blink  
+              by @pwnwriter
 ";
-
