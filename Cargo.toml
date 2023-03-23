@@ -1,15 +1,15 @@
 [package]
-name = "haylcon"
+name = "haylxon"
 version = "0.1.0"
 edition = "2021"
-authors = [ "PwnWriter < hey@pwnwriter.xyz >", "ashokcpg < hey@ashokcpg.com >" ]
+authors = [ "PwnWriter < hey@pwnwriter.xyz >" ]
 description = "Blazingly fast tool to grab screenshots of url/webpages from terminal."
 readme = "README.md"
-repository = "https://github.com/bytehunt/haylcon"
-homepage = "https://github.com/bytehunt/haylcon.git"
+repository = "https://github.com/bytehunt/haylxon"
+homepage = "https://github.com/bytehunt/haylxon.git"
 license = "MIT"
 keywords = ["screenshots", "bug-bounty", "recon", "pwn", "OSINT" ]
-categories = ["accessibility", "command-line-utilities", "CLI" ]
+categories = ["accessibility", "command-line-utility", "CLI" ]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
