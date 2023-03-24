@@ -15,4 +15,4 @@
 
 </div>
 
-`Shoot Before The Blink`  ||  [`haylxon`](https://github.com/bytehunt/haylxon/), A tool embodying the `K1SS` `(Keep It Simple and Stupid)` philosophy that allows you to take screenshots of web pages and URLs at lightning-fast speeds. It's ideal for use in CTFs where you need to quickly gather information about subdomains and their associated web pages.
+`SHOOT BEFORE THE BLINK` || [`Haylxon`](https://github.com/bytehunt/haylxon/) , A tool embodying the [`K1SS`](https://en.wikipedia.org/wiki/KISS_principle) philosophy that allows you to take screenshots of web pages/URLs at lightning-fast speeds. It's ideal for use in CTFs where you need to quickly gather information about subdomains and their associated web pages.
