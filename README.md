@@ -17,12 +17,12 @@ Built from the ground up for ease of use, performance, beautiful ui and portabil
 
 ## Table of contents
 
-* [`Features`](##features)
-* [`Installation`](##installation)
-* [`Benchmarking`](##benchmarking)
-* [`Contribution`](##contribution)
-* [`License`](##license)
-* [`Thanks`](##thanks)
+* [`Features`](#features)
+* [`Installation`](#installation)
+* [`Benchmarking`](#benchmarking)
+* [`Contribution`](#contribution)
+* [`License`](#license)
+* [`Thanks`](#thanks)
 
 ![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png)
 
