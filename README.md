@@ -1,18 +1,12 @@
-<div align="center">
+<img src="https://raw.githubusercontent.com/bytehunt/haylxon/showcase/hxn-art-rounded-corners.png?token=GHSAT0AAAAAACAHNZ2RR5AGAQEO2P734ABOZA5XQQA" alt="binserve logo" width="250" align="right">
 
-  <a href="https://github.com/bytehunt/haylxon">
-    <img src="https://0x0.st/HoHA.png" width="200" height="200">
-  </a>
+# [`Haylxon`](https://github.com/bytehunt/haylxon) :fire::crab:
 
-<h4><strong><code>Haylxon</code></strong> — Blazing-fast and yet Sleuth cameraman to www*.</h4>
+`SHOOT BEFORE THE BLINK` || [`Haylxon`](https://github.com/bytehunt/haylxon/) ,
+A tool embodying the [`K1SS`](https://en.wikipedia.org/wiki/KISS_principle) philosophy that allows you to take screenshots of web pages/URLs at lightning-fast speeds.
 
+Built from the ground up for ease of use, performance, beautiful ui and portability in mind. 💖
+
+<p align="left">
 
 <a href="https://github.com/bytehunt/haylxon/releases"><img src="https://img.shields.io/github/v/release/bytehunt/haylxon?style=flat&amp;labelColor=56534b&amp;color=c1c1b6&amp;logo=GitHub&amp;logoColor=white" alt="GitHub Release"></a>
-<a href="https://crates.io/crates/haylxon/"><img src="https://img.shields.io/crates/v/haylxon?style=flat&amp;labelColor=56534b&amp;color=c1c1b6&amp;logo=Rust&amp;logoColor=white" alt="Crate Release"></a>
-<a href="https://github.com/bytehunt/haylxon/actions?query=workflow%3A%22Continuous+Integration%22"><img src="https://img.shields.io/github/actions/workflow/status/bytehunt/haylxon/ci.yml?branch=main&amp;style=flat&amp;labelColor=56534b&amp;color=c1c1b6&amp;logo=GitHub%20Actions&amp;logoColor=white" alt="Continuous Integration"></a>
-<a href="https://github.com/bytehunt/haylxon/actions?query=workflow%3A%22Continuous+Deployment%22"><img src="https://img.shields.io/github/actions/workflow/status/bytehunt/haylxon/cd.yml?style=flat&amp;labelColor=56534b&amp;color=c1c1b6&amp;logo=GitHub%20Actions&amp;logoColor=white&amp;label=deploy" alt="Continuous Deployment"></a>
-<a href="https://docs.rs/haylxon/"><img src="https://img.shields.io/docsrs/haylxon?style=flat&amp;labelColor=56534b&amp;color=c1c1b6&amp;logo=Rust&amp;logoColor=white" alt="Documentation"></a>
-
-</div>
-
-`SHOOT BEFORE THE BLINK` || [`Haylxon`](https://github.com/bytehunt/haylxon/) , A tool embodying the [`K1SS`](https://en.wikipedia.org/wiki/KISS_principle) philosophy that allows you to take screenshots of web pages/URLs at lightning-fast speeds. It's ideal for use in CTFs where you need to quickly gather information about subdomains and their associated web pages.
