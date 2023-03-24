@@ -2,8 +2,7 @@
 
 # [`Haylxon`](https://github.com/bytehunt/haylxon) :fire::crab:
 
-`SHOOT BEFORE THE BLINK` || [`Haylxon`](https://github.com/bytehunt/haylxon/) ,
-A tool embodying the [`K1SS`](https://en.wikipedia.org/wiki/KISS_principle) philosophy that allows you to take screenshots of web pages/URLs at lightning-fast speeds.
+`SHOOT BEFORE THE BLINK` ||  [`Haylxon`](https://github.com/bytehunt/haylxon/),&nbsp; A tool embodying the [`K1SS`](https://en.wikipedia.org/wiki/KISS_principle) philosophy that allows you to take screenshots of web pages/URLs at lightning-fast speeds.
 
 Built from the ground up for ease of use, performance, beautiful ui and portability in mind. 💖
 
@@ -15,3 +14,12 @@ Built from the ground up for ease of use, performance, beautiful ui and portabil
 <a href="https://twitter.com/intent/tweet?text=Check%20out%20haylxon%20-%20a%20A%20blazingly%20fast%20tool%20to%20grab%20screenshots%20of%20website%2FURL%20from%20terminal%20written%20in%20Rust!%20&url=https%3A%2F%2Fgithub.com%2Fbytehunt%2Fhaylxon"><img alt="Twitter Share" src="https://img.shields.io/twitter/url/https/github.com/bytehunt/haylxon.svg?style=social"></a>
 ![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png)
 
+
+## Table of contents
+
+* [`Features`](#features)
+* [`Installation`](#installation)
+* [`Benchmarking`](#benchmarking)
+* [`Contribution`](#contribution)
+* [`License`](#license)
+* [`Thanks`](#thanks)
