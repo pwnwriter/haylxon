@@ -12,7 +12,6 @@ Built from the ground up for ease of use, performance, beautiful ui and portabil
 <a href="https://github.com/bytehunt/haylxon/releases"><img src="https://img.shields.io/github/v/release/bytehunt/haylxon?style=flat&amp;labelColor=56534b&amp;color=c1c1b6&amp;logo=GitHub&amp;logoColor=white" alt="GitHub Release"></a>
 <a href="https://crates.io/crates/haylxon/"><img src="https://img.shields.io/crates/v/haylxon?style=flat&amp;labelColor=56534b&amp;color=c1c1b6&amp;logo=Rust&amp;logoColor=white" alt="Crate Release"></a>
 <a href="https://github.com/bytehunt/haylxon/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-white.svg" alt="MIT LICENSE"></a>
-<a href="https://twitter.com/intent/tweet?text=Check%20out%20haylxon%20-%20a%20blazingly%20fast%20tool%20to%20grab%20screenshots%20of%20website%2FURL%20from%20terminal%20written%20in%20Rust!%20&url=https%3A%2F%2Fgithub.com%2Fbytehunt%2Fhaylxon"><img alt="Twitter Share" src="https://img.shields.io/twitter/url/https/github.com/bytehunt/haylxon.svg?style=social"></a>
-
-
+<a href="https://twitter.com/intent/tweet?text=Check%20out%20haylxon%20-%20a%20A%20blazingly%20fast%20tool%20to%20grab%20screenshots%20of%20website%2FURL%20from%20terminal%20written%20in%20Rust!%20&url=https%3A%2F%2Fgithub.com%2Fbytehunt%2Fhaylxon"><img alt="Twitter Share" src="https://img.shields.io/twitter/url/https/github.com/bytehunt/haylxon.svg?style=social"></a>
+![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png)
 
