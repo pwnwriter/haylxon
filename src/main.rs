@@ -1,7 +1,7 @@
 mod colors;
 use colors::*;
 mod ascii;
-use ascii::{HXN,BAR};
+use ascii::{BAR, HXN};
 use std::{
     env,
     io::{BufRead, BufReader},
@@ -33,7 +33,7 @@ struct Cli {
     /// Website URL/filename of file containing URLs
     url: String,
     #[arg(short, long, default_value = "wd + hxnshots")]
-    /// Output directory to save screenshots 
+    /// Output directory to save screenshots
     outdir: String,
     #[arg(short, long, default_value = "4")]
     /// Maximum number of parallel tabs
@@ -140,7 +140,7 @@ async fn take_screenshots(
     for url in urls {
         let url = url.as_str();
         if let Ok(Ok(_res)) = timeout(Duration::from_secs(10), get(url)).await {
-            // Thanks to swanandx for this 
+            // Thanks to swanandx for this
             let filename = url.replace("://", "-").replace('/', "_") + ".png";
             page.goto(url)
                 .await?
@@ -156,7 +156,7 @@ async fn take_screenshots(
                 format!("{RESET}").split('\n').collect::<Vec<&str>>(),
                 vec![
                     &format!("{BLUE}{BAR}"),
-                    &format!("{GREEN}[{CYAN}  {GREEN}] URL={GREEN}{}",url),
+                    &format!("{GREEN}[{CYAN}  {GREEN}] URL={GREEN}{}", url),
                     &format!(
                         "{BLUE}[{CYAN}  {YELLOW}] Title={GREEN}{}",
                         page.get_title().await?.unwrap_or_default()
