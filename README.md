@@ -9,4 +9,5 @@ Built from the ground up for ease of use, performance, beautiful ui and portabil
 
 <p align="left">
 
-<a href="https://github.com/bytehunt/haylxon/releases"><img src="https://img.shields.io/github/v/release/bytehunt/haylxon?style=flat&amp;labelColor=56534b&amp;color=c1c1b6&amp;logo=GitHub&amp;logoColor=white" alt="GitHub Release"></a>
+<a href="https://github.com/bytehunt/haylxon/releases"><img src="https://img.shields.io/github/v/release/orhun/runst?style=flat&amp;labelColor=56534b&amp;color=c1c1b6&amp;logo=GitHub&amp;logoColor=white" alt="GitHub Release"></a>
+
