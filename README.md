@@ -89,11 +89,11 @@ Built from the ground up for ease of use, performance, beautiful ui and portabil
   A big thanks to the followings.
  - [`@rustlang`](https://rustlang.org)
  - [`@Dylan Arps`](https://github.com/dylanaraps)
+ - [`@catppuccin`](https://github.com/catppuccin) 
  - [`@cute-ducky`](https://github.com/Cute-Ducky) // plan9boys.
  - [`@blast`](https://github.com/joshua-mo-143)
- - and [**you**](https://github.com/bytehunt/haylxon/graphs/contributors)
+ - and [**you**](https://github.com/bytehunt/haylxon/graphs/contributors) ❤️‍🩹
   
-<p align="center">
-	Copyright &copy; 2023 <a href="https://github.com/bytehunt" target="_blank">bytehunt io 🌿 </a>
-</p>
+<p align="center"><img src="https://raw.githubusercontent.com/catppuccin/catppuccin/main/assets/footers/gray0_ctp_on_line.svg?sanitize=true" /></p>
+<p align="center">Copyright &copy; 2023<a href="https://github.com/bytehunt" target="_blank"> bytehunt io ☘️ </a> 
   
