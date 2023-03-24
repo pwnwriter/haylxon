@@ -32,11 +32,11 @@ struct Cli {
     #[arg(short, long)]
     /// Website URL/filename of file containing URLs
     url: String,
-    #[arg(short, long, default_value = "hxnshots")]
-    /// Output directory to save screenshots (default is 'hxnshots')
+    #[arg(short, long, default_value = "wd + hxnshots")]
+    /// Output directory to save screenshots 
     outdir: String,
-    #[arg(short, long)]
-    /// "Maximum number of parallel tabs (default 4)"
+    #[arg(short, long, default_value = "4")]
+    /// Maximum number of parallel tabs
     tabs: Option<usize>,
 }
 
