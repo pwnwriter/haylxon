@@ -37,7 +37,7 @@ Built from the ground up for ease of use, performance, beautiful ui and portabil
 <a name="installation"></a>
  ## Installation 📩
 - **Binary**:
-  You can directly download [`executable`](https://github.com/bytehunt/haylxon/releases/) and run it.
+  You can directly download [`binary`](https://github.com/bytehunt/haylxon/releases/) and run it.
 - **Source**:
   ```bash
   $ git clone --depth=1 https://github.com/bytehunt/haylxon 
