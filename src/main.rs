@@ -32,7 +32,7 @@ struct Cli {
     #[arg(short, long)]
     /// Website URL/filename of file containing URLs
     url: String,
-    #[arg(short, long, default_value = "wd + hxnshots")]
+    #[arg(short, long, default_value = "hxnshots")]
     /// Output directory to save screenshots
     outdir: String,
     #[arg(short, long, default_value = "4")]

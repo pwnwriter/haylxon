@@ -12,7 +12,7 @@ pub const BAR: &str = r"
 pub const HXN: &str = r"
 ╦ ╦╔═╗╦ ╦╦  ═╗ ╦╔═╗╔╗╔
 ╠═╣╠═╣╚╦╝║  ╔╩╦╝║ ║║║║
-╩ ╩╩ ╩ ╩ ╩═╝╩ ╚═╚═╝╝╚╝v0.1.0
+╩ ╩╩ ╩ ╩ ╩═╝╩ ╚═╚═╝╝╚╝v0.1.1
  Shoot before the blink  
             by @PwnWriter
 ";
