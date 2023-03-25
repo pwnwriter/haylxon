@@ -1,7 +1,6 @@
-<img src="https://raw.githubusercontent.com/bytehunt/haylxon/showcase/hxn-art-rounded-corners.png?token=GHSAT0AAAAAACAHNZ2RR5AGAQEO2P734ABOZA5XQQA" alt="binserve logo" width="250" align="right">
+<img src="https://raw.githubusercontent.com/bytehunt/haylxon/showcase/hxn-art-rounded-corners.png?token=GHSAT0AAAAAACAHNZ2RR5AGAQEO2P734ABOZA5XQQA" alt="binserve logo" width="240" align="right">
 
 # [`Haylxon`](https://github.com/bytehunt/haylxon) 🔥🦀
-
 `SHOOT BEFORE THE BLINK` ||  [`Haylxon`](https://github.com/bytehunt/haylxon/),&nbsp; A tool embodying the [`K1SS`](https://en.wikipedia.org/wiki/KISS_principle) philosophy that allows you to take screenshots of web pages/URLs at lightning-fast speeds.
 
 Built from the ground up for ease of use, performance, beautiful ui and portability in mind. 💖
@@ -11,7 +10,7 @@ Built from the ground up for ease of use, performance, beautiful ui and portabil
 <a href="https://github.com/bytehunt/haylxon/releases"><img src="https://img.shields.io/github/v/release/bytehunt/haylxon?style=flat&amp;labelColor=56534b&amp;color=c1c1b6&amp;logo=GitHub&amp;logoColor=white" alt="GitHub Release"></a>
 <a href="https://crates.io/crates/hxn/"><img src="https://img.shields.io/crates/v/hxn?style=flat&amp;labelColor=56534b&amp;color=c1c1b6&amp;logo=Rust&amp;logoColor=white" alt="Crate Release"></a>
 <a href="https://github.com/bytehunt/haylxon/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-white.svg" alt="MIT LICENSE"></a>
-<a href="https://twitter.com/intent/tweet?text=Check%20out%20haylxon%20-%20a%20A%20blazingly%20fast%20tool%20to%20grab%20screenshots%20of%20website%2FURL%20from%20terminal%20written%20in%20Rust!%20&url=https%3A%2F%2Fgithub.com%2Fbytehunt%2Fhaylxon"><img alt="Twitter Share" src="https://img.shields.io/twitter/url/https/github.com/bytehunt/haylxon.svg?style=social"></a>
+<a href="https://twitter.com/intent/tweet?text=Guys,%20Check%20out%20haylxon%20-%20A%20blazingly%20fast%20tool%20to%20grab%20screenshots%20of%20website%2FURL%20from%20terminal%20written%20in%20Rust!%20&url=https%3A%2F%2Fgithub.com%2Fbytehunt%2Fhaylxon"><img alt="Twitter Share" src="https://img.shields.io/twitter/url/https/github.com/bytehunt/haylxon.svg?style=social"></a>
 ![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png)
 
 
@@ -19,6 +18,7 @@ Built from the ground up for ease of use, performance, beautiful ui and portabil
 
 * [`Features`](#features)
 * [`Installation`](#installation)
+* [`Hxn in Action`](#action)
 * [`Benchmarking`](#benchmarking)
 * [`Contribution`](#contribution)
 * [`License`](#license)
@@ -44,30 +44,62 @@ Built from the ground up for ease of use, performance, beautiful ui and portabil
   $ cd haylxon
   $ cargo build --release 
   ```
-  Then go to release dir and `./hxn` or move the binary to your any `$PATH` for instant access from anywhere.
+  Then go to `release` dir and `./hxn` or move the `binary` to your any `$PATH` for instant access from anywhere.
 - **Cargo**:
   ```bash
-  $ cargo install haylxon
+  $ cargo install hxn
   ```
   > Note: This requires a working setup of rust/cargo.
  
 - **Aur**:
   ```bash
-  $ paru/yay -Syy haylxon-git
+  $ paru/yay -Syyy hxn
   ```
   
 - **[Metis Linux](https://metislinux.org)**:
   ```
-  $ sudo/doas pacman -Syy hxn
+  $ sudo/doas pacman -Syyy hxn
   ```
-  ![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png)
+![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png)
   
+  
+ <a name="action"></a>
+## Hxn in action 🚀
+- Help menu
+  Hxn uses [`clap`](https://docs.rs/clap/latest/clap/) for argument parsing, no as expected clap gives a lot better help menu. The below is an ss of hxn's help menu `--help` flag.
+  
+![](https://raw.githubusercontent.com/bytehunt/haylxon/showcase/help.png)
+ 
+ - Taking ss one/many urls.🖇️
+ 
+ **It doesn't matter**, if you are parsing a `single url` or a `file` containing a list of `urls`, [`Hxn`](https://github.com/bytehunt/haylxon) will handle itself. You don't need to worry about other flags.
+ 
+   - **Single URL**
+   ```bash
+   $ hxn -u <url>
+   ```
+    
+   ![](https://raw.githubusercontent.com/bytehunt/haylxon/showcase/single.png)
+    
+   - **File containing more than one url**. 🖇️
+   ```bash
+   $ hxn -u -t <no. of tabs to open //ly> -u <url/filename> -o <outdir(default hxnshots)>   
+   ```
+    
+   ![](https://raw.githubusercontent.com/bytehunt/haylxon/showcase/many.png)
+   
+   ![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png)
+
+    
 
  <a name="benchmarking"></a>
 ## Benchmarking ⚡
   The below is a comparison between similar project [`gowitness`](https://github.com/sensepost/gowitness), tested on my [**pentium processor**](https://raw.githubusercontent.com/bytehunt/haylxon/showcase/conf.png).
   
   ![](https://raw.githubusercontent.com/bytehunt/haylxon/showcase/benchmark.png)
+  
+  ![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png)
+
   
 <a name="contribution"></a> 
 ## Contribution 🥰
@@ -88,11 +120,14 @@ Built from the ground up for ease of use, performance, beautiful ui and portabil
 ## Thanks 🌹
   A big thanks to the followings.
  - [`@rustlang`](https://rustlang.org)
+ - [`@prabuddha`](https://www.facebook.com/PrabuddhaMP4)
  - [`@Dylan Arps`](https://github.com/dylanaraps)
  - [`@catppuccin`](https://github.com/catppuccin) 
  - [`@cute-ducky`](https://github.com/Cute-Ducky) // plan9boys.
  - [`@blast`](https://github.com/joshua-mo-143)
  - and [**you**](https://github.com/bytehunt/haylxon/graphs/contributors) ❤️‍🩹
+ 
+ Similar projects : [`gowitness`](https://github.com/sensepost/gowitness), [`eyewitness`](https://github.com/FortyNorthSecurity/EyeWitness)
   
 <p align="center"><img src="https://raw.githubusercontent.com/catppuccin/catppuccin/main/assets/footers/gray0_ctp_on_line.svg?sanitize=true" /></p>
 <p align="center">Copyright &copy; 2023<a href="https://github.com/bytehunt" target="_blank"> bytehunt io ☘️ </a> 
