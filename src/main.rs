@@ -38,6 +38,9 @@ struct Cli {
     #[arg(short, long, default_value = "4")]
     /// Maximum number of parallel tabs
     tabs: Option<usize>,
+
+    #[arg(short, long, default_value = "/usr/bin/chrome")]
+    binary_path: String,
 }
 
 #[tokio::main]
@@ -45,7 +48,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     println!("{RED}{}{RESET}", HXN);
     let cli = Cli::parse();
 
-    run(cli.url, Some(cli.outdir), cli.tabs)
+    run(cli.url, Some(cli.outdir), cli.tabs, cli.binary_path)
         .await
         .expect("An error occurred while running :(");
 
@@ -56,6 +59,7 @@ async fn run(
     url: String,
     outdir: Option<String>,
     tabs: Option<usize>,
+    binary_path: String,
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let outdir = match outdir {
         Some(dir) => dir,
@@ -66,6 +70,7 @@ async fn run(
         BrowserConfig::builder()
             .no_sandbox()
             .window_size(1440, 900)
+            .chrome_executable(Path::new(&binary_path))
             .viewport(Viewport {
                 width: 1440,
                 height: 900,
