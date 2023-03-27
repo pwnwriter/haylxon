@@ -40,40 +40,52 @@ struct Cli {
     tabs: Option<usize>,
 
     #[arg(short, long, default_value = "/usr/bin/chrome")]
+    /// Browser binary path
     binary_path: String,
-}
 
+    #[arg(long, default_value = "1440")]
+    /// Width of the website // URL
+    width: Option<u32>,
+   
+    #[arg(long, default_value = "900")]
+    /// Height of the website // URL 
+    height: Option<u32>,
+}
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     println!("{CYAN}{}{RESET}", HXN);
     let cli = Cli::parse();
 
-    run(cli.url, Some(cli.outdir), cli.tabs, cli.binary_path)
+    run(cli.url, Some(cli.outdir), cli.tabs, cli.binary_path, cli.width, cli.height)
         .await
         .expect("An error occurred while running :(");
 
     Ok(())
 }
-
 async fn run(
     url: String,
     outdir: Option<String>,
     tabs: Option<usize>,
     binary_path: String,
+    width: Option<u32>,
+    height: Option<u32>,
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let outdir = match outdir {
         Some(dir) => dir,
         None => "hxnshots".to_string(),
     };
 
+    let viewport_width = width.unwrap_or(1440);
+    let viewport_height = height.unwrap_or(900);
+
     let (browser, mut handler) = Browser::launch(
         BrowserConfig::builder()
             .no_sandbox()
-            .window_size(1440, 900)
+            .window_size(viewport_width, viewport_height)
             .chrome_executable(Path::new(&binary_path))
             .viewport(Viewport {
-                width: 1440,
-                height: 900,
+                width: viewport_width,
+                height: viewport_height,
                 device_scale_factor: None,
                 emulating_mobile: false,
                 is_landscape: false,
@@ -82,7 +94,7 @@ async fn run(
             .build()?,
     )
     .await?;
-
+    
     let _handle = tokio::task::spawn(async move {
         loop {
             let _ = handler.next().await;
