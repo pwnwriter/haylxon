@@ -1,4 +1,4 @@
-<img src="https://raw.githubusercontent.com/pwnwriter/haylxon/showcase/hxn-art-rounded-corners.png?token=GHSAT0AAAAAACAHNZ2RR5AGAQEO2P734ABOZA5XQQA" alt="binserve logo" width="240" align="right">
+<img src="https://raw.githubusercontent.com/pwnwriter/haylxon/showcase/hxn-transparent.png" alt="binserve logo" width="240" align="right">
 
 # [`Haylxon`](https://github.com/pwnwriter/haylxon) 🔥🦀
 `SHOOT BEFORE THE BLINK` ||  [`Haylxon`](https://github.com/pwnwriter/haylxon/),&nbsp; A tool embodying the [`K1SS`](https://en.wikipedia.org/wiki/KISS_principle) philosophy that allows you to take screenshots of `webpages/URLs` at lightning-fast speeds.
