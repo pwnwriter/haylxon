@@ -42,7 +42,7 @@ struct Cli {
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-    println!("{RED}{}{RESET}", HXN);
+    println!("{CYAN}{}{RESET}", HXN);
     let cli = Cli::parse();
 
     run(cli.url, Some(cli.outdir), cli.tabs)
