@@ -40,7 +40,7 @@ Built from the ground up for ease of use, performance, beautiful ui and portabil
   You can directly download [`binary`](https://github.com/pwnwriter/haylxon/releases/) and run it.
 - **Source**:
   ```bash
-  $ git clone --depth=1 https://github.com/pwnwriter/haylxon 
+  $ git clone --depth=1 https://github.com/pwnwriter/haylxon --branch=main
   $ cd haylxon
   $ cargo build --release 
   ```
@@ -87,12 +87,21 @@ Built from the ground up for ease of use, performance, beautiful ui and portabil
     
    - **File containing more than one url**. 🖇️
    ```bash
-   $ hxn -u -t <no. of tabs to open //ly> -u <url/filename> -o <outdir(default hxnshots)>   
+   $ hxn -b <browserbin> -t <no. of tabs to open //ly> -u <url/filename> -o <outdir(default hxnshots)>
    ```
     
-   ![](https://raw.githubusercontent.com/pwnwriter/haylxon/showcase/many.png)
+   ![](https://raw.githubusercontent.com/pwnwriter/haylxon/showcase/v0.1.2/many.png)
    
    ![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png)
+
+  - **Define x/y** 🐣
+   The latest release has an option to set `height`, `width` and `--silent` option.
+   
+   ```bash
+   $ hxn --height <height> --width <widht> --silent -url <url>
+   ```
+    
+   ![](https://raw.githubusercontent.com/pwnwriter/haylxon/showcase/v0.1.2/feature.png)
 
     
 
@@ -134,5 +143,5 @@ Built from the ground up for ease of use, performance, beautiful ui and portabil
  Similar projects : [`gowitness`](https://github.com/sensepost/gowitness), [`eyewitness`](https://github.com/FortyNorthSecurity/EyeWitness)
   
 <p align="center"><img src="https://raw.githubusercontent.com/catppuccin/catppuccin/main/assets/footers/gray0_ctp_on_line.svg?sanitize=true" /></p>
-<p align="center">Copyright &copy; 2023<a href="https://pwnwriter.xyz" target="_blank"> pwnwriter ☘️ </a> 
+<p align="center">Copyright &copy; 2023<a href="https://pwnwriter.xyz" target="_blank"> pwnwriter xyz ☘️ </a> 
   
