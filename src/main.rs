@@ -46,9 +46,9 @@ struct Cli {
     #[arg(long, default_value = "1440")]
     /// Width of the website // URL
     width: Option<u32>,
-   
+
     #[arg(long, default_value = "900")]
-    /// Height of the website // URL 
+    /// Height of the website // URL
     height: Option<u32>,
     #[arg(long)]
     /// Silent mode (suppress all console output)
@@ -56,12 +56,22 @@ struct Cli {
 }
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-    println!("{CYAN}{}{RESET}", HXN);
     let cli = Cli::parse();
+    if !cli.silent {
+        println!("{CYAN}{}{RESET}", HXN);
+    }
 
-    run(cli.url, Some(cli.outdir), cli.tabs, cli.binary_path, cli.width, cli.height, cli.silent)
-        .await
-        .expect("An error occurred while running :(");
+    run(
+        cli.url,
+        Some(cli.outdir),
+        cli.tabs,
+        cli.binary_path,
+        cli.width,
+        cli.height,
+        cli.silent,
+    )
+    .await
+    .expect("An error occurred while running :(");
 
     Ok(())
 }
@@ -73,7 +83,6 @@ async fn run(
     width: Option<u32>,
     height: Option<u32>,
     silent: bool,
-
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let outdir = match outdir {
         Some(dir) => dir,
@@ -99,7 +108,7 @@ async fn run(
             .build()?,
     )
     .await?;
-    
+
     let _handle = tokio::task::spawn(async move {
         loop {
             let _ = handler.next().await;
@@ -140,7 +149,7 @@ async fn run(
 
     for chunk in url_chunks {
         let n_tab = browser.new_page("about:blank").await?;
-        let h = tokio::spawn(take_screenshots(n_tab, chunk));
+        let h = tokio::spawn(take_screenshots(n_tab, chunk, silent));
         handles.push(h);
     }
 
@@ -150,14 +159,7 @@ async fn run(
             .expect("Something went wrong while waiting for taking screenshot and saving to file");
     }
 
-    
-    if !silent {
-        println!(
-            "{} {GREEN}Haylxon - Screenshot Utility{RESET} {}",
-            BAR, BAR)}
-
-
-    println!("{RED} {GREEN} {YELLOW_BRIGHT}Thanks for using Haylxon {RED} {GREEN}{RESET}");
+    println!("{RED}♥ {GREEN} {YELLOW_BRIGHT}Yoo 1337!! Screenshots saved in dir {outdir}{RED} ♥ {GREEN}{RESET} ");
 
     Ok(())
 }
@@ -165,6 +167,7 @@ async fn run(
 async fn take_screenshots(
     page: Page,
     urls: Vec<reqwest::Url>,
+    silent: bool,
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     for url in urls {
         let url = url.as_str();
@@ -195,7 +198,9 @@ async fn take_screenshots(
             ])
             .set_tabsize(0)
             .make_columns();
-            println!("{_info}");
+            if !silent {
+                println!("{_info}");
+            }
         } else {
             println!("{RED}[-] Timed out URL={YELLOW}{}", url);
         }
