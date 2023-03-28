@@ -40,40 +40,63 @@ struct Cli {
     tabs: Option<usize>,
 
     #[arg(short, long, default_value = "/usr/bin/chrome")]
+    /// Browser binary path
     binary_path: String,
-}
 
+    #[arg(long, default_value = "1440")]
+    /// Width of the website // URL
+    width: Option<u32>,
+
+    #[arg(long, default_value = "900")]
+    /// Height of the website // URL
+    height: Option<u32>,
+    #[arg(long)]
+    /// Silent mode (suppress all console output)
+    silent: bool,
+}
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-    println!("{RED}{}{RESET}", HXN);
+    println!("{CYAN}{}{RESET}", HXN);
     let cli = Cli::parse();
-
-    run(cli.url, Some(cli.outdir), cli.tabs, cli.binary_path)
-        .await
-        .expect("An error occurred while running :(");
+    run(
+        cli.url,
+        Some(cli.outdir),
+        cli.tabs,
+        cli.binary_path,
+        cli.width,
+        cli.height,
+        cli.silent,
+    )
+    .await
+    .expect("An error occurred while running :(");
 
     Ok(())
 }
-
 async fn run(
     url: String,
     outdir: Option<String>,
     tabs: Option<usize>,
     binary_path: String,
+    width: Option<u32>,
+    height: Option<u32>,
+    silent: bool,
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let outdir = match outdir {
         Some(dir) => dir,
         None => "hxnshots".to_string(),
     };
 
+    let viewport_width = width.unwrap_or(1440);
+    let viewport_height = height.unwrap_or(900);
+
     let (browser, mut handler) = Browser::launch(
         BrowserConfig::builder()
             .no_sandbox()
-            .window_size(1440, 900)
+            .window_size(viewport_width, viewport_height)
             .chrome_executable(Path::new(&binary_path))
             .viewport(Viewport {
-                width: 1440,
-                height: 900,
+                width: viewport_width,
+                height: viewport_height,
                 device_scale_factor: None,
                 emulating_mobile: false,
                 is_landscape: false,
@@ -123,7 +146,7 @@ async fn run(
 
     for chunk in url_chunks {
         let n_tab = browser.new_page("about:blank").await?;
-        let h = tokio::spawn(take_screenshots(n_tab, chunk));
+        let h = tokio::spawn(take_screenshots(n_tab, chunk, silent));
         handles.push(h);
     }
 
@@ -133,7 +156,7 @@ async fn run(
             .expect("Something went wrong while waiting for taking screenshot and saving to file");
     }
 
-    println!("{RED} {GREEN} {YELLOW_BRIGHT}Thanks for using Haylxon {RED} {GREEN}{RESET}");
+    println!("{RED}♥ {GREEN} {YELLOW_BRIGHT}Yoo 1337!! Screenshots saved in dir {outdir}{RED} ♥ {GREEN}{RESET} ");
 
     Ok(())
 }
@@ -141,11 +164,11 @@ async fn run(
 async fn take_screenshots(
     page: Page,
     urls: Vec<reqwest::Url>,
+    silent: bool,
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     for url in urls {
         let url = url.as_str();
         if let Ok(Ok(_res)) = timeout(Duration::from_secs(10), get(url)).await {
-            // Thanks to swanandx for this
             let filename = url.replace("://", "-").replace('/', "_") + ".png";
             page.goto(url)
                 .await?
@@ -161,19 +184,21 @@ async fn take_screenshots(
                 format!("{RESET}").split('\n').collect::<Vec<&str>>(),
                 vec![
                     &format!("{BLUE}{BAR}"),
-                    &format!("{GREEN}[{CYAN}  {GREEN}] URL={GREEN}{}", url),
+                    &format!("{GREEN}[{CYAN}  {GREEN}] URL={GREEN}{}", url),
                     &format!(
-                        "{BLUE}[{CYAN}  {YELLOW}] Title={GREEN}{}",
+                        "{BLUE}[{CYAN}  {YELLOW}] Title={GREEN}{}",
                         page.get_title().await?.unwrap_or_default()
                     ),
-                    &format!("{BLUE}[{CYAN}  {YELLOW}] Status={GREEN}{}", _res.status()),
+                    &format!("{BLUE}[{CYAN} ﯜ {YELLOW}] Status={GREEN}{}", _res.status()),
                 ],
             ])
             .set_tabsize(0)
             .make_columns();
-            println!("{_info}");
+            if !silent {
+                println!("{_info}");
+            }
         } else {
-            println!("{RED}[-] Timed out URL={YELLOW}{}", url);
+            println!("{RED}[-] Timed out URL = {YELLOW}{}", url);
         }
     }
 
