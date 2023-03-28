@@ -66,20 +66,24 @@ Built from the ground up for ease of use, performance, beautiful ui and portabil
  <a name="action"></a>
 ## Hxn in action 🚀
 - Help menu :
-  [`Hxn`](https://github.com/pwnwriter/haylxon) utilizes [`clap`](https://docs.rs/clap/latest/clap/) for argument parsing. As expected, `clap` provides a much-improved help menu. The screenshot     below shows Hxn's help menu when the `--help` flag is used.
+  [`Hxn`](https://github.com/pwnwriter/haylxon) utilizes [`clap`](https://docs.rs/clap/latest/clap/) for argument parsing. As expected, `clap` provides a much-improved help menu. The screenshot     below shows Hxn's help menu when the  `-h` flag is used. 
   
-![](https://raw.githubusercontent.com/pwnwriter/haylxon/showcase/help.png)
+  > use `--help` for full menu.
+  
+ ![](https://raw.githubusercontent.com/pwnwriter/haylxon/showcase/v0.1.2/help.png)
  
- - Taking ss one/many urls.🖇️
+ - Taking screenshots of one/many urls.🖇️
  
  **It doesn't matter**, if you are parsing a `single url` or a `file` containing a list of `urls`, [`Hxn`](https://github.com/pwnwriter/haylxon) will handle itself. You don't need to worry about other flags.
- 
-   - **Single URL**
+  
+  `v0.1.2` has an option to define `browser binary` [`#pr`](https://github.com/pwnwriter/haylxon/pull/8), by default it uses `/usr/bin/chrome`.
+  
+  - **Single URL**
    ```bash
-   $ hxn -u <url>
+   $ hxn -b $(which <browserbin>) -u <url> 
    ```
     
-   ![](https://raw.githubusercontent.com/pwnwriter/haylxon/showcase/single.png)
+   ![](https://raw.githubusercontent.com/pwnwriter/haylxon/showcase/v0.1.2/single.png)
     
    - **File containing more than one url**. 🖇️
    ```bash
