@@ -56,11 +56,8 @@ struct Cli {
 }
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    println!("{CYAN}{}{RESET}", HXN);
     let cli = Cli::parse();
-    if !cli.silent {
-        println!("{CYAN}{}{RESET}", HXN);
-    }
-
     run(
         cli.url,
         Some(cli.outdir),
@@ -188,12 +185,12 @@ async fn take_screenshots(
                 format!("{RESET}").split('\n').collect::<Vec<&str>>(),
                 vec![
                     &format!("{BLUE}{BAR}"),
-                    &format!("{GREEN}[{CYAN}  {GREEN}] URL={GREEN}{}", url),
+                    &format!("{GREEN}[{CYAN}  {GREEN}] URL={GREEN}{}", url),
                     &format!(
-                        "{BLUE}[{CYAN}  {YELLOW}] Title={GREEN}{}",
+                        "{BLUE}[{CYAN}  {YELLOW}] Title={GREEN}{}",
                         page.get_title().await?.unwrap_or_default()
                     ),
-                    &format!("{BLUE}[{CYAN}  {YELLOW}] Status={GREEN}{}", _res.status()),
+                    &format!("{BLUE}[{CYAN} ﯜ {YELLOW}] Status={GREEN}{}", _res.status()),
                 ],
             ])
             .set_tabsize(0)
