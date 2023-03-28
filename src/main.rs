@@ -169,7 +169,6 @@ async fn take_screenshots(
     for url in urls {
         let url = url.as_str();
         if let Ok(Ok(_res)) = timeout(Duration::from_secs(10), get(url)).await {
-            // Thanks to swanandx for this
             let filename = url.replace("://", "-").replace('/', "_") + ".png";
             page.goto(url)
                 .await?
@@ -199,7 +198,7 @@ async fn take_screenshots(
                 println!("{_info}");
             }
         } else {
-            println!("{RED}[-] Timed out URL={YELLOW}{}", url);
+            println!("{RED}[-] Timed out URL = {YELLOW}{}", url);
         }
     }
 
