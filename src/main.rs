@@ -50,13 +50,16 @@ struct Cli {
     #[arg(long, default_value = "900")]
     /// Height of the website // URL 
     height: Option<u32>,
+    #[arg(long)]
+    /// Silent mode (suppress all console output)
+    silent: bool,
 }
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     println!("{CYAN}{}{RESET}", HXN);
     let cli = Cli::parse();
 
-    run(cli.url, Some(cli.outdir), cli.tabs, cli.binary_path, cli.width, cli.height)
+    run(cli.url, Some(cli.outdir), cli.tabs, cli.binary_path, cli.width, cli.height, cli.silent)
         .await
         .expect("An error occurred while running :(");
 
@@ -69,6 +72,8 @@ async fn run(
     binary_path: String,
     width: Option<u32>,
     height: Option<u32>,
+    silent: bool,
+
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let outdir = match outdir {
         Some(dir) => dir,
@@ -144,6 +149,13 @@ async fn run(
             .await?
             .expect("Something went wrong while waiting for taking screenshot and saving to file");
     }
+
+    
+    if !silent {
+        println!(
+            "{} {GREEN}Haylxon - Screenshot Utility{RESET} {}",
+            BAR, BAR)}
+
 
     println!("{RED} {GREEN} {YELLOW_BRIGHT}Thanks for using Haylxon {RED} {GREEN}{RESET}");
 
