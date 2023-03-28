@@ -40,7 +40,7 @@ Built from the ground up for ease of use, performance, beautiful ui and portabil
   You can directly download [`binary`](https://github.com/pwnwriter/haylxon/releases/) and run it.
 - **Source**:
   ```bash
-  $ git clone --depth=1 https://github.com/pwnwriter/haylxon 
+  $ git clone --depth=1 https://github.com/pwnwriter/haylxon --branch=main
   $ cd haylxon
   $ cargo build --release 
   ```
@@ -66,29 +66,42 @@ Built from the ground up for ease of use, performance, beautiful ui and portabil
  <a name="action"></a>
 ## Hxn in action 🚀
 - Help menu :
-  [`Hxn`](https://github.com/pwnwriter/haylxon) utilizes [`clap`](https://docs.rs/clap/latest/clap/) for argument parsing. As expected, `clap` provides a much-improved help menu. The screenshot     below shows Hxn's help menu when the `--help` flag is used.
+  [`Hxn`](https://github.com/pwnwriter/haylxon) utilizes [`clap`](https://docs.rs/clap/latest/clap/) for argument parsing. As expected, `clap` provides a much-improved help menu. The screenshot     below shows Hxn's help menu when the  `-h` flag is used. 
   
-![](https://raw.githubusercontent.com/pwnwriter/haylxon/showcase/help.png)
+  > use `--help` for full menu.
+  
+ ![](https://raw.githubusercontent.com/pwnwriter/haylxon/showcase/v0.1.2/help.png)
  
- - Taking ss one/many urls.🖇️
+ - Taking screenshots of one/many urls.🖇️
  
  **It doesn't matter**, if you are parsing a `single url` or a `file` containing a list of `urls`, [`Hxn`](https://github.com/pwnwriter/haylxon) will handle itself. You don't need to worry about other flags.
- 
-   - **Single URL**
+  
+  `v0.1.2` has an option to define `browser binary` [`#pr`](https://github.com/pwnwriter/haylxon/pull/8), by default it uses `/usr/bin/chrome`.
+  
+  - **Single URL**
    ```bash
-   $ hxn -u <url>
+   $ hxn -b $(which <browserbin>) -u <url> 
    ```
     
-   ![](https://raw.githubusercontent.com/pwnwriter/haylxon/showcase/single.png)
+   ![](https://raw.githubusercontent.com/pwnwriter/haylxon/showcase/v0.1.2/single.png)
     
    - **File containing more than one url**. 🖇️
    ```bash
-   $ hxn -u -t <no. of tabs to open //ly> -u <url/filename> -o <outdir(default hxnshots)>   
+   $ hxn -b <browserbin> -t <no. of tabs to open //ly> -u <url/filename> -o <outdir(default hxnshots)>
    ```
     
-   ![](https://raw.githubusercontent.com/pwnwriter/haylxon/showcase/many.png)
+   ![](https://raw.githubusercontent.com/pwnwriter/haylxon/showcase/v0.1.2/many.png)
    
    ![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png)
+
+  - **Define x/y** 🐣
+   The latest release has an option to set `height`, `width` and `--silent` option.
+   
+   ```bash
+   $ hxn --height <height> --width <widht> --silent -url <url>
+   ```
+    
+   ![](https://raw.githubusercontent.com/pwnwriter/haylxon/showcase/v0.1.2/feature.png)
 
     
 
@@ -130,5 +143,5 @@ Built from the ground up for ease of use, performance, beautiful ui and portabil
  Similar projects : [`gowitness`](https://github.com/sensepost/gowitness), [`eyewitness`](https://github.com/FortyNorthSecurity/EyeWitness)
   
 <p align="center"><img src="https://raw.githubusercontent.com/catppuccin/catppuccin/main/assets/footers/gray0_ctp_on_line.svg?sanitize=true" /></p>
-<p align="center">Copyright &copy; 2023<a href="https://pwnwriter.xyz" target="_blank"> pwnwriter ☘️ </a> 
+<p align="center">Copyright &copy; 2023<a href="https://pwnwriter.xyz" target="_blank"> pwnwriter xyz ☘️ </a> 
   
