@@ -81,6 +81,13 @@ async fn run(
     height: Option<u32>,
     silent: bool,
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+        // Check if the browser binary path is valid
+    if !Path::new(&binary_path).exists() {
+        println!("{RED}[   ]Browser binary not found at path {}, You should try manually pasing the binary path !!{RESET}", binary_path);
+        println!("{BLUE}[ ﯦ  ]{RESET}{CYAN} $ hxn -b $(which brave) <url> or use --help flag");
+        std::process::exit(0);
+
+    }
     let outdir = match outdir {
         Some(dir) => dir,
         None => "hxnshots".to_string(),
@@ -204,3 +211,4 @@ async fn take_screenshots(
 
     Ok(())
 }
+
