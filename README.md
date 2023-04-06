@@ -29,7 +29,7 @@ Built from the ground up for ease of use, performance, beautiful ui and portabil
 <a name="features"></a>
 ## Features 🍙
 - **Fast**: [`Hxn`](https://github.com/pwnwriter/haylxon) is designed to be fast, all credits goes to the [`rustlang`](https://rust-lang.org). 🦀
-- **Portable**: You can use [`haylxon`](https://github.com/pwnwriter/haylxon/) on both [`Linux`](https://en.wikipedia.org/wiki/Linux) & [`windows`](https://en.wikipedia.org/wiki/Microsoft_Windows).
+- **Portable**: You can use [`haylxon`](https://github.com/pwnwriter/haylxon/) on both [`*nix`](https://en.wikipedia.org/wiki/Linux) & [`windows`](https://en.wikipedia.org/wiki/Microsoft_Windows).
 - **Ease**: This tool is designed to be very user friendly as there are very few options but does all the required works that one expects.👨‍🎨
 - **Simple**: As always [`Keeping It Simple and Stupid`](https://en.wikipedia.org/wiki/KISS_principle) 💋
  
