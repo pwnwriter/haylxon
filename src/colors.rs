@@ -9,6 +9,6 @@ pub const YELLOW: &str = "\x1B[32m"; //( bright, medium yellow color)
 pub const YELLOW_BRIGHT: &str = "\x1B[93m"; //( very bright, light yellow color)
 pub const RESET: &str = "\x1B[0m"; //( resets the text color to the default)
 
-// unused colors rn :- 
-                                    //pub const MAGENTAA: &str = "\x1b[35m"; //( bright, medium pinkish-purple color)
-                                    //pub const WHITE: &str = "\x1B[37m"; //( bright, pale gray color)
+// unused colors rn :-
+//pub const MAGENTAA: &str = "\x1b[35m"; //( bright, medium pinkish-purple color)
+//pub const WHITE: &str = "\x1B[37m"; //( bright, pale gray color)

@@ -72,6 +72,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
 
     Ok(())
 }
+
+fn exit_on_error() {
+    std::process::exit(0);
+}
+
 async fn run(
     url: String,
     outdir: Option<String>,
@@ -81,12 +86,11 @@ async fn run(
     height: Option<u32>,
     silent: bool,
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-        // Check if the browser binary path is valid
+    // Check if the browser binary path is valid
     if !Path::new(&binary_path).exists() {
         println!("{RED}[   ]Browser binary not found at path {}, You should try manually pasing the binary path !!{RESET}", binary_path);
         println!("{BLUE}[ ﯦ  ]{RESET}{CYAN} $ hxn -b $(which brave) <url> or use --help flag");
-        std::process::exit(0);
-
+        exit_on_error();
     }
     let outdir = match outdir {
         Some(dir) => dir,
@@ -161,6 +165,7 @@ async fn run(
         handle
             .await?
             .expect("Something went wrong while waiting for taking screenshot and saving to file");
+        exit_on_error();
     }
 
     println!("{RED}♥ {GREEN} {YELLOW_BRIGHT}Yoo 1337!! Screenshots saved in dir {outdir}{RED} ♥ {GREEN}{RESET} ");
@@ -211,4 +216,3 @@ async fn take_screenshots(
 
     Ok(())
 }
-
