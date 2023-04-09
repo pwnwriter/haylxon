@@ -36,15 +36,22 @@ Built from the ground up for ease of use, performance, beautiful ui and portabil
 
 <a name="installation"></a>
  ## Installation 📩
+  
 - **Binary**:
   You can directly download [`binary`](https://github.com/pwnwriter/haylxon/releases/) and run it.
+
 - **Source**:
-  ```bash
+
+> To receive the most up-to-date updates, please utilize this method. I will only push updates through an alternative method if and only when I have stable code.
+
+```bash
   $ git clone --depth=1 https://github.com/pwnwriter/haylxon --branch=main
   $ cd haylxon
   $ cargo build --release 
   ```
   Then go to `release` dir and `./hxn` or move the `binary` to your any `$PATH` for instant access from anywhere.
+
+ 
 - **Cargo**:
   ```bash
   $ cargo install hxn
