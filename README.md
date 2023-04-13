@@ -43,8 +43,9 @@ Built from the ground up for ease of use, performance, beautiful ui and portabil
 - **Binary**:
   You can directly download [`binary`](https://github.com/pwnwriter/haylxon/releases/) and run it.
 
-- **Source**:
-
+- **Source**: `Recommended ++++`
+ 
+> **Note**
 > To receive the most up-to-date updates, please utilize this method. I will only push updates through an alternative method if and only when I have stable code.
 
 ```bash
@@ -59,7 +60,8 @@ Built from the ground up for ease of use, performance, beautiful ui and portabil
   ```bash
   $ cargo install hxn
   ```
-  > Note: This requires a working setup of rust/cargo.
+  > **Note** 
+  > This requires a working setup of rust/cargo.
  
 - **Aur**:
   ```bash
