@@ -1,12 +1,12 @@
 [package]
 name = "hxn"
-version = "0.1.4"
+version = "0.1.5"
 edition = "2021"
 authors = [ "PwnWriter < hey@pwnwriter.xyz >" ]
 description = "Blazingly fast tool to grab screenshots of url/webpages from terminal."
 readme = "README.md"
-repository = "https://github.com/bytehunt/haylxon"
-homepage = "https://github.com/bytehunt/haylxon.git"
+repository = "https://github.com/pwnwriter/haylxon"
+homepage = "https://github.com/pwnwriter/haylxon.git"
 license = "MIT"
 keywords = ["screenshots", "bug-bounty", "recon", "pwn", "OSINT" ]
 categories = ["accessibility", "web-programming", "command-line" ]
@@ -19,7 +19,7 @@ reqwest = "0.11.14"
 tokio = { version = "1.26.0", features = ["full"] }
 chromiumoxide = {  version = "0.5.0", features = ["tokio-runtime"], default-features = false }
 futures = "0.3.27"
-clap = { version = "4.1.11", features = ["derive"] }
+clap = { version = "4.2.4", features = ["derive"] }
 columns = "0.1.0"
 
 [profile.dev]
