@@ -41,29 +41,26 @@ struct Cli {
     /// Maximum number of parallel tabs
     tabs: Option<usize>,
 
-    #[arg(short, long, default_value = "/usr/bin/chrome")]
+    #[arg(short, long, default_value = "/usr/bin/google-chrome")]
     /// Browser binary path
     binary_path: String,
 
-    #[arg(short='x', long, default_value = "1440")]
+    #[arg(short = 'x', long, default_value = "1440")]
     /// Width of the website // URL
     width: Option<u32>,
 
-    #[arg( short='y', long, default_value = "900")]
+    #[arg(short = 'y', long, default_value = "900")]
     /// Height of the website // URL
     height: Option<u32>,
 
-    #[arg(short,long)]
+    #[arg(short, long)]
     /// Silent mode (suppress all console output)
     silent: bool,
 }
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    println!("{CYAN}{}{RESET}", HXN);
     let cli = Cli::parse();
-        if !cli.silent {
-        // Show the banner if silent mode is not enabled
-        println!("{CYAN}{}{RESET}", HXN);
-    }
     run(
         cli.url,
         Some(cli.outdir),
@@ -173,7 +170,9 @@ async fn run(
             .expect("Something went wrong while waiting for taking screenshot and saving to file");
     }
 
-    println!("{RED}♥ {GREEN} {YELLOW_BRIGHT}Screenshots saved in dir {outdir}{RED} ♥ {GREEN}{RESET} ");
+    println!(
+        "{RED}♥ {GREEN} {YELLOW_BRIGHT}Screenshots saved in dir {outdir}{RED} ♥ {GREEN}{RESET} "
+    );
 
     Ok(())
 }
