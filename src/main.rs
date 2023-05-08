@@ -168,7 +168,9 @@ async fn run(
         handle
             .await?
             .expect("Something went wrong while waiting for taking screenshot and saving to file");
-    }
+    } 
+
+    exit_on_error();
 
     println!(
         "{RED}♥ {GREEN} {YELLOW_BRIGHT}Screenshots saved in dir {outdir}{RED} ♥ {GREEN}{RESET} "
