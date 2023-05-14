@@ -65,7 +65,7 @@ Built from the ground up for ease of use, performance, beautiful ui and portabil
  
 - **Aur**:
   ```bash
-  $ paru/yay -Syyy hxn
+  $ paru/yay -Syyy haylxon
   ```
   
 - **[Metis Linux](https://metislinux.org)**:
