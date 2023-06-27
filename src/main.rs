@@ -1,3 +1,5 @@
+mod args;
+use args::*;
 mod colors;
 use colors::*;
 mod ascii;
@@ -26,37 +28,6 @@ use clap::Parser;
 
 use columns::Columns;
 
-#[derive(Parser)]
-#[command(author, version, about, long_about = "None")]
-struct Cli {
-    #[arg(short, long)]
-    /// Website URL/filename of file containing URLs
-    url: String,
-
-    #[arg(short, long, default_value = "hxnshots")]
-    /// Output directory to save screenshots
-    outdir: String,
-
-    #[arg(short, long, default_value = "4")]
-    /// Maximum number of parallel tabs
-    tabs: Option<usize>,
-
-    #[arg(short, long, default_value = "/usr/bin/google-chrome")]
-    /// Browser binary path
-    binary_path: String,
-
-    #[arg(short = 'x', long, default_value = "1440")]
-    /// Width of the website // URL
-    width: Option<u32>,
-
-    #[arg(short = 'y', long, default_value = "900")]
-    /// Height of the website // URL
-    height: Option<u32>,
-
-    #[arg(short, long)]
-    /// Silent mode (suppress all console output)
-    silent: bool,
-}
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     println!("{CYAN}{}{RESET}", HXN);
@@ -168,7 +139,7 @@ async fn run(
         handle
             .await?
             .expect("Something went wrong while waiting for taking screenshot and saving to file");
-    } 
+    }
 
     exit_on_error();
 
