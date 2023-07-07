@@ -1,7 +1,7 @@
 use clap::Parser;
 
 #[derive(Parser)]
-#[command(author, version, about, long_about = "None")]
+#[command(author, version, about, long_about = "Grab screenshots of your domain list right from terminal.")]
 pub struct Cli {
     #[arg(short, long)]
     /// Website URL/filename of file containing URLs
