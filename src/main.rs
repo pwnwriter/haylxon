@@ -39,6 +39,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         cli.binary_path,
         cli.width,
         cli.height,
+        cli.timeout_value,
         cli.silent,
     )
     .await
@@ -58,6 +59,7 @@ async fn run(
     binary_path: String,
     width: Option<u32>,
     height: Option<u32>,
+    timeout_value: u64,
     silent: bool,
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     // Check if the browser binary path is valid
@@ -131,7 +133,7 @@ async fn run(
 
     for chunk in url_chunks {
         let n_tab = browser.new_page("about:blank").await?;
-        let h = tokio::spawn(take_screenshots(n_tab, chunk, silent));
+        let h = tokio::spawn(take_screenshots(n_tab, chunk, silent, timeout_value));
         handles.push(h);
     }
 
@@ -154,10 +156,11 @@ async fn take_screenshots(
     page: Page,
     urls: Vec<reqwest::Url>,
     silent: bool,
+    timeout_value: u64,
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     for url in urls {
         let url = url.as_str();
-        if let Ok(Ok(_res)) = timeout(Duration::from_secs(10), get(url)).await {
+        if let Ok(Ok(_res)) = timeout(Duration::from_secs(timeout_value), get(url)).await {
             let filename = url.replace("://", "-").replace('/', "_") + ".png";
             page.goto(url)
                 .await?

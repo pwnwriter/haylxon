@@ -27,7 +27,12 @@ pub struct Cli {
     /// Height of the website // URL
     pub height: Option<u32>,
 
+    #[arg(short = 'k', long, default_value = "10")]
+    /// Define timeout for urls
+    pub timeout_value: u64,
+
     #[arg(short, long)]
     /// Silent mode (suppress all console output)
     pub silent: bool,
+
 }
