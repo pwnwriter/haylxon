@@ -84,21 +84,17 @@ pub async fn run(
                     // Read URLs from file
                     let file = std::fs::File::open(url)?;
                     let lines = BufReader::new(file).lines().map_while(Result::ok);
-                    urls = lines.collect(); // Assign the collected lines to 'urls'
+                    urls = lines.collect();
                 } else {
                     // URL is a single URL
-                    urls = vec![url.clone()]; // Assign the single URL to 'urls'
+                    urls = vec![url.clone()]; 
                 }
             } else {
-                // Handle the case where 'url' is None (you can decide what to do in this case)
-                // For now, let's assume it's an empty vector
                 urls = vec![];
             }
         }
 
         _ => {
-            // Handle other cases if needed
-            // For now, let's assume it's an empty vector
             urls = vec![];
         }
     }
