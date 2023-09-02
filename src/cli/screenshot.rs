@@ -1,4 +1,4 @@
-use crate::colors::*;
+use crate::cli::ascii::{BAR, RESET};
 use crate::log::error;
 use chromiumoxide::browser::{Browser, BrowserConfig};
 use chromiumoxide::handler::viewport::Viewport;
@@ -70,7 +70,7 @@ pub async fn run(
         fs::create_dir(&outdir).await?;
     }
 
-    let urls: Vec<String>; // Define the 'urls' variable outside the match statement
+    let urls: Vec<String>;
 
     #[allow(unreachable_patterns)]
     match stdin {
@@ -156,16 +156,14 @@ async fn take_screenshots(
                 )
                 .await?;
 
+            #[allow(clippy::useless_format)]
             let _info = Columns::from(vec![
                 format!("{RESET}").split('\n').collect::<Vec<&str>>(),
                 vec![
-                    &format!("{BLUE}"),
-                    &format!("{GREEN}[{CYAN}  {GREEN}] URL={GREEN}{}", url),
-                    &format!(
-                        "{BLUE}[{CYAN}  {YELLOW}] Title={GREEN}{}",
-                        page.get_title().await?.unwrap_or_default()
-                    ),
-                    &format!("{BLUE}[{CYAN} ﯜ {YELLOW}] Status={GREEN}{}", _res.status()),
+                    &format!("{BAR}"),
+                    &format!(" URL = {}", url),
+                    &format!("Title = {}", page.get_title().await?.unwrap_or_default()),
+                    &format!("Status = {}", _res.status()),
                 ],
             ])
             .set_tabsize(0)
@@ -174,7 +172,7 @@ async fn take_screenshots(
                 println!("{_info}");
             }
         } else {
-            println!("{RED}[-] Timed out URL = {YELLOW}{}", url);
+            println!("[-] Timed out URL = {}", url);
         }
     }
 

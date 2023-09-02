@@ -1,7 +1,6 @@
 mod cli;
 mod log;
 use cli::args;
-mod colors;
 use clap::Parser;
 
 #[tokio::main]
