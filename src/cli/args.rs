@@ -1,11 +1,14 @@
+use crate::cli::splash;
 use clap::Parser;
 
 #[derive(Parser)]
-#[command(author, version, about, long_about = "Grab screenshots of your domain list right from terminal.")]
+#[command(author, version, about = splash()  )]
+#[command(propagate_version = true)]
+#[command(arg_required_else_help = true)]
 pub struct Cli {
-    #[arg(short, long)]
+    #[arg(required = false,short, long)]
     /// Website URL/filename of file containing URLs
-    pub url: String,
+    pub url: Option<String>,
 
     #[arg(short, long, default_value = "hxnshots")]
     /// Output directory to save screenshots
@@ -27,12 +30,15 @@ pub struct Cli {
     /// Height of the website // URL
     pub height: Option<u32>,
 
-    #[arg(short = 'k', long, default_value = "10")]
+    #[arg(long, default_value = "10")]
     /// Define timeout for urls
-    pub timeout_value: u64,
+    pub timeout: u64,
 
-    #[arg(short, long)]
+    #[arg(long)]
     /// Silent mode (suppress all console output)
     pub silent: bool,
 
+    #[arg(long)]
+    /// Read urls from the standard in
+    pub stdin: bool,
 }
