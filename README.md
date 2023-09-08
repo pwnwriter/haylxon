@@ -115,6 +115,13 @@ Built from the ground up for ease of use, performance, beautiful ui and portabil
     
    ![](https://raw.githubusercontent.com/pwnwriter/haylxon/showcase/v0.1.2/feature.png)
 
+ - **Read urls from stdin**. ✂️
+  You can use `--stdin` flag and read urls from stdin as well.
+  ```bash
+   $ cat urls.txt | hxn -b $(which brave) --stdin --silent
+   ```
+  
+   ![](https://raw.githubusercontent.com/pwnwriter/haylxon/showcase/v0.1.2/stdin.png)
     
 
  <a name="benchmarking"></a>
