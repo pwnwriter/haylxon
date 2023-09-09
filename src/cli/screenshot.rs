@@ -2,6 +2,7 @@ use crate::cli::ascii::{BAR, RESET};
 use crate::log::error;
 use chromiumoxide::browser::{Browser, BrowserConfig};
 use chromiumoxide::handler::viewport::Viewport;
+use colored::{Color, Colorize};
 use futures::StreamExt;
 use std::{
     env,
@@ -72,7 +73,6 @@ pub async fn run(
 
     let urls: Vec<String>;
 
-    #[allow(unreachable_patterns)]
     match stdin {
         true => {
             urls = crate::cli::hxn_helper::read_urls_from_stdin();
@@ -81,21 +81,15 @@ pub async fn run(
         false => {
             if let Some(url) = &url {
                 if Path::new(url).exists() {
-                    // Read URLs from file
                     let file = std::fs::File::open(url)?;
                     let lines = BufReader::new(file).lines().map_while(Result::ok);
                     urls = lines.collect();
                 } else {
-                    // URL is a single URL
-                    urls = vec![url.clone()]; 
+                    urls = vec![url.clone()];
                 }
             } else {
                 urls = vec![];
             }
-        }
-
-        _ => {
-            urls = vec![];
         }
     }
 
@@ -127,7 +121,13 @@ pub async fn run(
             .expect("Something went wrong while waiting for taking screenshot and saving to file");
     }
 
-    println!("Screenshots saved in dir {outdir}");
+    println!(
+        "{}: {}",
+        "Screenshots Taken and saved in directory"
+            .bold()
+            .color(Color::Green),
+        outdir
+    );
 
     Ok(())
 }
@@ -152,22 +152,25 @@ async fn take_screenshots(
                 )
                 .await?;
 
-            #[allow(clippy::useless_format)]
-            let _info = Columns::from(vec![
+            let info = Columns::from(vec![
                 format!("{RESET}").split('\n').collect::<Vec<&str>>(),
                 vec![
-                    &format!("{BAR}"),
-                    &format!(" URL = {}", url),
-                    &format!("Title = {}", page.get_title().await?.unwrap_or_default()),
-                    &format!("Status = {}", _res.status()),
+                    &format!(" {BAR}").bold().blue(),
+                    &format!(" 🔗 URL = {}", url.red()),
+                    &format!(
+                        " 🏠 Title = {}",
+                        page.get_title().await?.unwrap_or_default().purple()
+                    ),
+                    &format!(" 🔥 Status = {}", _res.status()).green(),
                 ],
             ])
             .set_tabsize(0)
             .make_columns();
             if !silent {
-                println!("{_info}");
+                println!("{info}");
             }
         } else {
+            error("Please increase timout value by --timeout flag");
             println!("[-] Timed out URL = {}", url);
         }
     }

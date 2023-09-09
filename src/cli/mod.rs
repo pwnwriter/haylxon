@@ -26,4 +26,27 @@ pub mod hxn_helper {
 
         urls
     }
+
+    #[allow(dead_code)]
+    pub fn read_urls_from_file(url: &Option<String>) -> Vec<String> {
+        let mut urls = Vec::new();
+
+        if let Some(url) = url {
+            if std::path::Path::new(url).exists() {
+                if let Ok(file) = std::fs::File::open(url) {
+                    let lines = std::io::BufReader::new(file).lines().map_while(Result::ok);
+                    urls = lines.collect();
+                } else {
+                    urls = vec![url.clone()];
+                }
+            } else {
+                urls = vec![url.clone()];
+            }
+        }
+
+        urls
+    }
+
+    #[allow(dead_code)]
+    pub fn read_ports() {}
 }

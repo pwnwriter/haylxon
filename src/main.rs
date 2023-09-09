@@ -1,12 +1,13 @@
+use crate::cli::{args, screenshot::run};
+use clap::Parser;
+
 mod cli;
 mod log;
-use cli::args;
-use clap::Parser;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let cli = args::Cli::parse();
-    crate::cli::screenshot::run(
+    run(
         cli.url,
         Some(cli.outdir),
         cli.tabs,
