@@ -159,8 +159,11 @@ Built from the ground up for ease of use, performance, beautiful ui and portabil
  - [`@blast`](https://github.com/joshua-mo-143)
  - and [**you**](https://github.com/pwnwriter/haylxon/graphs/contributors) ❤️‍🩹
  
- Similar projects : [`gowitness`](https://github.com/sensepost/gowitness), [`eyewitness`](https://github.com/FortyNorthSecurity/EyeWitness)
-  
+
+ ## Also see 👀
+- [`Kanha`](https://github.com/pwnwriter/kanha) :- A web-app pentesting suite written in rust 🦀
+- [`gowitness`](https://github.com/sensepost/gowitness) :- A golang, web screenshot utility using Chrome Headless
+ 
 <p align="center"><img src="https://raw.githubusercontent.com/catppuccin/catppuccin/main/assets/footers/gray0_ctp_on_line.svg?sanitize=true" /></p>
 <p align="center">Copyright &copy; 2023<a href="https://pwnwriter.xyz" target="_blank"> pwnwriter xyz ☘️ </a> 
   
