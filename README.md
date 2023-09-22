@@ -1,7 +1,7 @@
 <img src="https://raw.githubusercontent.com/pwnwriter/haylxon/showcase/hxn-transparent.png"  width="240" align="right">
 
 # [`Haylxon`](https://github.com/pwnwriter/haylxon) 🔥🦀
-`SHOOT BEFORE THE BLINK` ||  [`Haylxon`](https://github.com/pwnwriter/haylxon/),&nbsp; A tool embodying the [`K1SS`](https://en.wikipedia.org/wiki/KISS_principle) philosophy that allows you to take screenshots of `webpages/URLs` at lightning-fast speeds.
+`SHOOT BEFORE THE BLINK` ||  [`Haylxon`](https://github.com/pwnwriter/haylxon/),&nbsp; A tool embodying the [`K1SS`](https://en.wikipedia.org/wiki/KISS_principle) philosophy that allows you to take screenshots of `webpages/URLs` at lightning-fast speeds using `chromes` [`Headless`](https://en.wikipedia.org/wiki/Headless) feature, means, you'd be needing a [***`chromium based browser`***](https://en.wikipedia.org/wiki/Chromium_(web_browser)) for it to work.
 
 Built from the ground up for ease of use, performance, beautiful ui and portability in mind. 💖
 
@@ -25,7 +25,7 @@ Built from the ground up for ease of use, performance, beautiful ui and portabil
 * [`Benchmarking`](#benchmarking)
 * [`Contribution`](#contribution)
 * [`License`](#license)
-* [`Thanks`](#thanks)
+* [`Also see`](#see)
 
 ![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png)
 
@@ -39,90 +39,130 @@ Built from the ground up for ease of use, performance, beautiful ui and portabil
 
 <a name="installation"></a>
  ## Installation 📩
+    
+  <details> <summary><code>🪄 Binary </code></summary>
+    &nbsp;
+
+  - You can directly download the [**binary**](https://github.com/pwnwriter/haylxon/releases) of your arch and run it.
   
-- **Binary**:
-  You can directly download [`binary`](https://github.com/pwnwriter/haylxon/releases/) and run it.
-
-- **Source**: `Recommended ++++`
+  </details>
+  <details> <summary><code>🌼 Source </code></summary>
+  &nbsp;
  
-> **Note**
-> To receive the most up-to-date updates, please utilize this method. I will only push updates through an alternative method if and only when I have stable code.
-
-```bash
-  $ git clone --depth=1 https://github.com/pwnwriter/haylxon --branch=main
-  $ cd haylxon
-  $ cargo build --release 
-  ```
-  Then go to `release` dir and `./hxn` or move the `binary` to your any `$PATH` for instant access from anywhere.
-
- 
-- **Cargo**:
   ```bash
-  $ cargo install hxn
+  git clone --depth=1 https://github.com/pwnwriter/haylxon --branch=main
+  cd haylxon
+  cargo build --release 
   ```
-  > **Note** 
-  > This requires a working setup of rust/cargo.
- 
-- **Aur**:
+  Then go to `release` dir and `./haylxon` or move the `binary` to your any `$PATH` for instant access from anywhere.
+</details>
+
+<details> <summary><code>🎠 Cargo </code></summary>
+
+- Using [crates.io](https://crates.io/crates/haylxon)
   ```bash
-  $ paru/yay -Syyy haylxon
+  cargo install haylxon
   ```
+- Using [binstall](https://github.com/cargo-bins/cargo-binstall)
+  ```bash
+  cargo binstall haylxon
+  ```
+
+  > **Note** ⚠️
+  > This requires a working setup of rust/cargo & binstall.
+</details>
+
+<details> <summary><code>🚩 METIS Linux </code></summary>
+&nbsp;
   
-- **[Metis Linux](https://metislinux.org)**:
+  ```bash
+  sudo/doas pacman -Syyy haylxon
   ```
-  $ sudo/doas pacman -Syyy hxn
-  ```
+
+</details>
+  
 ![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png)
   
   
  <a name="action"></a>
 ## Hxn in action 🚀
-- Help menu :
-  [`Hxn`](https://github.com/pwnwriter/haylxon) utilizes [`clap`](https://docs.rs/clap/latest/clap/) for argument parsing. As expected, `clap` provides a much-improved help menu. The screenshot     below shows Hxn's help menu when the  `-h` flag is used. 
-  
-  > use `--help` for full menu.
-  
- ![](https://raw.githubusercontent.com/pwnwriter/haylxon/showcase/v0.1.2/help.png)
- 
- - Taking screenshots of one/many urls.🖇️
- 
- **It doesn't matter**, if you are parsing a `single url` or a `file` containing a list of `urls`, [`Hxn`](https://github.com/pwnwriter/haylxon) will handle itself. You don't need to worry about other flags.
-  
-  `v0.1.2 +` has an option to define `browser binary` [`#pr`](https://github.com/pwnwriter/haylxon/pull/8), by default it uses `/usr/bin/chrome`.
-  
-  - **Single URL**
-   ```bash
-   $ hxn -b $(which <browserbin>) -u <url> 
-   ```
-    
-   ![](https://raw.githubusercontent.com/pwnwriter/haylxon/showcase/v0.1.2/single.png)
-    
-   - **File containing more than one url**. 🖇️
-   ```bash
-   $ hxn -b <browserbin> -t <no. of tabs to open //ly> -u <url/filename> -o <outdir(default hxnshots)>
-   ```
-    
-   ![](https://raw.githubusercontent.com/pwnwriter/haylxon/showcase/v0.1.2/many.png)
-   
-   ![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png)
 
-  - **Define x/y** 🐣
-   The latest release has an option to set `height`, `width` and `--silent` option.
-   
-   ```bash
-   $ hxn --height <height> --width <widht> --silent -url <url>
-   ```
-    
-   ![](https://raw.githubusercontent.com/pwnwriter/haylxon/showcase/v0.1.2/feature.png)
+- <details> <summary><code> Taking screenshots of one/many urls.🖇️ </code></summary>
 
- - **Read urls from stdin**. ✂️
-  You can use `--stdin` flag and read urls from stdin as well.
+ 
+  - single url
+  
+   &nbsp;
+  ***I'm using brave browser for all the demonstration. You can use any chromium based browsers.***
+ 
   ```bash
-   $ cat urls.txt | hxn -b $(which brave) --stdin --silent
+  hxn -b $(which brave) -u https://example.com
+  ```
+  ![single](https://github.com/pwnwriter/haylxon/assets/90331517/6b6460f8-72dd-4197-b43f-f283a2c49727)
+
+  - a file containing multiple urls
+
+    &nbsp;
+
+  ```bash
+  hxn -b $(which brave) -u urls.txt
+  ```
+
+  ![many](https://github.com/pwnwriter/haylxon/assets/90331517/86f987d9-0961-4247-841e-18aee6aaf53f)
+
+</details>
+
+
+- <details> <summary><code> Silent option for automation ⚙️ </code></summary>
+   &nbsp;
+  
+   ```bash
+   hxn -b $(which brave) -u https://example.com --silent
+   ```
+ 
+  ![silent](https://github.com/pwnwriter/haylxon/assets/90331517/80e9f15f-9087-4b9f-a1d6-3e631e795b9d)
+
+</details>
+
+- <details> <summary><code> Read urls from stdin ⚓ </code></summary>
+  &nbsp;
+  
+   ```bash
+   cat urls.txt | hxn -b $(which brave) --stdin
    ```
   
-   ![](https://raw.githubusercontent.com/pwnwriter/haylxon/showcase/v0.1.2/stdin.png)
-    
+  ![stdin](https://github.com/pwnwriter/haylxon/assets/90331517/db5b8542-af54-420a-8478-7bef4ef6fe0c)
+
+  
+</details>
+
+- <details> <summary><code> Define x/y dimentions 🐀 </code></summary>
+  &nbsp;
+ 
+   ```bash
+   cat urls.txt | hxn -b $(which brave) -x 144 -y 400 --stdin
+   ```
+  
+  ![dimention](https://github.com/pwnwriter/haylxon/assets/90331517/c436100e-d647-40b2-9987-f52f81e09490)
+
+  
+</details>
+
+- <details> <summary><code> Help pls 🐤 </code></summary>
+    &nbsp;
+   
+     If your internet is slow, you may need to increase the timeout value for 'hxn' to work properly
+
+  ```bash
+   cat urls.txt | hxn -b $(which brave) --timeout 60
+   ```
+  
+  ![timeout_error](https://github.com/pwnwriter/haylxon/assets/90331517/96f69d9a-cfca-4af9-9987-4f336099f3f8)
+
+
+  
+</details>
+
 
  <a name="benchmarking"></a>
 ## Benchmarking ⚡
@@ -134,7 +174,7 @@ Built from the ground up for ease of use, performance, beautiful ui and portabil
 
   
 <a name="contribution"></a> 
-## Contribution 🥰
+## Contribution 🤝
   There is always scope for improvements and bugs to be fixed as contributors can make a valuable impact by addressing improvements and bugs through [**issue**](https://github.com/pwnwriter/haylxon/issues) submissions or [**pull requests**](https://github.com/pwnwriter/haylxon/pulls).
   
   - Still, here are the ways to contribute,
@@ -147,23 +187,12 @@ Built from the ground up for ease of use, performance, beautiful ui and portabil
 <a name="license"></a> 
 ## License 🔐
  As always, this project is also Licensed under the [**`MIT LICENSE`**](/LICENSE) 
-  
-<a name="thanks"></a>
-## Thanks 🌹
-  A big thanks to the followings.
- - [`@rustlang`](https://rustlang.org)
- - [`@prabuddha`](https://www.facebook.com/PrabuddhaMP4)
- - [`@Dylan Arps`](https://github.com/dylanaraps)
- - [`@catppuccin`](https://github.com/catppuccin) 
- - [`@cute-ducky`](https://github.com/Cute-Ducky) // plan9boys.
- - [`@blast`](https://github.com/joshua-mo-143)
- - and [**you**](https://github.com/pwnwriter/haylxon/graphs/contributors) ❤️‍🩹
- 
 
- ## Also see 👀
+<a name="see"></a> 
+## Also see 👀
 - [`Kanha`](https://github.com/pwnwriter/kanha) :- A web-app pentesting suite written in rust 🦀
 - [`gowitness`](https://github.com/sensepost/gowitness) :- A golang, web screenshot utility using Chrome Headless
  
 <p align="center"><img src="https://raw.githubusercontent.com/catppuccin/catppuccin/main/assets/footers/gray0_ctp_on_line.svg?sanitize=true" /></p>
-<p align="center">Copyright &copy; 2023<a href="https://pwnwriter.xyz" target="_blank"> pwnwriter xyz ☘️ </a> 
+<p align="center">Copyright &copy; 2023<a href="https://pwnwriter.xyz" target="_blank"> pwnwriter xyz </a> ☘️</p> 
   
