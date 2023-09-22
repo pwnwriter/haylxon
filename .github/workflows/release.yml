@@ -53,7 +53,7 @@ jobs:
         run: |
           mkdir release/
           cp {LICENSE,README.md} release/
-          cp target/${{ matrix.config.TARGET }}/release/haylxon release/
+          cp target/${{ matrix.config.TARGET }}/release/hxn release/
           mv release/ haylxon-${{ env.RELEASE_VERSION }}/
 
       - name: Create release artifacts
