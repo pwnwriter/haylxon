@@ -1,13 +1,5 @@
-# will have compiled files and executables
 /target
+urls.txt
 
-# Remove Cargo.lock from gitignore if creating an executable, leave it for libraries
-Cargo.lock
-
-# Personal pdfs
-*.pdf
-
-# These are backup files i took, before making changes 
-**/*.rs.bk
 
 
