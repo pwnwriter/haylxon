@@ -1,6 +1,6 @@
 [package]
 name = "hxn"
-version = "0.1.5"
+version = "0.1.6"
 edition = "2021"
 authors = [ "PwnWriter < hey@pwnwriter.xyz >" ]
 description = "Blazingly fast tool to grab screenshots of url/webpages from terminal."
@@ -15,7 +15,7 @@ categories = ["accessibility", "web-programming", "command-line" ]
 
 [dependencies]
 url = "2.3.1"
-reqwest = "0.11.16"
+reqwest = { version = "0.11.16", features = ["rustls-tls"] }
 tokio = { version = "1.27.0", features = ["full"] }
 chromiumoxide = {  version = "0.5.0", features = ["tokio-runtime"], default-features = false }
 futures = "0.3.28"
