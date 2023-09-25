@@ -1,26 +1,13 @@
-use {
-    crate::cli::{args, screenshot::run},
-    clap::Parser,
-};
-
 mod cli;
 mod log;
 
-#[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-    let cli = args::Cli::parse();
-    run(
-        cli.url,
-        Some(cli.outdir),
-        cli.tabs,
-        cli.binary_path,
-        cli.width,
-        cli.height,
-        cli.timeout,
-        cli.silent,
-        cli.stdin,
-    )
-    .await?;
+use clap::Parser;
+use cli::{args, screenshot};
 
-    Ok(())
+#[tokio::main]
+async fn main() {
+    let cli = args::Cli::parse();
+    if let Err(error) = screenshot::run(cli).await {
+        log::error(error.to_string())
+    }
 }
