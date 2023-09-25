@@ -23,6 +23,11 @@ clap = { version = "4.4.4", features = ["derive", "string"] }
 columns = "0.1.0"
 colored = "2.0.4"
 
+[[bin]]
+name = "hxn"
+path = "src/main.rs"
+
+
 [profile.dev]
 opt-level = 0
 debug = true

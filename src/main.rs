@@ -1,5 +1,7 @@
-use crate::cli::{args, screenshot::run};
-use clap::Parser;
+use {
+    crate::cli::{args, screenshot::run},
+    clap::Parser,
+};
 
 mod cli;
 mod log;

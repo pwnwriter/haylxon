@@ -6,8 +6,8 @@ use clap::Parser;
 #[command(propagate_version = true)]
 #[command(arg_required_else_help = true)]
 pub struct Cli {
-    #[arg(required = false,short, long)]
-    /// Website URL/filename of file containing URLs
+    #[arg(required = false, short, long)]
+    /// a single url or a file containing multiple urls
     pub url: Option<String>,
 
     #[arg(short, long, default_value = "hxnshots")]
