@@ -61,11 +61,11 @@ Built from the ground up for ease of use, performance, beautiful ui and portabil
 
 - Using [crates.io](https://crates.io/crates/haylxon)
   ```bash
-  cargo install haylxon
+  cargo install hxn
   ```
 - Using [binstall](https://github.com/cargo-bins/cargo-binstall)
   ```bash
-  cargo binstall haylxon
+  cargo binstall hxn
   ```
 
   > **Note** ⚠️
