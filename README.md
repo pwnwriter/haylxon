@@ -54,7 +54,7 @@ Built from the ground up for ease of use, performance, beautiful ui and portabil
   cd haylxon
   cargo build --release 
   ```
-  Then go to `release` dir and `./haylxon` or move the `binary` to your any `$PATH` for instant access from anywhere.
+  Then go to `release` dir and `./hxn` or move the `binary` to your any `$PATH` for instant access from anywhere.
 </details>
 
 <details> <summary><code>🎠 Cargo </code></summary>
@@ -76,7 +76,7 @@ Built from the ground up for ease of use, performance, beautiful ui and portabil
 &nbsp;
   
   ```bash
-  sudo/doas pacman -Syyy haylxon
+  sudo/doas pacman -Syyy hxn
   ```
 
 </details>
