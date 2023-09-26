@@ -102,13 +102,13 @@ Built from the ground up for ease of use, performance, beautiful ui and portabil
 
   - a file containing multiple urls
 
-    &nbsp;
 
   ```bash
   hxn -b $(which brave) -f urls.txt
   ```
 
-  ![many](https://github.com/pwnwriter/haylxon/assets/90331517/86f987d9-0961-4247-841e-18aee6aaf53f)
+  ![multiple](https://github.com/pwnwriter/haylxon/assets/90331517/b751b1dc-ac44-4f7c-8c4d-80a9d87fc415)
+
 
 </details>
 
@@ -119,8 +119,9 @@ Built from the ground up for ease of use, performance, beautiful ui and portabil
    ```bash
    hxn -b $(which brave) -u https://example.com --silent
    ```
- 
-  ![silent](https://github.com/pwnwriter/haylxon/assets/90331517/80e9f15f-9087-4b9f-a1d6-3e631e795b9d)
+   
+  ![silent](https://github.com/pwnwriter/haylxon/assets/90331517/9e41521d-8de5-433f-ab80-fffac46564b6)
+
 
 </details>
 
@@ -151,7 +152,7 @@ Built from the ground up for ease of use, performance, beautiful ui and portabil
 - <details> <summary><code> Help pls 🐤 </code></summary>
     &nbsp;
    
-     If your internet is slow, you may need to increase the timeout value for 'hxn' to work properly
+     If your internet is slow, you may need to increase the timeout value for **hxn** to work properly
 
   ```bash
    cat urls.txt | hxn -b $(which brave) --timeout 60
