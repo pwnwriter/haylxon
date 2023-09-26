@@ -105,7 +105,7 @@ Built from the ground up for ease of use, performance, beautiful ui and portabil
     &nbsp;
 
   ```bash
-  hxn -b $(which brave) -u urls.txt
+  hxn -b $(which brave) -f urls.txt
   ```
 
   ![many](https://github.com/pwnwriter/haylxon/assets/90331517/86f987d9-0961-4247-841e-18aee6aaf53f)

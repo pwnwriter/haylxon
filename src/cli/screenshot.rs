@@ -1,124 +1,92 @@
-use crate::cli::ascii::{BAR, RESET};
-use crate::log::error;
-use chromiumoxide::browser::{Browser, BrowserConfig};
-use chromiumoxide::handler::viewport::Viewport;
+use super::args::{Cli, Input};
+use super::ascii::{BAR, RESET};
+use crate::log;
+use anyhow::Context;
+use chromiumoxide::{
+    browser::{Browser, BrowserConfig},
+    cdp::browser_protocol::page::{CaptureScreenshotFormat, CaptureScreenshotParams},
+    handler::viewport::Viewport,
+};
 use colored::{Color, Colorize};
-use futures::StreamExt;
-use std::{
-    env,
-    io::{BufRead, BufReader},
-    path::Path,
-};
-use tokio::{fs, time::timeout};
-
-use chromiumoxide::cdp::browser_protocol::page::{
-    CaptureScreenshotFormat, CaptureScreenshotParams,
-};
-use chromiumoxide::Page;
 use columns::Columns;
-use core::time::Duration;
-use reqwest::get;
+use futures::StreamExt;
+use reqwest::StatusCode;
+use std::sync::Arc;
+use std::{env, path::Path, time::Duration};
+use tokio::{fs, task, time};
+use url::Url;
 
-#[allow(clippy::too_many_arguments)]
 pub async fn run(
-    url: Option<String>,
-    outdir: Option<String>,
-    tabs: Option<usize>,
-    binary_path: String,
-    width: Option<u32>,
-    height: Option<u32>,
-    timeout: u64,
-    silent: bool,
-    stdin: bool,
-) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-    if !Path::new(&binary_path).exists() {
-        error("Unble to locate browser binary");
-
-        std::process::exit(0);
+    Cli {
+        binary_path,
+        input: Input { url, file_path },
+        stdin,
+        outdir,
+        tabs,
+        width,
+        height,
+        timeout,
+        silent,
+    }: Cli,
+) -> anyhow::Result<()> {
+    let browser = Path::new(&binary_path);
+    if !browser.exists() {
+        return Err(anyhow::Error::msg(format!(
+            "Unable to locate browser binary {binary_path}"
+        )));
     }
-    let outdir = match outdir {
-        Some(dir) => dir,
-        None => "hxnshots".to_string(),
-    };
-
-    let viewport_width = width.unwrap_or(1440);
-    let viewport_height = height.unwrap_or(900);
 
     let (browser, mut handler) = Browser::launch(
         BrowserConfig::builder()
             .no_sandbox()
-            .window_size(viewport_width, viewport_height)
-            .chrome_executable(Path::new(&binary_path))
+            .window_size(width, height)
+            .chrome_executable(browser)
             .viewport(Viewport {
-                width: viewport_width,
-                height: viewport_height,
+                width,
+                height,
                 device_scale_factor: None,
                 emulating_mobile: false,
                 is_landscape: false,
                 has_touch: false,
             })
-            .build()?,
+            .build()
+            .map_err(anyhow::Error::msg)?,
     )
-    .await?;
+    .await
+    .context(format!("Error instantiating browser {binary_path}"))?;
+    let browser = Arc::new(browser);
 
-    let _handle = tokio::task::spawn(async move {
-        loop {
-            let _ = handler.next().await;
+    task::spawn(async move {
+        while let Some(h) = handler.next().await {
+            if h.is_err() {
+                break;
+            }
         }
     });
 
-    if fs::metadata(&outdir).await.is_err() {
-        fs::create_dir(&outdir).await?;
+    let dump_dir = Path::new(&outdir);
+    if !dump_dir.exists() {
+        // TODO: Check error cases for reporting
+        fs::create_dir(dump_dir).await?;
     }
 
-    let urls: Vec<String>;
-
-    match stdin {
-        true => {
-            urls = crate::cli::hxn_helper::read_urls_from_stdin();
-        }
-
-        false => {
-            if let Some(url) = &url {
-                if Path::new(url).exists() {
-                    let file = std::fs::File::open(url)?;
-                    let lines = BufReader::new(file).lines().map_while(Result::ok);
-                    urls = lines.collect();
-                } else {
-                    urls = vec![url.clone()];
-                }
-            } else {
-                urls = vec![];
+    if stdin {
+        env::set_current_dir(dump_dir)?;
+        let urls = super::hxn_helper::read_urls_from_stdin()?;
+        take_screenshot_in_bulk(&browser, urls, tabs, timeout, silent).await?;
+    } else {
+        match (url, file_path) {
+            (None, Some(file_path)) => {
+                let urls = super::hxn_helper::read_urls_from_file(file_path)?;
+                env::set_current_dir(dump_dir)?;
+                take_screenshot_in_bulk(&browser, urls, tabs, timeout, silent).await?;
             }
-        }
-    }
-
-    let mut url_chunks = Vec::new();
-
-    for chunk in urls.chunks(tabs.unwrap_or(4)) {
-        let mut urls = Vec::new();
-        for url in chunk {
-            if let Ok(url) = url::Url::parse(url) {
-                urls.push(url);
+            (Some(url), None) => {
+                env::set_current_dir(dump_dir)?;
+                take_screenshot(&browser, url, timeout, silent).await?;
             }
+            _ => unreachable!(),
         }
-        url_chunks.push(urls);
-    }
-
-    env::set_current_dir(Path::new(&outdir))?;
-
-    let mut handles = Vec::new();
-
-    for chunk in url_chunks {
-        let n_tab = browser.new_page("about:blank").await?;
-        let h = tokio::spawn(take_screenshots(n_tab, chunk, silent, timeout));
-        handles.push(h);
-    }
-
-    for handle in handles {
-        handle
-            .await?
-            .expect("Something went wrong while waiting for taking screenshot and saving to file");
     }
 
     println!(
@@ -132,48 +100,82 @@ pub async fn run(
     Ok(())
 }
 
-async fn take_screenshots(
-    page: Page,
-    urls: Vec<reqwest::Url>,
+async fn take_screenshot_in_bulk(
+    browser: &Arc<Browser>,
+    urls: Vec<String>,
+    tabs: usize,
+    timeout: u64,
     silent: bool,
-    timeout_value: u64,
-) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-    for url in urls {
-        let url = url.as_str();
-        if let Ok(Ok(_res)) = timeout(Duration::from_secs(timeout_value), get(url)).await {
-            let filename = url.replace("://", "-").replace('/', "_") + ".png";
-            page.goto(url)
-                .await?
-                .save_screenshot(
-                    CaptureScreenshotParams::builder()
-                        .format(CaptureScreenshotFormat::Png)
-                        .build(),
-                    filename,
-                )
-                .await?;
+) -> anyhow::Result<()> {
+    let url_chunks: Vec<Vec<_>> = urls.chunks(tabs).map(ToOwned::to_owned).collect();
+    let mut handles = Vec::with_capacity(url_chunks.len());
 
-            let info = Columns::from(vec![
-                format!("{RESET}").split('\n').collect::<Vec<&str>>(),
-                vec![
-                    &format!(" {BAR}").bold().blue(),
-                    &format!(" 🔗 URL = {}", url.red()),
-                    &format!(
-                        " 🏠 Title = {}",
-                        page.get_title().await?.unwrap_or_default().purple()
-                    ),
-                    &format!(" 🔥 Status = {}", _res.status()).green(),
-                ],
-            ])
-            .set_tabsize(0)
-            .make_columns();
-            if !silent {
-                println!("{info}");
+    for urls in url_chunks {
+        let browser = Arc::clone(browser);
+        let handle = tokio::spawn(async move {
+            for url in urls {
+                if let Err(error) = take_screenshot(&browser, url, timeout, silent).await {
+                    log::warn(error.to_string());
+                }
             }
-        } else {
-            error("Please increase timout value by --timeout flag");
-            println!("[-] Timed out URL = {}", url);
-        }
+        });
+
+        handles.push(handle);
+    }
+
+    for handle in handles {
+        handle.await?;
     }
 
     Ok(())
+}
+
+async fn take_screenshot(
+    browser: &Browser,
+    url: String,
+    timeout: u64,
+    silent: bool,
+) -> anyhow::Result<()> {
+    let parsed_url = Url::parse(&url)?;
+    let res = time::timeout(
+        Duration::from_secs(timeout),
+        reqwest::get(parsed_url.clone()),
+    )
+    .await
+    .context(format!("[-] Timed out URL = {url}"))??;
+
+    let filename = format!("{}.png", url.replace("://", "-").replace('/', "_"));
+    let page = browser.new_page(parsed_url).await?;
+    page.save_screenshot(
+        CaptureScreenshotParams::builder()
+            .format(CaptureScreenshotFormat::Png)
+            .build(),
+        filename,
+    )
+    .await?;
+
+    if !silent {
+        let title = page.get_title().await.unwrap_or_default().unwrap();
+        show_info(url, title, res.status());
+    }
+
+    page.close().await?;
+
+    Ok(())
+}
+
+fn show_info(url: String, title: String, status: StatusCode) {
+    let info = Columns::from(vec![
+        RESET.split('\n').collect::<Vec<_>>(),
+        vec![
+            &BAR.bold().blue(),
+            &format!(" 🔗 URL = {}", url.red()),
+            &format!(" 🏠 Title = {}", title.purple()),
+            &format!(" 🔥 Status = {}", status).green(),
+        ],
+    ])
+    .set_tabsize(0)
+    .make_columns();
+
+    println!("{info}");
 }

@@ -1,27 +1,25 @@
+#![allow(unused)]
+
 use colored::{Color, Colorize};
 
 /// Prints the given message to the console and aborts the process.
-#[allow(dead_code)]
-pub fn abort(msg: &str) -> ! {
+pub fn abort(msg: String) -> ! {
     error(msg);
     std::process::exit(1);
 }
 
-#[allow(dead_code)]
-pub fn info(msg: &str, color: Color) {
+pub fn info(msg: String, color: Color) {
     println!("{}: {}", "info".bold().color(color), msg);
 }
 
-pub fn error(msg: &str) {
-    println!("{}: {}", "error".bold().color(Color::Red), msg);
+pub fn error(msg: String) {
+    eprintln!("{}: {}", "error".bold().color(Color::Red), msg);
 }
 
-#[allow(dead_code)]
-pub fn success(msg: &str) {
+pub fn success(msg: String) {
     println!("{}: {}", "success".bold().color(Color::Green), msg);
 }
 
-#[allow(dead_code)]
-pub fn warn(msg: &str) {
+pub fn warn(msg: String) {
     println!("{}: {}", "warning".bold().color(Color::Yellow), msg);
 }
