@@ -2,7 +2,27 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.8] - 2023-10-17
+
+### Features
+
+- Bug-report,feature req templates
+
+### Miscellaneous Tasks
+
+- Bump clap from 4.4.4 to 4.4.5
+- Bump clap from 4.4.5 to 4.4.6
+- Bump chromiumoxide from 0.5.1 to 0.5.3
+- Bump tokio from 1.32.0 to 1.33.0
+- Bump chromiumoxide from 0.5.3 to 0.5.4
+- Bump reqwest from 0.11.20 to 0.11.22
+- Print no title if url doesn't have one // closes #30
+
 ## [0.1.7] - 2023-09-26
+
+### Features
+
+- Updated docx for new (v0.1.7) release
 
 ### Miscellaneous Tasks
 
