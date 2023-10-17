@@ -177,9 +177,9 @@ checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
 name = "chromiumoxide"
-version = "0.5.3"
+version = "0.5.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f5258a072a786870d88feb095aebeec5cd0d37081b4e5b8671dbf3c13d773849"
+checksum = "84bdb5c07ec812b69558200b30ea28ff28ad0b9059153cc32290b8737fa6e228"
 dependencies = [
  "async-tungstenite",
  "base64",
