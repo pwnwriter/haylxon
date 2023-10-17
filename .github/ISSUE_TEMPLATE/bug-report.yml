@@ -1,0 +1,40 @@
+name: Bug report
+description: Report a problem
+labels: [bug]
+body:
+  - type: textarea
+    attributes:
+      label: "Description"
+      description: "A brief summary of the issue"
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: "Software Version"
+      description: "Please provide the version number, e.g., `0.1.1`"
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: "Steps to Reproduce"
+      description: "Detailed steps to reproduce the issue. If possible, please provide a sample command or actions taken."
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: "Expected Behavior"
+      description: "A clear description of what you expected to happen"
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: "Actual Behavior"
+      description: "A description of the behavior you observed. Feel free to include images, gifs, or any other supporting materials."
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: "Additional Information"
+      description: "Any additional information that might be helpful in understanding the context or environment in which the issue occurred"
+    validations:
+      required: false

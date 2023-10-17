@@ -1,0 +1,16 @@
+name: Feature request
+description: Describe a feature you want to see
+labels: [feature-request]
+body:
+  - type: textarea
+    attributes:
+      label: "Description"
+      description: "A clear and concise description of the feature you are requesting"
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: "Related Documentation or Links"
+      description: "Provide any supporting documents, links, or references that can help in understanding or implementing the feature."
+    validations:
+      required: false
