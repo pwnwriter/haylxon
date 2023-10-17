@@ -155,10 +155,14 @@ async fn take_screenshot(
     .await?;
 
     if !silent {
-        let title = page.get_title().await.unwrap_or_default().unwrap();
-        show_info(url, title, res.status());
+        match page.get_title().await {
+            Ok(Some(title)) => show_info(url.clone(), title, res.status()),
+            _ => {
+                let title = "No title".to_string();
+                show_info(url.clone(), title, res.status());
+            }
+        }
     }
-
     page.close().await?;
 
     Ok(())
