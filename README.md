@@ -80,6 +80,15 @@ Built from the ground up for ease of use, performance, beautiful ui and portabil
   ```
 
 </details>
+
+<details> <summary><code>💢 Arch user repository </code></summary>
+&nbsp;
+  
+  ```bash
+  paru/yay -S haylxon-git
+  ```
+
+</details>
   
 ![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png)
   
