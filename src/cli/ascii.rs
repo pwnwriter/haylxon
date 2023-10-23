@@ -14,13 +14,12 @@ pub fn splash() -> String {
  ╦ ╦╔═╗╦ ╦╦   ╔═╗╔╗╔
  ╠═╣╠═╣╚╦╝║  𝖃║ ║║║║
  ╩ ╩╩ ╩ ╩ ╩═╝ ╚═╝╝╚╝v{}
-             by @PwnWriter
+    Shoot before the blink
+                @pwnwriter/haylxon
  "#,
         hxn_version
     )
     .purple();
 
-    let quote = " Shoot before the blink  ".italic();
-
-    format!("{logo} {quote}")
+    format!("{logo}")
 }
