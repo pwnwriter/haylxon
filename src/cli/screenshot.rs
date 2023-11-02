@@ -137,9 +137,15 @@ async fn take_screenshot(
     silent: bool,
 ) -> anyhow::Result<()> {
     let parsed_url = Url::parse(&url)?;
-    let res = time::timeout(
+    let client = reqwest::Client::builder()
+        .danger_accept_invalid_certs(true)
+        .http1_ignore_invalid_headers_in_responses(true)
+        .trust_dns(true)
+        .build()?;
+
+    let response = time::timeout(
         Duration::from_secs(timeout),
-        reqwest::get(parsed_url.clone()),
+        client.get(parsed_url.clone()).send(),
     )
     .await
     .context(format!("[-] Timed out URL = {url}"))??;
@@ -156,10 +162,10 @@ async fn take_screenshot(
 
     if !silent {
         match page.get_title().await {
-            Ok(Some(title)) => show_info(url.clone(), title, res.status()),
+            Ok(Some(title)) => show_info(url.clone(), title, response.status()),
             _ => {
                 let title = "No title".to_string();
-                show_info(url.clone(), title, res.status());
+                show_info(url.clone(), title, response.status());
             }
         }
     }

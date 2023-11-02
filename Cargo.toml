@@ -14,15 +14,15 @@ categories = ["accessibility", "web-programming", "command-line" ]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-url = "2.4.1"
-reqwest = { version = "0.11.22", default-features = false, features = ["rustls-tls"] }
-tokio = { version = "1.33.0", features = ["full"] }
 chromiumoxide = {  version = "0.5.4", features = ["tokio-runtime"], default-features = false }
-futures = "0.3.28"
+reqwest = { version = "0.11.22", default-features = false, features = ["rustls-tls", "trust-dns"] }
 clap = { version = "4.4.6", features = ["derive", "string"] }
+tokio = { version = "1.33.0", features = ["full"] }
+futures = "0.3.28"
 columns = "0.1.0"
 colored = "2.0.4"
 anyhow = "1.0.75"
+url = "2.4.1"
 
 [profile.dev]
 opt-level = 0
