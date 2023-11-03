@@ -96,41 +96,38 @@ Built from the ground up for ease of use, performance, beautiful ui and portabil
  <a name="action"></a>
 ## Hxn in action 🚀
 
-- <details> <summary><code> Taking screenshots of one/many urls.🖇️ </code></summary>
-
- 
-  - single url
-  
-   &nbsp;
   ***I'm using brave browser for all the demonstration. You can use any chromium based browsers.***
- 
+  &nbsp;
+- <details> <summary><code> Take screenshots of single url 🔗 </code></summary>
+   &nbsp;
+
   ```bash
   hxn -b $(which brave) -u https://example.com
   ```
-  ![single](https://github.com/pwnwriter/haylxon/assets/90331517/6b6460f8-72dd-4197-b43f-f283a2c49727)
+     ![screenshot_2023-11-03_12-28-18](https://github.com/pwnwriter/haylxon/assets/90331517/e9fd87e3-a99a-4fd9-a100-dbe2d3947a58)
 
-  - a file containing multiple urls
+</details>
 
+- <details> <summary><code> Take screenshots of multiple urls 📂 </code></summary>
+   &nbsp;
 
   ```bash
   hxn -b $(which brave) -f urls.txt
   ```
 
-  ![multiple](https://github.com/pwnwriter/haylxon/assets/90331517/b751b1dc-ac44-4f7c-8c4d-80a9d87fc415)
+  ![screenshot_2023-11-03_12-36-09](https://github.com/pwnwriter/haylxon/assets/90331517/cb94f0ee-5546-4854-9678-62c15665611f)
 
 
 </details>
 
-
-- <details> <summary><code> Silent option for automation ⚙️ </code></summary>
-   &nbsp;
+- <details> <summary><code> Show fancy output ⚙️ </code></summary>
+  &nbsp;
   
    ```bash
-   hxn -b $(which brave) -u https://example.com --silent
-   ```
-   
-  ![silent](https://github.com/pwnwriter/haylxon/assets/90331517/9e41521d-8de5-433f-ab80-fffac46564b6)
+   hxn -b $(which brave) -f urls.txt --verbose
+     ```
 
+   ![screenshot_2023-11-03_12-29-16](https://github.com/pwnwriter/haylxon/assets/90331517/38120572-72c5-4412-b583-02a14f88869e)
 
 </details>
 
