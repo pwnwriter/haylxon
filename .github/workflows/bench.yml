@@ -18,10 +18,10 @@ jobs:
         run: |
           sudo apt update
           sudo apt install -y golang
-          export CARGO_HOME="${XDG_DATA_HOME:-$HOME/.local/share}/cargo"
-          export RUSTUP_HOME="${XDG_DATA_HOME:-$HOME/.local/share}/rustup"
-          export GOPATH="${XDG_DATA_HOME:-$HOME/.local/share}/go"
-          export PATH="$PATH:$HOME/.local/share/cargo/bin:$HOME/.local/share/go/bin"
+          export CARGO_HOME="${XDG_DATA_HOME:-$HOME/.cargo}"
+          export RUSTUP_HOME="${XDG_DATA_HOME:-$HOME/.rustup}"
+          export GOPATH="${XDG_DATA_HOME:-$HOME/.go}"
+          export PATH="$PATH:$HOME/.cargo/bin:$HOME/.go/bin"
           export CARGO_REGISTRIES_CRATES_IO_PROTOCOL=sparse
 
       - name: Install hyperfine
