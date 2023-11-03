@@ -50,7 +50,7 @@ pub struct Cli {
     pub height: u32,
 
     /// Define timeout for urls
-    #[arg(long, default_value = "10")]
+    #[arg(long, default_value = "100")]
     pub timeout: u64,
 
     /// verbose mode to show status code,title and more
