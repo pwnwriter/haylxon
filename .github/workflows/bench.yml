@@ -42,4 +42,4 @@ jobs:
 
       - name: Bench gowitness with hxn
         run: |
-          hyperfine --warmup 3 'hxn -f urls.txt -t 50 --timeout 500 -o hxnshots' 'gowitness -F --timeout 500 file -f urls.txt --debug --screenshot-path gowithnessshots' -N
+          hyperfine --warmup 3 'hxn -f urls.txt -t 50 --timeout 500 -o hxnshots' 'gowitness -F --timeout 500 file -f urls.txt --debug --screenshot-path "gowithnessshots"' -N
