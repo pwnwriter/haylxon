@@ -1,4 +1,4 @@
-name: Domain Tests
+name: Test over new domains
 
 on:
   push:
@@ -15,12 +15,16 @@ jobs:
     - uses: actions/checkout@v3
     - name: Install dependencies
       run: |
-        wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-        sudo dpkg -i google-chrome-stable_current_amd64.deb
-        sudo apt-get install -f -y
+        wget -q https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb > /dev/null
+        sudo dpkg -i google-chrome-stable_current_amd64.deb > /dev/null
+        sudo apt-get install -f -y > /dev/null
+    - name: install hxn
+      run: |
+        cargo build --release
+        mv -iv target/release/hxn /usr/local/bin/hxn
     - name: Run Test over domains
       run: |
-        curl -qfsSL "https://raw.githubusercontent.com/Azathothas/CertStream-Domains/main/Data/np_ccTLDs/certstream_domains_np_all_24h_httpx.txt" | awk '{print $1}' | grep -i 'http' | sort -u | cargo r --release -- -b "$(which google-chrome)" --stdin --timeout 300
+        curl -sSL "https://raw.githubusercontent.com/Azathothas/CertStream-Domains/main/Data/np_ccTLDs/certstream_domains_np_all_24h_httpx.txt" | awk '{print $1}' | grep -i 'http' | sort -u | hxn -b "$(which google-chrome)" --stdin --timeout 1000
     - name: Count files in hxnshots
       run: |
         num_files=$(ls -1q hxnshots | wc -l)
@@ -29,4 +33,3 @@ jobs:
       run: |
         size=$(du -sh hxnshots | awk '{print $1}')
         echo "Size of the directory: $size"
-
