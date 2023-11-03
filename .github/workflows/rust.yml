@@ -22,15 +22,25 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - run: rustup update ${{ matrix.toolchain }} && rustup default ${{ matrix.toolchain }}
+    - name: Set up Rust
+      run: rustup update ${{ matrix.toolchain }} && rustup default ${{ matrix.toolchain }}
     - name: Build
       run: cargo build --verbose
     - name: Run tests
       run: cargo test --verbose
-    - name: Install deps
-      run: wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-      run: dpkg -i google-chrome-stable_current_amd64.deb
-      run:  apt-get install -f
+    - name: Install dependencies
+      run: |
+        wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+        sudo dpkg -i google-chrome-stable_current_amd64.deb
+        sudo apt-get install -f -y
     - name: Run Test over domains
-      run: curl -qfsSL "https://raw.githubusercontent.com/Azathothas/CertStream-Domains/main/Data/np_ccTLDs/certstream_domains_np_all_24h_httpx.txt" | awk '{print $1}' | grep -i 'http' | sort -u | hxn -b "$(which google-chrome)" --stdin
-
+      run: |
+        curl -qfsSL "https://raw.githubusercontent.com/Azathothas/CertStream-Domains/main/Data/np_ccTLDs/certstream_domains_np_all_24h_httpx.txt" | awk '{print $1}' | grep -i 'http' | sort -u | cargo r -- -b "$(which google-chrome)" --stdin
+    - name: Count files in hxnshots
+      run: |
+        num_files=$(ls -1q hxnshots | wc -l)
+        echo "Number of files in hxnshots: $num_files"
+    - name: Calculate directory size
+      run: |
+        size=$(du -sh hxnshots | awk '{print $1}')
+        echo "Size of the directory: $size"
