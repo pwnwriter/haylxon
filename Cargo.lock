@@ -214,9 +214,9 @@ dependencies = [
 
 [[package]]
 name = "chromiumoxide_cdp"
-version = "0.5.1"
+version = "0.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fe7dfe7394e5863cca4716e908e826da15e6b2bd0f29e346425270ed3dcdea0d"
+checksum = "72641e4931b5372361160346d88605bbd6252b54c89581b71ac06b3b68b8b7c0"
 dependencies = [
  "chromiumoxide_pdl",
  "chromiumoxide_types",

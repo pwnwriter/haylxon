@@ -2,9 +2,10 @@ use super::args::{Cli, Input};
 use super::ascii::{BAR, RESET};
 use crate::log;
 use anyhow::Context;
+use chromiumoxide::page::ScreenshotParams;
 use chromiumoxide::{
     browser::{Browser, BrowserConfig},
-    cdp::browser_protocol::page::{CaptureScreenshotFormat, CaptureScreenshotParams},
+    cdp::browser_protocol::page::CaptureScreenshotFormat,
     handler::viewport::Viewport,
 };
 use colored::{Color, Colorize};
@@ -146,8 +147,10 @@ async fn take_screenshot(
     let filename = format!("{}.png", url.replace("://", "-").replace('/', "_"));
     let page = browser.new_page(parsed_url.clone()).await?;
     page.save_screenshot(
-        CaptureScreenshotParams::builder()
+        ScreenshotParams::builder()
             .format(CaptureScreenshotFormat::Png)
+            .full_page(true)
+            .omit_background(true)
             .build(),
         filename,
     )
