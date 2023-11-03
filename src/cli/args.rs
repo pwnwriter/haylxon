@@ -53,9 +53,9 @@ pub struct Cli {
     #[arg(long, default_value = "10")]
     pub timeout: u64,
 
-    /// Silent mode (suppress all console output)
+    /// verbose mode to show status code,title and more
     #[arg(long)]
-    pub silent: bool,
+    pub verbose: bool,
 }
 
 #[cfg(test)]

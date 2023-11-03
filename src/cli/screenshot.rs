@@ -26,7 +26,7 @@ pub async fn run(
         width,
         height,
         timeout,
-        silent,
+        verbose,
     }: Cli,
 ) -> anyhow::Result<()> {
     let browser = Path::new(&binary_path);
@@ -73,17 +73,17 @@ pub async fn run(
     if stdin {
         env::set_current_dir(dump_dir)?;
         let urls = super::hxn_helper::read_urls_from_stdin()?;
-        take_screenshot_in_bulk(&browser, urls, tabs, timeout, silent).await?;
+        take_screenshot_in_bulk(&browser, urls, tabs, timeout, verbose).await?;
     } else {
         match (url, file_path) {
             (None, Some(file_path)) => {
                 let urls = super::hxn_helper::read_urls_from_file(file_path)?;
                 env::set_current_dir(dump_dir)?;
-                take_screenshot_in_bulk(&browser, urls, tabs, timeout, silent).await?;
+                take_screenshot_in_bulk(&browser, urls, tabs, timeout, verbose).await?;
             }
             (Some(url), None) => {
                 env::set_current_dir(dump_dir)?;
-                take_screenshot(&browser, url, timeout, silent).await?;
+                take_screenshot(&browser, url, timeout, verbose).await?;
             }
             _ => unreachable!(),
         }
@@ -134,7 +134,7 @@ async fn take_screenshot(
     browser: &Browser,
     url: String,
     timeout: u64,
-    silent: bool,
+    verbose: bool,
 ) -> anyhow::Result<()> {
     let parsed_url = Url::parse(&url)?;
     let client = reqwest::Client::builder()
@@ -143,15 +143,8 @@ async fn take_screenshot(
         .trust_dns(true)
         .build()?;
 
-    let response = time::timeout(
-        Duration::from_secs(timeout),
-        client.get(parsed_url.clone()).send(),
-    )
-    .await
-    .context(format!("[-] Timed out URL = {url}"))??;
-
     let filename = format!("{}.png", url.replace("://", "-").replace('/', "_"));
-    let page = browser.new_page(parsed_url).await?;
+    let page = browser.new_page(parsed_url.clone()).await?;
     page.save_screenshot(
         CaptureScreenshotParams::builder()
             .format(CaptureScreenshotFormat::Png)
@@ -160,7 +153,14 @@ async fn take_screenshot(
     )
     .await?;
 
-    if !silent {
+    if verbose {
+        let response = time::timeout(
+            Duration::from_secs(timeout),
+            client.get(parsed_url.clone()).send(),
+        )
+        .await
+        .context(format!("[-] Timed out URL = {url}"))??;
+
         match page.get_title().await {
             Ok(Some(title)) => show_info(url.clone(), title, response.status()),
             _ => {

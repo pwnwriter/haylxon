@@ -27,3 +27,10 @@ jobs:
       run: cargo build --verbose
     - name: Run tests
       run: cargo test --verbose
+    - name: Install deps
+      run: wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+      run: dpkg -i google-chrome-stable_current_amd64.deb
+      run:  apt-get install -f
+    - name: Run Test over domains
+      run: curl -qfsSL "https://raw.githubusercontent.com/Azathothas/CertStream-Domains/main/Data/np_ccTLDs/certstream_domains_np_all_24h_httpx.txt" | awk '{print $1}' | grep -i 'http' | sort -u | hxn -b "$(which google-chrome)" --stdin
+
