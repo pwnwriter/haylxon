@@ -14,15 +14,21 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Install cargo-binstall and hyperfine
+      - name: Setup dot env paths
         run: |
-          cargo install cargo-binstall
-          cargo binstall hyperfine
+          export CARGO_HOME="${XDG_DATA_HOME:-$HOME/.local/share}/cargo"
+          export RUSTUP_HOME="${XDG_DATA_HOME:-$HOME/.local/share}/rustup"
+          export GOPATH="${XDG_DATA_HOME:-$HOME/.local/share}/go"
+          export PATH="$PATH:${$(find ~/.local/share/cargo/bin -type d -printf %p:)%%:}" 
+          export PATH="$PATH:${$(find ~/.local/share/go/bin -type d -printf %p:)%%:}"
+          export CARGO_REGISTRIES_CRATES_IO_PROTOCOL=sparse # Add sparse index protocol for cargo
+
+      - name: Install hyperfine
+        run: |
+          cargo install hyperfine
 
       - name: Install gowitness
         run: |
-          export GOPATH="${XDG_DATA_HOME:-$HOME/.local/share}/go"
-          export PATH="$PATH:$GOPATH/bin" # Add ~/.local/share/go/bin to path for Golang
           sudo apt update
           sudo apt install golang -y
           go install github.com/sensepost/gowitness@latest
