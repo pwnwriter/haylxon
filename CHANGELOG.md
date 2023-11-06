@@ -2,21 +2,47 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.1.8] - 2023-10-17
+## [0.1.9] - 2023-11-03
 
 ### Features
 
-- Bug-report,feature req templates
+- [closes #34], Take full page screenshots of urls
 
 ### Miscellaneous Tasks
 
+- Bench gowitness with hxn via ci/c
 - Bump clap from 4.4.4 to 4.4.5
+- Notes // docx for new release
+- Bug-report,feature req templates
 - Bump clap from 4.4.5 to 4.4.6
 - Bump chromiumoxide from 0.5.1 to 0.5.3
 - Bump tokio from 1.32.0 to 1.33.0
 - Bump chromiumoxide from 0.5.3 to 0.5.4
 - Bump reqwest from 0.11.20 to 0.11.22
 - Print no title if url doesn't have one // closes #30
+- Add AUR installation guide
+- Show quote inside ascii block
+- [closes #22] ignore danger certs // dns
+- Bump clap from 4.4.6 to 4.4.7
+- Bump futures from 0.3.28 to 0.3.29
+- Use gh actions to test domains
+- Use a long timeout to preserve domain ss
+- Use long timeout // redirect msgs while installing deps
+- Use multiple tabs to increase speed
+- Test domains screenshots on the test commit
+- Fixed typos to trigger action
+- Trigger action on push
+- Use multple tabs // timeout
+- Manually install hyprfine than using binstall
+- Fixed typos on path
+- Fixed typosss
+- Fixed typo with hyperfine
+
+### Refactor
+
+- Use verbose mode to grab info else don't even make a request
+- Run domain tests on seprate job
+- Soo, it's bash not zsh
 
 ## [0.1.7] - 2023-09-26
 

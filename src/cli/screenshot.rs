@@ -144,7 +144,10 @@ async fn take_screenshot(
         .trust_dns(true)
         .build()?;
 
-    let filename = format!("{}.png", url.replace("://", "-").replace('/', "_").replace(':', "-"));
+    let filename = format!(
+        "{}.png",
+        url.replace("://", "-").replace('/', "_").replace(':', "-")
+    );
     let page = browser.new_page(parsed_url.clone()).await?;
     page.save_screenshot(
         ScreenshotParams::builder()

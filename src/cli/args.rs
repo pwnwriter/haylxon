@@ -26,10 +26,6 @@ pub struct Cli {
     #[arg(short, long, default_value = "/usr/bin/chrome")]
     pub binary_path: String,
 
-    /// Read urls from the standard input
-    #[arg(long)]
-    pub stdin: bool,
-
     #[command(flatten)]
     pub input: Input,
 
@@ -52,6 +48,10 @@ pub struct Cli {
     /// Define timeout for urls
     #[arg(long, default_value = "100")]
     pub timeout: u64,
+
+    /// Read urls from the standard input
+    #[arg(long)]
+    pub stdin: bool,
 
     /// verbose mode to show status code,title and more
     #[arg(long)]
