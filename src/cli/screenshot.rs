@@ -144,7 +144,7 @@ async fn take_screenshot(
         .http1_ignore_invalid_headers_in_responses(true)
         .trust_dns(true)
         .build()?;
-    let re = Regex::new(r"[<>?.~!@#$%^&*\/|;:']").unwrap();
+    let re = Regex::new(r"[<>?.~!@#$%^&*\\/|;:']").unwrap();
     let regurl = re.replace_all(&url, "").to_string();
 
     let filename = format!(
