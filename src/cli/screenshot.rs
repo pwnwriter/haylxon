@@ -11,12 +11,12 @@ use chromiumoxide::{
 use colored::{Color, Colorize};
 use columns::Columns;
 use futures::StreamExt;
+use regex::Regex;
 use reqwest::StatusCode;
 use std::sync::Arc;
 use std::{env, path::Path, time::Duration};
 use tokio::{fs, task, time};
 use url::Url;
-use regex::Regex;
 
 pub async fn run(
     Cli {
@@ -149,9 +149,12 @@ async fn take_screenshot(
 
     let filename = format!(
         "{}.png",
-        regurl.replace("://", "-").replace('/', "_").replace(':', "-")
+        regurl
+            .replace("://", "-")
+            .replace('/', "_")
+            .replace(':', "-")
     );
-    
+
     let page = browser.new_page(parsed_url.clone()).await?;
     page.save_screenshot(
         ScreenshotParams::builder()
