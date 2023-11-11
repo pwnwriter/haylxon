@@ -16,6 +16,7 @@ use std::sync::Arc;
 use std::{env, path::Path, time::Duration};
 use tokio::{fs, task, time};
 use url::Url;
+use regex::Regex;
 
 pub async fn run(
     Cli {
@@ -143,11 +144,14 @@ async fn take_screenshot(
         .http1_ignore_invalid_headers_in_responses(true)
         .trust_dns(true)
         .build()?;
+    let re = Regex::new(r"[<>?.~!@#$%^&*\\/|;:']").unwrap();
+    let regurl = re.replace_all(&url, "").to_string();
 
     let filename = format!(
         "{}.png",
-        url.replace("://", "-").replace('/', "_").replace(':', "-")
+        regurl.replace("://", "-").replace('/', "_").replace(':', "-")
     );
+    
     let page = browser.new_page(parsed_url.clone()).await?;
     page.save_screenshot(
         ScreenshotParams::builder()
