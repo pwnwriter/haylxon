@@ -155,16 +155,17 @@ Built from the ground up for ease of use, performance, beautiful ui and portabil
   
 </details>
 
-- <details> <summary><code> Help pls 🐤 </code></summary>
+- <details> <summary><code> hxn in termux 🐤 </code></summary>
+    &nbsp;
+   Install dependencies - 
     &nbsp;
    
-     If your internet is slow, you may need to increase the timeout value for **hxn** to work properly
-
-  ```bash
-   cat urls.txt | hxn -b $(which brave) --timeout 60
+   ```bash
+   pkg install tur-repo -y ; pkg install chromium -y
+   ln -s "$PREFIX/bin/chromium-browser" "$PREFIX/bin/chromium"  
    ```
-  
-  ![timeout_error](https://github.com/pwnwriter/haylxon/assets/90331517/96f69d9a-cfca-4af9-9987-4f336099f3f8)
+
+  ![screenshot_2023-11-16_12-11-55](https://github.com/pwnwriter/haylxon/assets/90331517/c38bbd53-aaef-4883-baf5-adf51a768e62)
 
 
   
@@ -193,7 +194,7 @@ Built from the ground up for ease of use, performance, beautiful ui and portabil
    
 <a name="license"></a> 
 ## License 🔐
- As always, this project is also Licensed under the [**`MIT LICENSE`**](/LICENSE) 
+ Licensed under the [**`MIT LICENSE`**](/LICENSE) 
 
 <a name="see"></a> 
 ## Also see 👀
