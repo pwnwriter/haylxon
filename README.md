@@ -42,8 +42,9 @@ Built from the ground up for ease of use, performance, beautiful ui and portabil
     
   <details> <summary><code>🪄 Binary </code></summary>
     &nbsp;
-
-   - Run this one liner script 
+   
+   -  **Manual**: You can directly download the binary from [**releases**](https://github.com/pwnwriter/haylxon/releases) of your arch and run it.
+   - **One liner**: Run this one liner script 
 
 ```bash
 wget -qO- "$(curl -qfsSL "https://api.github.com/repos/pwnwriter/haylxon/releases/latest" | jq -r '.assets[].browser_download_url' | grep -Ei "$(uname -m).*$(uname -s).*musl" | grep -v "\.sha")" | tar -xzf - --strip-components=1 && ./hxn -h
