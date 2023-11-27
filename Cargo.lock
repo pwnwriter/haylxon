@@ -188,9 +188,9 @@ checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
 name = "chromiumoxide"
-version = "0.5.4"
+version = "0.5.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "84bdb5c07ec812b69558200b30ea28ff28ad0b9059153cc32290b8737fa6e228"
+checksum = "cdea2fa69adb96b3f503c4ae5a9b0ab17ae9b92a0f0702710485b12cc7758ff8"
 dependencies = [
  "async-tungstenite",
  "base64",
@@ -202,6 +202,7 @@ dependencies = [
  "futures",
  "futures-timer",
  "pin-project-lite",
+ "reqwest",
  "serde",
  "serde_json",
  "thiserror",
