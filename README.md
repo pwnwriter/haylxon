@@ -24,6 +24,7 @@ Built from the ground up for ease of use, performance, beautiful ui and portabil
 * [`Hxn in Action`](#action)
 * [`Benchmarking`](#benchmarking)
 * [`Contribution`](#contribution)
+* [`Support`](#support)
 * [`License`](#license)
 * [`Also see`](#see)
 
@@ -187,15 +188,14 @@ wget -qO- "$(curl -qfsSL "https://api.github.com/repos/pwnwriter/haylxon/release
   
 <a name="contribution"></a> 
 ## Contribution 🤝
-  There is always scope for improvements and bugs to be fixed as contributors can make a valuable impact by addressing improvements and bugs through [**issue**](https://github.com/pwnwriter/haylxon/issues) submissions or [**pull requests**](https://github.com/pwnwriter/haylxon/pulls).
-  
-  - Still, here are the ways to contribute,
-    - Suggest a feature
-    - Report a bug
-    - Fix something and open a pull request
-    - Help me document the code and more speed pleaseeeeeee.
-    - Spread the word [**`HAYLXON(hxn)`**](https://github.com/pwnwriter/haylxon) 😎
-   
+
+Contributions are welcome! You can suggest features, report bugs, fix issues via [issues](https://github.com/pwnwriter/haylxon/issues) or [pull requests](https://github.com/pwnwriter/haylxon/pulls). Help with code documentation and spreading the word about `HAYLXON(hxn)` is appreciated! 😎
+
+<a name="support"></a>
+## Support 💌
+
+ I am a student currently attending university. I like working for *Open Source* in my free time. If you find my tool or work beneficial, please consider supporting me via [*KO-FI*](https://ko-fi.com/pwnwriter) or [*ESEWA*](https://metislinux.org/docs/donate)* (***Nepal only***), Or by leaving a star ⭐ ; I'll appreciate your action :)
+
 <a name="license"></a> 
 ## License 🔐
  Licensed under the [**`MIT LICENSE`**](/LICENSE) 
