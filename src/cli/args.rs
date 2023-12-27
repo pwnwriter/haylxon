@@ -1,5 +1,5 @@
 use super::ascii;
-use clap::{Args, Parser};
+use clap::{Args, Parser, ValueEnum};
 
 #[derive(Debug, Args)]
 #[group(required = false, multiple = false, conflicts_with = "stdin")]
@@ -22,12 +22,12 @@ pub struct Input {
     arg_required_else_help = true
 )]
 pub struct Cli {
+    #[command(flatten)]
+    pub input: Input,
+
     /// Browser binary path
     #[arg(short, long, default_value = "/usr/bin/chrome")]
     pub binary_path: String,
-
-    #[command(flatten)]
-    pub input: Input,
 
     /// Output directory to save screenshots
     #[arg(short, long, default_value = "hxnshots")]
@@ -37,11 +37,11 @@ pub struct Cli {
     #[arg(short, long, default_value = "4")]
     pub tabs: usize,
 
-    /// Width of the website // URL
+    /// Width of the website; URL
     #[arg(short = 'x', long, default_value = "1440")]
     pub width: u32,
 
-    /// Height of the website // URL
+    /// Height of the website; URL
     #[arg(short = 'y', long, default_value = "900")]
     pub height: u32,
 
@@ -53,9 +53,28 @@ pub struct Cli {
     #[arg(long)]
     pub stdin: bool,
 
-    /// verbose mode to show status code,title and more
+    /// verbose mode to show status code,title and more info
     #[arg(long)]
     pub verbose: bool,
+
+    /// Take fullpage screenshot
+    #[arg(long, default_value = "false")]
+    pub fullpage: bool,
+
+    /// Define your image type
+    #[arg(long, default_value = "png")]
+    pub screenshot_type: ScreenshotType,
+}
+
+#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
+#[allow(non_camel_case_types)]
+pub enum ScreenshotType {
+    /// format png
+    Png,
+    /// format Jpeg
+    Jpeg,
+    /// format Webg
+    Webg,
 }
 
 #[cfg(test)]

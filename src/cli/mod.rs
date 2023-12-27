@@ -1,5 +1,6 @@
 pub mod args;
 mod ascii;
+pub mod exec;
 pub mod screenshot;
 
 pub mod hxn_helper {
@@ -22,7 +23,4 @@ pub mod hxn_helper {
             .map(|url| url.trim().to_owned())
             .collect())
     }
-
-    #[allow(unused)]
-    pub fn read_ports() {}
 }
