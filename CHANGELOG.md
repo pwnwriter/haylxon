@@ -27,6 +27,10 @@
 
 - [`3967d8a`](https://github.com/pwnwriter/hysp/commit/3967d8a1e50f1dfc89af1112514ea8843d731df9): Options to change image type,size [closes #54].
 
+- [`4788272`](https://github.com/pwnwriter/hysp/commit/47882720cd6330ba5e465aac7f2a4d5ccb0caedd): Use seprate config, updated changelogs notes.
+
+- [`89707cf`](https://github.com/pwnwriter/hysp/commit/89707cf5a270df50d885816e5bf29ea16c40ccbc): Option to provide `port` values [closes #60].
+
 
 ## ☃️ Miscellaneous Tasks
 
