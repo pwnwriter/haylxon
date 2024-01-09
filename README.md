@@ -160,6 +160,20 @@ wget -qO- "$(curl -qfsSL "https://api.github.com/repos/pwnwriter/haylxon/release
   
 </details>
 
+
+- <details> <summary><code> Define your ports ✳️ </code></summary>
+  &nbsp;
+ 
+   ```bash
+   hxn -b $(which brave) -f urls.txt --ports 8080,8081
+   ```
+  
+  ![screenshot_2024-01-09_20-36-27](https://github.com/pwnwriter/haylxon/assets/90331517/2c0579ae-ca88-472a-a448-29d8accfcab6)
+
+  
+</details>
+
+
 - <details> <summary><code> hxn in termux 🐤 </code></summary>
     &nbsp;
    Install dependencies - 
