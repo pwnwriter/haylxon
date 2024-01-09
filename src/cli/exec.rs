@@ -1,5 +1,5 @@
 use super::args::{Cli, Input};
-use super::screenshot::{take_screenshot, take_screenshot_in_bulk};
+use super::screenshot::take_screenshot_in_bulk;
 use anyhow::Context;
 use chromiumoxide::{
     browser::{Browser, BrowserConfig},
@@ -24,6 +24,7 @@ pub async fn run(
         verbose,
         fullpage,
         screenshot_type,
+        ports,
     }: Cli,
 ) -> anyhow::Result<()> {
     let browser = Path::new(&binary_path);
@@ -69,7 +70,7 @@ pub async fn run(
 
     if stdin {
         env::set_current_dir(dump_dir)?;
-        let urls = super::hxn_helper::read_urls_from_stdin()?;
+        let urls = super::hxn_helper::read_urls_from_stdin(ports)?;
         take_screenshot_in_bulk(
             &browser,
             urls,
@@ -83,7 +84,7 @@ pub async fn run(
     } else {
         match (url, file_path) {
             (None, Some(file_path)) => {
-                let urls = super::hxn_helper::read_urls_from_file(file_path)?;
+                let urls = super::hxn_helper::read_urls_from_file(file_path, ports)?;
                 env::set_current_dir(dump_dir)?;
                 take_screenshot_in_bulk(
                     &browser,
@@ -97,8 +98,26 @@ pub async fn run(
                 .await?;
             }
             (Some(url), None) => {
+                let urls = if let Some(ports) = ports {
+                    let ports_vec: Vec<&str> = ports.split(',').collect();
+                    ports_vec
+                        .iter()
+                        .map(|port| format!("{}:{}", url, port))
+                        .collect()
+                } else {
+                    vec![url.to_string()]
+                };
                 env::set_current_dir(dump_dir)?;
-                take_screenshot(&browser, url, timeout, verbose, fullpage, screenshot_type).await?;
+                take_screenshot_in_bulk(
+                    &browser,
+                    urls,
+                    tabs,
+                    timeout,
+                    verbose,
+                    fullpage,
+                    screenshot_type,
+                )
+                .await?;
             }
             _ => unreachable!(),
         }
