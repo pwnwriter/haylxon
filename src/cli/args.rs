@@ -49,9 +49,8 @@ pub struct Cli {
     #[arg(long, default_value = "100")]
     pub timeout: u64,
 
-    /// Provide ports of the url
+    /// Provide ports as a range (x..y) or absolute values (x, y, z).
     #[arg(long, num_args(0..=1000), required=false)]
-    // TODO: write a custom type that supports (..) and has `FromStr` impl
     pub ports: Option<String>,
 
     /// Read urls from the standard input
