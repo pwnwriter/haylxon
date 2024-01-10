@@ -27,16 +27,37 @@ pub mod hxn_helper {
     ///
     pub fn combine_urls_with_ports(urls: Vec<String>, ports: Option<String>) -> Vec<String> {
         if let Some(ports) = ports {
+            if ports.contains("..") {
+                let parts: Vec<&str> = ports.split("..").collect();
+                if let (Some(start), Some(end)) = (parts.get(0), parts.get(1)) {
+                    if let (Ok(start_num), Ok(end_num)) = (start.parse::<u32>(), end.parse::<u32>())
+                    {
+                        let port_range: Vec<u32> = (start_num..=end_num).collect();
+                        return urls
+                            .iter()
+                            .flat_map(|url| {
+                                port_range
+                                    .iter()
+                                    .map(move |port| format!("{}:{}", url, port))
+                            })
+                            .collect();
+                    } else {
+                        println!("Invalid port range provided");
+                    }
+                }
+            }
+
             let vector_of_strings: Vec<&str> = ports.split(',').collect();
-            urls.iter()
+            return urls
+                .iter()
                 .flat_map(|url| {
                     vector_of_strings
                         .iter()
                         .map(move |port| format!("{}:{}", url, port))
                 })
-                .collect()
+                .collect();
         } else {
-            urls
+            return urls;
         }
     }
 

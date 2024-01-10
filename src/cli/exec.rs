@@ -1,5 +1,6 @@
 use super::args::{Cli, Input};
 use super::screenshot::take_screenshot_in_bulk;
+use crate::cli::hxn_helper::combine_urls_with_ports;
 use anyhow::Context;
 use chromiumoxide::{
     browser::{Browser, BrowserConfig},
@@ -99,11 +100,7 @@ pub async fn run(
             }
             (Some(url), None) => {
                 let urls = if let Some(ports) = ports {
-                    let ports_vec: Vec<&str> = ports.split(',').collect();
-                    ports_vec
-                        .iter()
-                        .map(|port| format!("{}:{}", url, port))
-                        .collect()
+                    combine_urls_with_ports(vec![url.to_string()], Some(ports))
                 } else {
                     vec![url.to_string()]
                 };
