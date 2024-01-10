@@ -220,5 +220,5 @@ Contributions are welcome! You can suggest features, report bugs, fix issues via
 - [`gowitness`](https://github.com/sensepost/gowitness) :- A golang, web screenshot utility using Chrome Headless
  
 <p align="center"><img src="https://raw.githubusercontent.com/catppuccin/catppuccin/main/assets/footers/gray0_ctp_on_line.svg?sanitize=true" /></p>
-<p align="center">Copyright &copy; 2023<a href="https://pwnwriter.xyz" target="_blank"> pwnwriter xyz </a> ☘️</p> 
+<p align="center">Copyright &copy; 2023 - present <a href="https://pwnwriter.xyz" target="_blank"> pwnwriter xyz </a> ☘️</p> 
   
