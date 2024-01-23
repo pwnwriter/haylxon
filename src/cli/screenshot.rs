@@ -82,7 +82,7 @@ pub async fn take_screenshot(
         ScreenshotParams::builder()
             .format(screenshot_format)
             .full_page(full_page)
-            .omit_background(true)
+            .omit_background(false)
             .build(),
         filename,
     )

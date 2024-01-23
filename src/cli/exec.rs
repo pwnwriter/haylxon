@@ -1,12 +1,13 @@
 use super::args::{Cli, Input};
 use super::screenshot::take_screenshot_in_bulk;
 use crate::cli::hxn_helper::combine_urls_with_ports;
+use crate::log::info;
 use anyhow::Context;
 use chromiumoxide::{
     browser::{Browser, BrowserConfig},
     handler::viewport::Viewport,
 };
-use colored::{Color, Colorize};
+use colored::Colorize;
 use futures::StreamExt;
 use std::sync::Arc;
 use std::{env, path::Path};
@@ -64,9 +65,26 @@ pub async fn run(
     });
 
     let dump_dir = Path::new(&outdir);
-    if !dump_dir.exists() {
-        // TODO: Check error cases for reporting
-        fs::create_dir(dump_dir).await?;
+
+    if dump_dir.exists() {
+        info(
+            format!("Directory already exists as {} bumping ..", outdir.bold()),
+            colored::Color::BrightRed,
+        );
+    } else {
+        match fs::create_dir(dump_dir).await {
+            Ok(_) => info(
+                format!("Bump dir {}, created successfully ..", outdir.bold()),
+                colored::Color::Green,
+            ),
+            Err(err) => {
+                info(
+                    format!("Failed to create directory: {}", err),
+                    colored::Color::Red,
+                );
+                return Err(err.into());
+            }
+        }
     }
 
     if stdin {
@@ -120,12 +138,9 @@ pub async fn run(
         }
     }
 
-    println!(
-        "{}: {}",
-        "Screenshots Taken and saved in directory"
-            .bold()
-            .color(Color::Green),
-        outdir
+    info(
+        format!("Screenshots Taken and saved in directory {}", outdir.bold()),
+        colored::Color::Cyan,
     );
 
     Ok(())
