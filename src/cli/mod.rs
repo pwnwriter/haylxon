@@ -29,7 +29,7 @@ pub mod hxn_helper {
         if let Some(ports) = ports {
             if ports.contains("..") {
                 let parts: Vec<&str> = ports.split("..").collect();
-                if let (Some(start), Some(end)) = (parts.get(0), parts.get(1)) {
+                if let (Some(start), Some(end)) = (parts.first(), parts.last()) {
                     if let (Ok(start_num), Ok(end_num)) = (start.parse::<u32>(), end.parse::<u32>())
                     {
                         let port_range: Vec<u32> = (start_num..=end_num).collect();
@@ -57,7 +57,7 @@ pub mod hxn_helper {
                 })
                 .collect();
         } else {
-            return urls;
+            urls
         }
     }
 
@@ -114,5 +114,46 @@ pub mod hxn_helper {
 
         let combined_urls = combine_urls_with_ports(urls_vec, ports);
         Ok(combined_urls)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::hxn_helper::combine_urls_with_ports;
+
+    #[test]
+    fn test_with_ports() {
+        let ports = "1..4".to_string();
+        let urls = vec![
+            "https://metislinux.org".to_string(),
+            "https://pwnwriter.xyz".to_string(),
+        ];
+        let expected_urls = vec![
+            "https://metislinux.org:1",
+            "https://metislinux.org:2",
+            "https://metislinux.org:3",
+            "https://metislinux.org:4",
+            "https://pwnwriter.xyz:1",
+            "https://pwnwriter.xyz:2",
+            "https://pwnwriter.xyz:3",
+            "https://pwnwriter.xyz:4",
+        ];
+
+        let combined_urls = combine_urls_with_ports(urls, Some(ports));
+        for url in &combined_urls {
+            println!("{}", url);
+        }
+
+        assert_eq!(combined_urls, expected_urls);
+    }
+
+    #[test]
+    fn test_no_ports() {
+        let urls = vec![
+            "https://example.com".to_string(),
+            "https://test.org".to_string(),
+        ];
+        let result = combine_urls_with_ports(urls.clone(), None);
+        assert_eq!(result, urls);
     }
 }

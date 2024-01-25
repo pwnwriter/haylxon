@@ -68,7 +68,10 @@ pub async fn run(
 
     if dump_dir.exists() {
         info(
-            format!("Directory already exists as {} bumping ..", outdir.bold()),
+            format!(
+                "A directory already exists as {} bumping ...",
+                outdir.bold()
+            ),
             colored::Color::BrightRed,
         );
     } else {
