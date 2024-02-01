@@ -21,6 +21,7 @@ pub async fn take_screenshot_in_bulk(
     silent: bool,
     full_page: bool,
     screenshot_type: ScreenshotType,
+    danger_accept_invalid_certs: bool,
 ) -> anyhow::Result<()> {
     let url_chunks: Vec<Vec<_>> = urls.chunks(tabs).map(ToOwned::to_owned).collect();
     let mut handles = Vec::with_capacity(url_chunks.len());
@@ -29,9 +30,16 @@ pub async fn take_screenshot_in_bulk(
         let browser = Arc::clone(browser);
         let handle = tokio::spawn(async move {
             for url in urls {
-                if let Err(error) =
-                    take_screenshot(&browser, url, timeout, silent, full_page, screenshot_type)
-                        .await
+                if let Err(error) = take_screenshot(
+                    &browser,
+                    url,
+                    timeout,
+                    silent,
+                    full_page,
+                    screenshot_type,
+                    danger_accept_invalid_certs,
+                )
+                .await
                 {
                     log::warn(error.to_string());
                 }
@@ -55,12 +63,13 @@ pub async fn take_screenshot(
     verbose: bool,
     full_page: bool,
     screenshot_type: ScreenshotType,
+    danger_accept_invalid_certs: bool,
 ) -> anyhow::Result<()> {
     let parsed_url = Url::parse(&url)?;
     let client = reqwest::Client::builder()
-        .danger_accept_invalid_certs(true)
-        .http1_ignore_invalid_headers_in_responses(true)
-        .trust_dns(true)
+        .danger_accept_invalid_certs(danger_accept_invalid_certs)
+        .http1_ignore_invalid_headers_in_responses(danger_accept_invalid_certs)
+        .trust_dns(danger_accept_invalid_certs)
         .build()?;
     let re = Regex::new(r"[<>?.~!@#$%^&*\\/|;:']").unwrap();
     let regurl = re.replace_all(&url, "").to_string();

@@ -68,6 +68,10 @@ pub struct Cli {
     /// Define your image type
     #[arg(long, default_value = "png")]
     pub screenshot_type: ScreenshotType,
+
+    /// Accept invalid certs, trust dns
+    #[arg(long)]
+    pub accept_invalid_certs: bool,
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
