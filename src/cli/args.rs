@@ -49,6 +49,10 @@ pub struct Cli {
     #[arg(long, default_value = "100")]
     pub timeout: u64,
 
+    /// Define delay for client side loading
+    #[arg(long, default_value = "0")]
+    pub delay: u64,
+
     /// Provide ports as a range (x..y) or absolute values (x,y,z).
     #[arg(long, num_args(0..=1000), required=false)]
     pub ports: Option<String>,

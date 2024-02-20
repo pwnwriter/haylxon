@@ -18,6 +18,7 @@ pub async fn take_screenshot_in_bulk(
     urls: Vec<String>,
     tabs: usize,
     timeout: u64,
+    delay: u64,
     silent: bool,
     full_page: bool,
     screenshot_type: ScreenshotType,
@@ -34,6 +35,7 @@ pub async fn take_screenshot_in_bulk(
                     &browser,
                     url,
                     timeout,
+                    delay,
                     silent,
                     full_page,
                     screenshot_type,
@@ -60,6 +62,7 @@ pub async fn take_screenshot(
     browser: &Browser,
     url: String,
     timeout: u64,
+    delay: u64,
     verbose: bool,
     full_page: bool,
     screenshot_type: ScreenshotType,
@@ -87,6 +90,7 @@ pub async fn take_screenshot(
         ScreenshotType::Webg => CaptureScreenshotFormat::Webp,
     };
     let page = browser.new_page(parsed_url.clone()).await?;
+    tokio::time::sleep(Duration::from_secs(delay)).await;
     page.save_screenshot(
         ScreenshotParams::builder()
             .format(screenshot_format)
