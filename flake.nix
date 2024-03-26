@@ -1,5 +1,4 @@
 {
-  description = "haylxon dev flake";
   inputs =
     {
       nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
@@ -9,11 +8,21 @@
     let
       system = "aarch64-darwin";
       pkgs = nixpkgs.legacyPackages.${system};
+      nonRustDeps = [
+        pkgs.libiconv
+      ];
     in
     {
       devShells.${system}.default = pkgs.mkShell
         {
-          packages = with pkgs; [ rustup ];
+          shellHook = ''
+            echo
+            echo "🍎🍎 You are inside nix-shell"
+            echo
+            zsh
+          '';
+          buildInputs = nonRustDeps;
+          packages = with pkgs; [ darwin.apple_sdk.frameworks.SystemConfiguration ];
         };
     };
 }
