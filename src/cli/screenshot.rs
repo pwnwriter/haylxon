@@ -72,7 +72,6 @@ pub async fn take_screenshot(
     let client = reqwest::Client::builder()
         .danger_accept_invalid_certs(danger_accept_invalid_certs)
         .http1_ignore_invalid_headers_in_responses(danger_accept_invalid_certs)
-        .trust_dns(danger_accept_invalid_certs)
         .build()?;
     let re = Regex::new(r"[<>?.~!@#$%^&*\\/|;:']").unwrap();
     let regurl = re.replace_all(&url, "").to_string();
