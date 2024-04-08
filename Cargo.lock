@@ -122,6 +122,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "604178f6c5c21f02dc555784810edfb88d34ac2c73b2eae109655649ee73ce3d"
 
 [[package]]
+name = "base64"
+version = "0.22.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9475866fec1451be56a3c2400fd081ff546538961565ccb5b7142cbd22bc7a51"
+
+[[package]]
 name = "bitflags"
 version = "1.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -182,7 +188,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b2abb1e644b7fcaa711fe4d3fca06c52bf18ebc5398711b2b11e8281c6107fbe"
 dependencies = [
  "async-tungstenite",
- "base64",
+ "base64 0.21.2",
  "cfg-if",
  "chromiumoxide_cdp",
  "chromiumoxide_types",
@@ -656,7 +662,7 @@ dependencies = [
  "columns",
  "futures",
  "regex",
- "reqwest 0.12.2",
+ "reqwest 0.12.3",
  "tokio",
  "url",
 ]
@@ -1043,7 +1049,7 @@ version = "0.11.27"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "dd67538700a17451e7cba03ac727fb961abb7607553461627b97de0b89cf4a62"
 dependencies = [
- "base64",
+ "base64 0.21.2",
  "bytes",
  "encoding_rs",
  "futures-core",
@@ -1075,11 +1081,11 @@ dependencies = [
 
 [[package]]
 name = "reqwest"
-version = "0.12.2"
+version = "0.12.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2d66674f2b6fb864665eea7a3c1ac4e3dfacd2fda83cf6f935a612e01b0e3338"
+checksum = "3e6cc1e89e689536eb5aeede61520e874df5a4707df811cd5da4aa5fbb2aae19"
 dependencies = [
- "base64",
+ "base64 0.22.0",
  "bytes",
  "futures-core",
  "futures-util",
@@ -1111,7 +1117,7 @@ dependencies = [
  "wasm-bindgen-futures",
  "web-sys",
  "webpki-roots",
- "winreg 0.50.0",
+ "winreg 0.52.0",
 ]
 
 [[package]]
@@ -1164,11 +1170,12 @@ dependencies = [
 
 [[package]]
 name = "rustls-pemfile"
-version = "1.0.3"
+version = "2.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2d3987094b1d07b653b7dfdc3f70ce9a1da9c51ac18c1b06b662e4f9a0e9f4b2"
+checksum = "29993a25686778eb88d4189742cd713c9bce943bc54251a33509dc63cbacf73d"
 dependencies = [
- "base64",
+ "base64 0.22.0",
+ "rustls-pki-types",
 ]
 
 [[package]]
@@ -1872,6 +1879,16 @@ name = "winreg"
 version = "0.51.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "937f3df7948156640f46aacef17a70db0de5917bda9c92b0f751f3a955b588fc"
+dependencies = [
+ "cfg-if",
+ "windows-sys 0.48.0",
+]
+
+[[package]]
+name = "winreg"
+version = "0.52.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a277a57398d4bfa075df44f501a17cfdf8542d224f0d36095a2adc7aee4ef0a5"
 dependencies = [
  "cfg-if",
  "windows-sys 0.48.0",
