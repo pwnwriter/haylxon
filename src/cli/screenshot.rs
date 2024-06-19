@@ -23,12 +23,14 @@ pub async fn take_screenshot_in_bulk(
     full_page: bool,
     screenshot_type: ScreenshotType,
     danger_accept_invalid_certs: bool,
+    javascript: Option<String>,
 ) -> anyhow::Result<()> {
     let url_chunks: Vec<Vec<_>> = urls.chunks(tabs).map(ToOwned::to_owned).collect();
     let mut handles = Vec::with_capacity(url_chunks.len());
 
     for urls in url_chunks {
         let browser = Arc::clone(browser);
+        let js = javascript.clone(); // Clone the JavaScript for each chunk
         let handle = tokio::spawn(async move {
             for url in urls {
                 if let Err(error) = take_screenshot(
@@ -40,6 +42,7 @@ pub async fn take_screenshot_in_bulk(
                     full_page,
                     screenshot_type,
                     danger_accept_invalid_certs,
+                    js.clone(), // Pass the JavaScript code
                 )
                 .await
                 {
@@ -67,6 +70,7 @@ pub async fn take_screenshot(
     full_page: bool,
     screenshot_type: ScreenshotType,
     danger_accept_invalid_certs: bool,
+    javascript: Option<String>,
 ) -> anyhow::Result<()> {
     let parsed_url = Url::parse(&url)?;
     let client = reqwest::Client::builder()
@@ -90,6 +94,20 @@ pub async fn take_screenshot(
     };
     let page = browser.new_page(parsed_url.clone()).await?;
     tokio::time::sleep(Duration::from_secs(delay)).await;
+
+
+    // Evaluate JavaScript if provided
+    if let Some(js) = javascript {
+        let result = page.evaluate(js.as_str()).await;
+        match result {
+            Ok(_) => log::info(
+                "JavaScript executed successfully".to_string(),
+                colored::Color::Magenta,
+            ),
+            Err(e) => log::warn(format!("JavaScript execution failed: {:?}", e)),
+        }
+    }
+
     page.save_screenshot(
         ScreenshotParams::builder()
             .format(screenshot_format)
