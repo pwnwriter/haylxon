@@ -76,6 +76,10 @@ pub struct Cli {
     /// Accept invalid certs, trust dns
     #[arg(long)]
     pub accept_invalid_certs: bool,
+
+    /// Run arbiraty javascript
+    #[arg(long)]
+    pub javascript: Option<String>,
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]

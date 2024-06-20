@@ -29,6 +29,7 @@ pub async fn run(
         screenshot_type,
         ports,
         accept_invalid_certs,
+        javascript,
     }: Cli,
 ) -> anyhow::Result<()> {
     let browser = Path::new(&binary_path);
@@ -92,7 +93,7 @@ pub async fn run(
         }
     }
 
-    if stdin {
+    let is_screenshot_taken = if stdin {
         env::set_current_dir(dump_dir)?;
         let urls = super::hxn_helper::read_urls_from_stdin(ports)?;
         take_screenshot_in_bulk(
@@ -105,8 +106,9 @@ pub async fn run(
             fullpage,
             screenshot_type,
             accept_invalid_certs,
+            javascript,
         )
-        .await?;
+        .await
     } else {
         match (url, file_path) {
             (None, Some(file_path)) => {
@@ -122,8 +124,9 @@ pub async fn run(
                     fullpage,
                     screenshot_type,
                     accept_invalid_certs,
+                    javascript,
                 )
-                .await?;
+                .await
             }
             (Some(url), None) => {
                 let urls = if let Some(ports) = ports {
@@ -142,17 +145,22 @@ pub async fn run(
                     fullpage,
                     screenshot_type,
                     accept_invalid_certs,
+                    javascript,
                 )
-                .await?;
+                .await
             }
             _ => unreachable!(),
         }
+    };
+
+    match is_screenshot_taken {
+        Ok(_) => {
+            info(
+                format!("Screenshots Taken and saved in directory {}", outdir.bold()),
+                colored::Color::Cyan,
+            );
+            Ok(())
+        }
+        Err(e) => Err(e),
     }
-
-    info(
-        format!("Screenshots Taken and saved in directory {}", outdir.bold()),
-        colored::Color::Cyan,
-    );
-
-    Ok(())
 }

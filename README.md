@@ -173,6 +173,19 @@ wget -qO- "$(curl -qfsSL "https://api.github.com/repos/pwnwriter/haylxon/release
   
 </details>
 
+- <details> <summary><code> Arbitary javascript 🏺 </code></summary>
+    &nbsp;
+   
+   ```bash
+   hxn -b $(which brave) -u <url> --javascript "javascript code here". 
+
+     ```
+   <img width="723" alt="Screenshot 2024-06-20 at 13 52 00" src="https://github.com/pwnwriter/haylxon/assets/90331517/d86c7416-b79f-4bb4-8191-059f6be74bba">
+
+
+  
+</details>
+
 
 - <details> <summary><code> hxn in termux 🐤 </code></summary>
     &nbsp;
