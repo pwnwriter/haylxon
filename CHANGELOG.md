@@ -6,6 +6,38 @@
 
 ## ☃️ Miscellaneous Tasks
 
+- [`4ee2bb4`](https://github.com/pwnwriter/hysp/commit/4ee2bb494a7cf2379ddf5d68a283b6b717004b4c): Fixed typo for v. release ; use 5 max prs for deps.
+
+- [`462669c`](https://github.com/pwnwriter/hysp/commit/462669c1a4c99c98026c41a2cadbfc47df01c46f): Help for possible port values type.
+
+- [`f44a7a9`](https://github.com/pwnwriter/hysp/commit/f44a7a9e231d64497075e4c0acae0aa97dc1f5d8): Instantiate libenv inside flake.
+
+- [`b156a9f`](https://github.com/pwnwriter/hysp/commit/b156a9f428f7da09ee516ec3a0bf9c5c4af8e11c): Removed no trust dns to accept invalid certs.
+
+- [`4f67059`](https://github.com/pwnwriter/hysp/commit/4f670597bdc95538c6a4ef8cf6ce0e87e8b4cfee): Check if the ss was successful or not and then only log.
+
+
+## 🦁Features
+
+- [`bfe92f0`](https://github.com/pwnwriter/hysp/commit/bfe92f0d07ffe70610863521ce18a450f43ac80a): Allow parsing ports in a sequence [closes #62].
+
+- [`2ef2516`](https://github.com/pwnwriter/hysp/commit/2ef2516c6dc9e36a82510a54071e975ec96ec37b): Use info logger to show screenshot msgs; handle error cases.
+
+- [`be484c7`](https://github.com/pwnwriter/hysp/commit/be484c78aeffa9a85954023b05fcaaf0d122185c): Tests functions for ports; fixed typos.
+
+- [`4d5d52f`](https://github.com/pwnwriter/hysp/commit/4d5d52fd769eeedb76325804d02b37d77edb6351): Allow defining invalid in 'args'.
+
+- [`1bc7a7d`](https://github.com/pwnwriter/hysp/commit/1bc7a7db20ca4db06da40afc3661139c944d09af): Dev flake for cc build.
+
+- [`53987da`](https://github.com/pwnwriter/hysp/commit/53987da09f99868f4f8b69a2057ee934a4482010): Run arbitary javascript in websites.
+
+- [`cee4172`](https://github.com/pwnwriter/hysp/commit/cee4172cadfceb0e16ec4898ae5e53b7774c0fbe): Guide on arbitary js option.
+
+- [`d0b5f1b`](https://github.com/pwnwriter/hysp/commit/d0b5f1be98f30b535cf6e978d650e22ea47eab29): Faq section and answers.
+
+
+## ☃️ Miscellaneous Tasks
+
 - [`7af9026`](https://github.com/pwnwriter/hysp/commit/7af9026749b780638a8b21474093850b4490bd7f): Removed bench with other apps.
 
 - [`09c7451`](https://github.com/pwnwriter/hysp/commit/09c74517fee095447e546e2c77793b1a7ff26f1f): Formated with cargo-fmt.
@@ -30,6 +62,10 @@
 - [`4788272`](https://github.com/pwnwriter/hysp/commit/47882720cd6330ba5e465aac7f2a4d5ccb0caedd): Use seprate config, updated changelogs notes.
 
 - [`89707cf`](https://github.com/pwnwriter/hysp/commit/89707cf5a270df50d885816e5bf29ea16c40ccbc): Option to provide `port` values [closes #60].
+
+- [`ae5b8ab`](https://github.com/pwnwriter/hysp/commit/ae5b8ab831e3052b5e7e1a0079e910e936d240e1): Notes for new version(0.1.10) release.
+
+- [`aa87582`](https://github.com/pwnwriter/hysp/commit/aa87582b04cd670c01c514d156e964dd481a3b82): Manual for defining port values.
 
 
 ## ☃️ Miscellaneous Tasks
