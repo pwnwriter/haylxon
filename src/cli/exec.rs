@@ -29,6 +29,7 @@ pub async fn run(
         screenshot_type,
         ports,
         accept_invalid_certs,
+        javascript,
     }: Cli,
 ) -> anyhow::Result<()> {
     let browser = Path::new(&binary_path);
@@ -105,6 +106,7 @@ pub async fn run(
             fullpage,
             screenshot_type,
             accept_invalid_certs,
+            javascript,
         )
         .await?;
     } else {
@@ -122,6 +124,7 @@ pub async fn run(
                     fullpage,
                     screenshot_type,
                     accept_invalid_certs,
+                    javascript,
                 )
                 .await?;
             }
@@ -142,6 +145,7 @@ pub async fn run(
                     fullpage,
                     screenshot_type,
                     accept_invalid_certs,
+                    javascript,
                 )
                 .await?;
             }
