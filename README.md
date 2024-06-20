@@ -25,8 +25,11 @@ Built from the ground up for ease of use, performance, beautiful ui and portabil
 * [`Benchmarking`](#benchmarking)
 * [`Contribution`](#contribution)
 * [`Support`](#support)
-* [`License`](#license)
 * [`Also see`](#see)
+* [`License`](#license)
+* [`FAQ`](#faq)
+
+
 
 ![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png)
 
@@ -35,7 +38,7 @@ Built from the ground up for ease of use, performance, beautiful ui and portabil
 - **Fast**: [`Hxn`](https://github.com/pwnwriter/haylxon) is designed to be fast, all credits goes to the [`rustlang`](https://rust-lang.org). 🦀
 - **Portable**: You can use [`haylxon`](https://github.com/pwnwriter/haylxon/) on both [`*nix`](https://en.wikipedia.org/wiki/Linux) & [`windows`](https://en.wikipedia.org/wiki/Microsoft_Windows).
 - **Ease**: This tool is designed to be very user friendly as there are very few options but does all the required works that one expects.👨‍🎨
-- **Simple**: As always [`Keeping It Simple and Stupid`](https://en.wikipedia.org/wiki/KISS_principle) 💋
+- **Simple**: As always [`Keeping It Simple and Stupid`](https://en.wikipedia.org/wiki/KISS_principle)
  
 
 <a name="installation"></a>
@@ -223,14 +226,21 @@ Contributions are welcome! You can suggest features, report bugs, fix issues via
 
  I am a student currently attending university. I like working for *Open Source* in my free time. If you find my tool or work beneficial, please consider supporting me via [*KO-FI*](https://ko-fi.com/pwnwriter) or [*ESEWA*](https://metislinux.org/docs/donate)* (***Nepal only***), Or by leaving a star ⭐ ; I'll appreciate your action :)
 
-<a name="license"></a> 
-## License 🔐
- Licensed under the [**`MIT LICENSE`**](/LICENSE) 
-
 <a name="see"></a> 
 ## Also see 👀
 - [`Kanha`](https://github.com/pwnwriter/kanha) :- A web-app pentesting suite written in rust 🦀
 - [`gowitness`](https://github.com/sensepost/gowitness) :- A golang, web screenshot utility using Chrome Headless
+
+<a name="faq"></a> 
+## FAQ 🥶
+ - How do you use `hxn`?
+   - I use hxn to automate tasks. For example, I needed to test a website on GitHub Actions before deploying. Using hxn, I took screenshots and uploaded it to    [`0x0.st`](https://0x0.st) to verify it met my requirements.
+   - When i have a list of __sub(domains)__ to test. 
+
+<a name="license"></a> 
+## License 🔐
+ Licensed under the [**`MIT LICENSE`**](/LICENSE) 
+
  
 <p align="center"><img src="https://raw.githubusercontent.com/catppuccin/catppuccin/main/assets/footers/gray0_ctp_on_line.svg?sanitize=true" /></p>
 <p align="center">Copyright &copy; 2023 - present <a href="https://pwnwriter.xyz" target="_blank"> pwnwriter xyz </a> ☘️</p> 
