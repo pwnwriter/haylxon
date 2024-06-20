@@ -22,7 +22,7 @@ futures = "0.3.30"
 columns = "0.1.0"
 colored = "2.0.4"
 anyhow = "1.0.86"
-url = "2.5.0"
+url = "2.5.2"
 regex = "1.10"
 
 [profile.dev]
