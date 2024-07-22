@@ -67,7 +67,7 @@ wget -qO- "$(curl -qfsSL "https://api.github.com/repos/pwnwriter/haylxon/release
 
 <details> <summary><code>🎠 Cargo </code></summary>
 
-- Using [crates.io](https://crates.io/crates/haylxon)
+- Using [crates.io](https://crates.io/crates/hxn)
   ```bash
   cargo install hxn
   ```

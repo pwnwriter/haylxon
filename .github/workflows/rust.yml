@@ -11,19 +11,16 @@ env:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        toolchain:
-          - stable
-          - beta
-          - nightly
-
     steps:
-    - uses: actions/checkout@v3
-    - run: rustup update ${{ matrix.toolchain }} && rustup default ${{ matrix.toolchain }}
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Install Nix package manager
+      uses: DeterminateSystems/nix-installer-action@main
+
     - name: Build
-      run: cargo build --verbose
+      run: nix develop --command cargo build --verbose
+
     - name: Run tests
-      run: cargo test --verbose
+      run: nix develop --command cargo test --verbose

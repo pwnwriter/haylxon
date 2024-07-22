@@ -1,29 +1,38 @@
 {
-  inputs =
-    {
-      nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-    };
+  inputs = {
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+  };
 
-  outputs = { self, nixpkgs, ... }@inputs:
+  outputs = { nixpkgs, ... }:
     let
-      system = "aarch64-darwin";
-      pkgs = nixpkgs.legacyPackages.${system};
-      nonRustDeps = [
-        pkgs.libiconv
-      ];
+      systems = [ "x86_64-linux" "aarch64-linux" "x86_64-darwin" "aarch64-darwin" ];
     in
     {
-      devShells.${system}.default = pkgs.mkShell
-        {
-          shellHook = ''
-            echo
-            echo "🍎🍎 You are inside nix-shell"
-            echo
-            zsh
-          '';
-          buildInputs = nonRustDeps;
-          packages = with pkgs; [ darwin.apple_sdk.frameworks.SystemConfiguration ];
-        };
+      devShells = builtins.listToAttrs (map
+        (system: {
+          name = system;
+          value =
+            let
+              pkgs = import nixpkgs { inherit system; };
+              buildInputs = with pkgs; [
+                pkg-config
+                openssl
+                libiconv
+              ] ++ (if builtins.elem system [ "x86_64-darwin" "aarch64-darwin" ] then [ pkgs.darwin.apple_sdk.frameworks.Security ] else []);
+            in
+            {
+              default = pkgs.mkShell {
+                buildInputs = buildInputs;
+
+                packages = with pkgs; [
+                   cargo
+                   rustc
+                   rustfmt
+                ];
+
+              };
+            };
+        })
+        systems);
     };
 }
-
