@@ -19,6 +19,9 @@ jobs:
     - name: Install Nix package manager
       uses: DeterminateSystems/nix-installer-action@main
 
+    - name: Setup Nix cache
+      uses: DeterminateSystems/magic-nix-cache-action@main
+
     - name: Build
       run: nix develop --command cargo build --verbose
 
