@@ -1,7 +1,4 @@
 {
-  clippy,
-  rustfmt,
-  cargo-shear,
   rust-analyzer,
   callPackage,
 }:
@@ -10,9 +7,6 @@ let
 in
 mainPkg.overrideAttrs (oa: {
   nativeBuildInputs = [
-    # clippy
-    # rustfmt
-    # rust-analyzer
-    # cargo-shear
+    rust-analyzer
   ] ++ (oa.nativeBuildInputs or [ ]);
 })
