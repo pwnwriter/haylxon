@@ -102,7 +102,12 @@ wget -qO- "$(curl -qfsSL "https://api.github.com/repos/pwnwriter/haylxon/release
 &nbsp;
   
   ```bash
+# Build from source and run
   nix run github:pwnwriter/haylxon
+# without flakes:
+ nix-env -iA nixpkgs.haylxon
+# with flakes:
+ nix profile install nixpkgs#haylxon
   ```
 
 </details>
