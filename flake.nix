@@ -1,38 +1,29 @@
 {
-  inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-  };
+  description = "Blazingly fast tool to grab screenshots of urls and webpages from terminal.";
 
-  outputs = { nixpkgs, ... }:
+  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+
+  outputs =
+    { self, nixpkgs }:
     let
-      systems = [ "x86_64-linux" "aarch64-linux" "x86_64-darwin" "aarch64-darwin" ];
+      systems = [
+        "x86_64-linux"
+        "aarch64-linux"
+        "x86_64-darwin"
+        "aarch64-darwin"
+      ];
+
+      forAllSystems =
+        function: nixpkgs.lib.genAttrs systems (system: function nixpkgs.legacyPackages.${system});
     in
     {
-      devShells = builtins.listToAttrs (map
-        (system: {
-          name = system;
-          value =
-            let
-              pkgs = import nixpkgs { inherit system; };
-              buildInputs = with pkgs; [
-                pkg-config
-                openssl
-                libiconv
-              ] ++ (if builtins.elem system [ "x86_64-darwin" "aarch64-darwin" ] then [ pkgs.darwin.apple_sdk.frameworks.Security ] else []);
-            in
-            {
-              default = pkgs.mkShell {
-                buildInputs = buildInputs;
+      packages = forAllSystems (pkgs: rec {
+        default = hxn;
+        hxn = pkgs.callPackage ./default.nix {};
+      });
 
-                packages = with pkgs; [
-                   cargo
-                   rustc
-                   rustfmt
-                ];
-
-              };
-            };
-        })
-        systems);
+      devShells = forAllSystems (pkgs: {
+        default = pkgs.callPackage ./shell.nix { };
+      });
     };
 }
