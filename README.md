@@ -97,6 +97,16 @@ wget -qO- "$(curl -qfsSL "https://api.github.com/repos/pwnwriter/haylxon/release
   ```
 
 </details>
+
+<details> <summary><code>❄️ On Nix  </code></summary>
+&nbsp;
+  
+  ```bash
+  nix run github:pwnwriter/haylxon
+  ```
+
+</details>
+
   
 ![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png)
   
