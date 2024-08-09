@@ -1,4 +1,4 @@
-name: Rust Build and Test
+name: Build the app
 
 on:
   push:
@@ -23,7 +23,4 @@ jobs:
       uses: DeterminateSystems/magic-nix-cache-action@main
 
     - name: Build
-      run: nix develop --command cargo build --verbose
-
-    - name: Run tests
-      run: nix develop --command cargo test --verbose
+      run: nix build

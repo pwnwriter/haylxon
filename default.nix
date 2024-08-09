@@ -2,9 +2,7 @@
   lib,
   rustPlatform,
   stdenv,
-  openssl,
   darwin,
-  pkg-config,
 }:
 let
   p = (lib.importTOML ./Cargo.toml).package;
@@ -28,18 +26,7 @@ rustPlatform.buildRustPackage {
     lockFile = ./Cargo.lock;
   };
 
-  buildInputs =
-    [ openssl ]
-    ++ lib.optionals stdenv.isDarwin (
-      with darwin.apple_sdk.frameworks;
-      [
-        Security
-        CoreFoundation
-        SystemConfiguration
-      ]
-    );
-
-  nativeBuildInputs = [ pkg-config ];
+  buildInputs = lib.optionals stdenv.isDarwin [ darwin.apple_sdk.frameworks.Security ];
 
   meta = {
     inherit (p) description homepage;
