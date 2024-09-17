@@ -77,7 +77,7 @@ pub struct Cli {
     #[arg(long)]
     pub accept_invalid_certs: bool,
 
-    /// Run arbiraty javascript
+    /// Run arbitrary javascript
     #[arg(long)]
     pub javascript: Option<String>,
 }
