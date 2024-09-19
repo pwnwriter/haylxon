@@ -21,7 +21,7 @@ tokio = { version = "1.38.1", features = ["full"] }
 futures = "0.3.30"
 columns = "0.1.0"
 colored = "2.0.4"
-anyhow = "1.0.86"
+anyhow = "1.0.89"
 url = "2.5.2"
 regex = "1.10"
 
