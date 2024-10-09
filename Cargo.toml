@@ -16,7 +16,7 @@ categories = ["accessibility", "web-programming", "command-line" ]
 [dependencies]
 chromiumoxide = {  version = "0.6.0", features = ["tokio-runtime"], default-features = false }
 reqwest = { version = "0.12.5", default-features = false, features = ["rustls-tls", "trust-dns"] }
-clap = { version = "4.5.17", features = ["derive", "string"] }
+clap = { version = "4.5.20", features = ["derive", "string"] }
 tokio = { version = "1.38.1", features = ["full"] }
 futures = "0.3.30"
 columns = "0.1.0"
