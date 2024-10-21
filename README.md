@@ -258,5 +258,5 @@ Contributions are welcome! You can suggest features, report bugs, fix issues via
 
  
 <p align="center"><img src="https://raw.githubusercontent.com/catppuccin/catppuccin/main/assets/footers/gray0_ctp_on_line.svg?sanitize=true" /></p>
-<p align="center">Copyright &copy; 2023 - present <a href="https://pwnwriter.xyz" target="_blank"> pwnwriter xyz </a> ☘️</p> 
+<p align="center">Copyright &copy; 2023 - present <a href="https://pwnwriter.me" target="_blank"> pwnwriter me </a> ☘️</p> 
   
