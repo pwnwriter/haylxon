@@ -1,7 +1,7 @@
 ####
 # Build haylxon
 ####
-FROM rust:1.77-slim-bullseye as builder
+FROM rust:1.85-slim-bullseye as builder
 WORKDIR /usr/src/
 
 # RUN rustup target add x86_64-unknown-linux-musl
