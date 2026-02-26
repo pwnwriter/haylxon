@@ -95,6 +95,10 @@ pub async fn run(
     let is_screenshot_taken = if stdin {
         env::set_current_dir(dump_dir).into_diagnostic()?;
         let urls = super::hxn_helper::read_urls_from_stdin(ports)?;
+        info(
+            format!("Found {} URLs from stdin", urls.len()),
+            colored::Color::Cyan,
+        );
         take_screenshot_in_bulk(
             &browser,
             urls,
@@ -111,7 +115,11 @@ pub async fn run(
     } else {
         match (url, file_path) {
             (None, Some(file_path)) => {
-                let urls = super::hxn_helper::read_urls_from_file(file_path, ports)?;
+                let urls = super::hxn_helper::read_urls_from_file(&file_path, ports)?;
+                info(
+                    format!("Found {} URLs from {}", urls.len(), file_path.bold()),
+                    colored::Color::Cyan,
+                );
                 env::set_current_dir(dump_dir).into_diagnostic()?;
                 take_screenshot_in_bulk(
                     &browser,
