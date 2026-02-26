@@ -1,11 +1,5 @@
 use colored::Colorize;
 
-pub const BAR: &str = r"
-────────────────────────────────
-";
-
-pub const RESET: &str = "\x1B[0m"; // (resets the text color to the default)
-
 pub fn splash() -> String {
     let hxn_version = env!("CARGO_PKG_VERSION");
 

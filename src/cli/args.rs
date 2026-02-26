@@ -61,9 +61,9 @@ pub struct Cli {
     #[arg(long)]
     pub stdin: bool,
 
-    /// verbose mode to show status code,title and more info
-    #[arg(long)]
-    pub verbose: bool,
+    /// Silent mode, suppress extra output (useful for automation)
+    #[arg(short, long)]
+    pub silent: bool,
 
     /// Take fullpage screenshot
     #[arg(long, default_value = "false")]

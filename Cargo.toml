@@ -19,10 +19,11 @@ reqwest = { version = "0.12.5", default-features = false, features = ["rustls-tl
 clap = { version = "4.5.8", features = ["derive", "string"] }
 tokio = { version = "1.38.1", features = ["full"] }
 futures = "0.3.30"
-columns = "0.1.0"
+tabled = { version = "0.17", features = ["ansi"] }
 colored = "2.0.4"
 miette = { version = "7", features = ["fancy"] }
 url = "2.5.2"
+indicatif = "0.17"
 regex = "1.10"
 
 [profile.dev]

@@ -11,7 +11,18 @@ use futures::StreamExt;
 use miette::{Context, IntoDiagnostic};
 use std::sync::Arc;
 use std::{env, path::Path};
+use tabled::{builder::Builder, settings::Style};
 use tokio::{fs, task};
+
+fn print_config_table(url_count: usize, source: &str, outdir: &str, tabs: usize) {
+    let mut builder = Builder::default();
+    builder.push_record(["URLs", &url_count.to_string()]);
+    builder.push_record(["Source", source]);
+    builder.push_record(["Output", outdir]);
+    builder.push_record(["Tabs", &tabs.to_string()]);
+    let table = builder.build().with(Style::modern()).to_string();
+    println!("{table}");
+}
 
 pub async fn run(
     Cli {
@@ -24,7 +35,7 @@ pub async fn run(
         height,
         timeout,
         delay,
-        verbose,
+        silent,
         fullpage,
         screenshot_type,
         ports,
@@ -95,31 +106,30 @@ pub async fn run(
     let is_screenshot_taken = if stdin {
         env::set_current_dir(dump_dir).into_diagnostic()?;
         let urls = super::hxn_helper::read_urls_from_stdin(ports)?;
-        info(
-            format!("Found {} URLs from stdin", urls.len()),
-            colored::Color::Cyan,
-        );
+        if !silent {
+            print_config_table(urls.len(), "stdin", &outdir, tabs);
+        }
         take_screenshot_in_bulk(
             &browser,
             urls,
             tabs,
             timeout,
             delay,
-            verbose,
+            silent,
             fullpage,
             screenshot_type,
             accept_invalid_certs,
             javascript,
+            true,
         )
         .await
     } else {
         match (url, file_path) {
             (None, Some(file_path)) => {
                 let urls = super::hxn_helper::read_urls_from_file(&file_path, ports)?;
-                info(
-                    format!("Found {} URLs from {}", urls.len(), file_path.bold()),
-                    colored::Color::Cyan,
-                );
+                if !silent {
+                    print_config_table(urls.len(), &file_path, &outdir, tabs);
+                }
                 env::set_current_dir(dump_dir).into_diagnostic()?;
                 take_screenshot_in_bulk(
                     &browser,
@@ -127,11 +137,12 @@ pub async fn run(
                     tabs,
                     timeout,
                     delay,
-                    verbose,
+                    silent,
                     fullpage,
                     screenshot_type,
                     accept_invalid_certs,
                     javascript,
+                    true,
                 )
                 .await
             }
@@ -148,11 +159,12 @@ pub async fn run(
                     tabs,
                     timeout,
                     delay,
-                    verbose,
+                    silent,
                     fullpage,
                     screenshot_type,
                     accept_invalid_certs,
                     javascript,
+                    false,
                 )
                 .await
             }
@@ -162,10 +174,12 @@ pub async fn run(
 
     match is_screenshot_taken {
         Ok(_) => {
-            info(
-                format!("Screenshots Taken and saved in directory {}", outdir.bold()),
-                colored::Color::Cyan,
-            );
+            if !silent {
+                info(
+                    format!("Screenshots Taken and saved in directory {}", outdir.bold()),
+                    colored::Color::Cyan,
+                );
+            }
             Ok(())
         }
         Err(e) => Err(e),
