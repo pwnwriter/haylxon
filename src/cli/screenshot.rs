@@ -1,11 +1,11 @@
 use super::args::ScreenshotType;
 use super::ascii::{BAR, RESET};
 use crate::log;
-use anyhow::Context;
 use chromiumoxide::page::ScreenshotParams;
 use chromiumoxide::{browser::Browser, cdp::browser_protocol::page::CaptureScreenshotFormat};
 use colored::Colorize;
 use columns::Columns;
+use miette::{Context, IntoDiagnostic};
 use regex::Regex;
 use reqwest::StatusCode;
 use std::sync::Arc;
@@ -24,7 +24,7 @@ pub async fn take_screenshot_in_bulk(
     screenshot_type: ScreenshotType,
     danger_accept_invalid_certs: bool,
     javascript: Option<String>,
-) -> anyhow::Result<()> {
+) -> miette::Result<()> {
     let url_chunks: Vec<Vec<_>> = urls.chunks(tabs).map(ToOwned::to_owned).collect();
     let mut handles = Vec::with_capacity(url_chunks.len());
 
@@ -55,7 +55,7 @@ pub async fn take_screenshot_in_bulk(
     }
 
     for handle in handles {
-        handle.await?;
+        handle.await.into_diagnostic()?;
     }
 
     Ok(())
@@ -71,12 +71,15 @@ pub async fn take_screenshot(
     screenshot_type: ScreenshotType,
     danger_accept_invalid_certs: bool,
     javascript: Option<String>,
-) -> anyhow::Result<()> {
-    let parsed_url = Url::parse(&url)?;
+) -> miette::Result<()> {
+    let parsed_url = Url::parse(&url)
+        .into_diagnostic()
+        .wrap_err_with(|| format!("Invalid URL: {url}"))?;
     let client = reqwest::Client::builder()
         .danger_accept_invalid_certs(danger_accept_invalid_certs)
         .http1_ignore_invalid_headers_in_responses(danger_accept_invalid_certs)
-        .build()?;
+        .build()
+        .into_diagnostic()?;
     let re = Regex::new(r"[<>?.~!@#$%^&*\\/|;:']").unwrap();
     let regurl = re.replace_all(&url, "").to_string();
 
@@ -92,9 +95,12 @@ pub async fn take_screenshot(
         ScreenshotType::Jpeg => CaptureScreenshotFormat::Jpeg,
         ScreenshotType::Webg => CaptureScreenshotFormat::Webp,
     };
-    let page = browser.new_page(parsed_url.clone()).await?;
+    let page = browser
+        .new_page(parsed_url.clone())
+        .await
+        .into_diagnostic()
+        .wrap_err_with(|| format!("Failed to open page: {url}"))?;
     tokio::time::sleep(Duration::from_secs(delay)).await;
-
 
     // Evaluate JavaScript if provided
     if let Some(js) = javascript {
@@ -114,9 +120,11 @@ pub async fn take_screenshot(
             .full_page(full_page)
             .omit_background(false)
             .build(),
-        filename,
+        &filename,
     )
-    .await?;
+    .await
+    .into_diagnostic()
+    .wrap_err_with(|| format!("Failed to save screenshot for: {url}"))?;
 
     if verbose {
         let response = time::timeout(
@@ -124,7 +132,9 @@ pub async fn take_screenshot(
             client.get(parsed_url.clone()).send(),
         )
         .await
-        .context(format!("[-] Timed out URL = {url}"))??;
+        .into_diagnostic()
+        .wrap_err_with(|| format!("Timed out URL = {url}"))?
+        .into_diagnostic()?;
 
         match page.get_title().await {
             Ok(Some(title)) => show_info(url.clone(), title, response.status()),
@@ -134,7 +144,7 @@ pub async fn take_screenshot(
             }
         }
     }
-    page.close().await?;
+    page.close().await.into_diagnostic()?;
 
     Ok(())
 }

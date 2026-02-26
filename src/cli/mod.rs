@@ -4,7 +4,7 @@ pub mod exec;
 pub mod screenshot;
 
 pub mod hxn_helper {
-    use anyhow::{Context, Result};
+    use miette::{Context, IntoDiagnostic, Result};
     use std::{
         io::{self, BufRead},
         path::Path,
@@ -76,7 +76,7 @@ pub mod hxn_helper {
     /// A result containing a vector of processed URLs or an error if stdin reading fails.
     ///
     #[inline]
-    pub fn read_urls_from_stdin(ports: Option<String>) -> anyhow::Result<Vec<String>> {
+    pub fn read_urls_from_stdin(ports: Option<String>) -> Result<Vec<String>> {
         let urls: Vec<String> = io::stdin()
             .lock()
             .lines()
@@ -108,6 +108,7 @@ pub mod hxn_helper {
         ports: Option<String>,
     ) -> Result<Vec<String>> {
         let urls = std::fs::read_to_string(&file_path)
+            .into_diagnostic()
             .with_context(|| format!("Failed to read file: {:?}", file_path.as_ref()))?;
 
         let urls_vec: Vec<String> = urls.lines().map(|url| url.to_string()).collect();

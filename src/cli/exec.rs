@@ -2,13 +2,13 @@ use super::args::{Cli, Input};
 use super::screenshot::take_screenshot_in_bulk;
 use crate::cli::hxn_helper::combine_urls_with_ports;
 use crate::log::info;
-use anyhow::Context;
 use chromiumoxide::{
     browser::{Browser, BrowserConfig},
     handler::viewport::Viewport,
 };
 use colored::Colorize;
 use futures::StreamExt;
+use miette::{Context, IntoDiagnostic};
 use std::sync::Arc;
 use std::{env, path::Path};
 use tokio::{fs, task};
@@ -31,12 +31,12 @@ pub async fn run(
         accept_invalid_certs,
         javascript,
     }: Cli,
-) -> anyhow::Result<()> {
+) -> miette::Result<()> {
     let browser = Path::new(&binary_path);
     if !browser.exists() {
-        return Err(anyhow::Error::msg(format!(
+        return Err(miette::miette!(
             "Unable to locate browser binary {binary_path}"
-        )));
+        ));
     }
 
     let (browser, mut handler) = Browser::launch(
@@ -55,10 +55,11 @@ pub async fn run(
                 has_touch: false,
             })
             .build()
-            .map_err(anyhow::Error::msg)?,
+            .map_err(|e| miette::miette!(e))?,
     )
     .await
-    .context(format!("Error instantiating browser {binary_path}"))?;
+    .into_diagnostic()
+    .wrap_err(format!("Error instantiating browser {binary_path}"))?;
     let browser = Arc::new(browser);
 
     task::spawn(async move {
@@ -86,13 +87,13 @@ pub async fn run(
                     format!("Failed to create directory: {}", err),
                     colored::Color::Red,
                 );
-                return Err(err.into());
+                return Err(err).into_diagnostic();
             }
         }
     }
 
     let is_screenshot_taken = if stdin {
-        env::set_current_dir(dump_dir)?;
+        env::set_current_dir(dump_dir).into_diagnostic()?;
         let urls = super::hxn_helper::read_urls_from_stdin(ports)?;
         take_screenshot_in_bulk(
             &browser,
@@ -111,7 +112,7 @@ pub async fn run(
         match (url, file_path) {
             (None, Some(file_path)) => {
                 let urls = super::hxn_helper::read_urls_from_file(file_path, ports)?;
-                env::set_current_dir(dump_dir)?;
+                env::set_current_dir(dump_dir).into_diagnostic()?;
                 take_screenshot_in_bulk(
                     &browser,
                     urls,
@@ -132,7 +133,7 @@ pub async fn run(
                 } else {
                     vec![url.to_string()]
                 };
-                env::set_current_dir(dump_dir)?;
+                env::set_current_dir(dump_dir).into_diagnostic()?;
                 take_screenshot_in_bulk(
                     &browser,
                     urls,
