@@ -10,16 +10,39 @@ use colored::Colorize;
 use futures::StreamExt;
 use miette::{Context, IntoDiagnostic};
 use std::sync::Arc;
+use std::time::Instant;
 use std::{env, path::Path};
 use tabled::{builder::Builder, settings::Style};
 use tokio::{fs, task};
 
-fn print_config_table(url_count: usize, source: &str, outdir: &str, tabs: usize) {
+const USER_AGENTS: &[&str] = &[
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:133.0) Gecko/20100101 Firefox/133.0",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:133.0) Gecko/20100101 Firefox/133.0",
+    "Mozilla/5.0 (X11; Linux x86_64; rv:133.0) Gecko/20100101 Firefox/133.0",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.2 Safari/605.1.15",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 Edg/131.0.0.0",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 Edg/131.0.0.0",
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 Edg/131.0.0.0",
+];
+
+fn print_config_table(
+    url_count: usize,
+    source: &str,
+    outdir: &str,
+    tabs: usize,
+    user_agent: &Option<String>,
+) {
     let mut builder = Builder::default();
     builder.push_record(["URLs", &url_count.to_string()]);
     builder.push_record(["Source", source]);
     builder.push_record(["Output", outdir]);
     builder.push_record(["Tabs", &tabs.to_string()]);
+    if let Some(ua) = user_agent {
+        builder.push_record(["User-Agent", ua]);
+    }
     let table = builder.build().with(Style::modern()).to_string();
     println!("{table}");
 }
@@ -41,8 +64,19 @@ pub async fn run(
         ports,
         accept_invalid_certs,
         javascript,
+        user_agent,
+        random_user_agent,
     }: Cli,
 ) -> miette::Result<()> {
+    let user_agent = if let Some(ua) = user_agent {
+        Some(ua)
+    } else if random_user_agent {
+        let idx = Instant::now().elapsed().subsec_nanos() as usize % USER_AGENTS.len();
+        Some(USER_AGENTS[idx].to_string())
+    } else {
+        None
+    };
+
     let browser = Path::new(&binary_path);
     if !browser.exists() {
         return Err(miette::miette!(
@@ -50,32 +84,34 @@ pub async fn run(
         ));
     }
 
-    let (browser, mut handler) = Browser::launch(
-        BrowserConfig::builder()
-            .no_sandbox()
-            .arg("--disable-dev-shm-usage")
-            .arg("--disable-gpu")
-            .window_size(width, height)
-            .chrome_executable(browser)
-            .viewport(Viewport {
-                width,
-                height,
-                device_scale_factor: None,
-                emulating_mobile: false,
-                is_landscape: false,
-                has_touch: false,
-            })
-            .build()
-            .map_err(|e| miette::miette!(e))?,
-    )
-    .await
-    .into_diagnostic()
-    .wrap_err(format!("Error instantiating browser {binary_path}"))?;
+    let mut browser_config = BrowserConfig::builder();
+    browser_config = browser_config
+        .no_sandbox()
+        .arg("--disable-dev-shm-usage")
+        .arg("--disable-gpu")
+        .window_size(width, height)
+        .chrome_executable(browser)
+        .viewport(Viewport {
+            width,
+            height,
+            device_scale_factor: None,
+            emulating_mobile: false,
+            is_landscape: false,
+            has_touch: false,
+        });
+
+    if let Some(ref ua) = user_agent {
+        browser_config = browser_config.arg(format!("--user-agent={ua}"));
+    }
+
+    let (browser, mut handler) =
+        Browser::launch(browser_config.build().map_err(|e| miette::miette!(e))?)
+            .await
+            .into_diagnostic()
+            .wrap_err(format!("Error instantiating browser {binary_path}"))?;
     let browser = Arc::new(browser);
 
-    task::spawn(async move {
-        while handler.next().await.is_some() {}
-    });
+    task::spawn(async move { while handler.next().await.is_some() {} });
 
     let dump_dir = Path::new(&outdir);
 
@@ -107,7 +143,7 @@ pub async fn run(
         env::set_current_dir(dump_dir).into_diagnostic()?;
         let urls = super::hxn_helper::read_urls_from_stdin(ports)?;
         if !silent {
-            print_config_table(urls.len(), "stdin", &outdir, tabs);
+            print_config_table(urls.len(), "stdin", &outdir, tabs, &user_agent);
         }
         take_screenshot_in_bulk(
             &browser,
@@ -121,6 +157,7 @@ pub async fn run(
             accept_invalid_certs,
             javascript,
             true,
+            user_agent,
         )
         .await
     } else {
@@ -128,7 +165,7 @@ pub async fn run(
             (None, Some(file_path)) => {
                 let urls = super::hxn_helper::read_urls_from_file(&file_path, ports)?;
                 if !silent {
-                    print_config_table(urls.len(), &file_path, &outdir, tabs);
+                    print_config_table(urls.len(), &file_path, &outdir, tabs, &user_agent);
                 }
                 env::set_current_dir(dump_dir).into_diagnostic()?;
                 take_screenshot_in_bulk(
@@ -143,6 +180,7 @@ pub async fn run(
                     accept_invalid_certs,
                     javascript,
                     true,
+                    user_agent,
                 )
                 .await
             }
@@ -165,6 +203,7 @@ pub async fn run(
                     accept_invalid_certs,
                     javascript,
                     false,
+                    user_agent,
                 )
                 .await
             }

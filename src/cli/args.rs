@@ -80,6 +80,14 @@ pub struct Cli {
     /// Run arbiraty javascript
     #[arg(long)]
     pub javascript: Option<String>,
+
+    /// Custom user-agent string
+    #[arg(long, conflicts_with = "random_user_agent")]
+    pub user_agent: Option<String>,
+
+    /// Use a random user-agent from a built-in list
+    #[arg(long, conflicts_with = "user_agent")]
+    pub random_user_agent: bool,
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]

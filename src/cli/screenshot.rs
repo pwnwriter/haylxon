@@ -25,6 +25,7 @@ pub async fn take_screenshot_in_bulk(
     danger_accept_invalid_certs: bool,
     javascript: Option<String>,
     is_bulk: bool,
+    user_agent: Option<String>,
 ) -> miette::Result<()> {
     let total = urls.len() as u64;
     let pb = if silent {
@@ -50,6 +51,7 @@ pub async fn take_screenshot_in_bulk(
         let browser = Arc::clone(browser);
         let js = javascript.clone();
         let pb = Arc::clone(&pb);
+        let ua = user_agent.clone();
         let handle = tokio::spawn(async move {
             for url in urls {
                 pb.set_message(url.clone());
@@ -65,6 +67,7 @@ pub async fn take_screenshot_in_bulk(
                     js.clone(),
                     &pb,
                     is_bulk,
+                    ua.clone(),
                 )
                 .await
                 {
@@ -104,16 +107,19 @@ pub async fn take_screenshot(
     javascript: Option<String>,
     pb: &ProgressBar,
     is_bulk: bool,
+    user_agent: Option<String>,
 ) -> miette::Result<()> {
     let start = Instant::now();
     let parsed_url = Url::parse(&url)
         .into_diagnostic()
         .wrap_err_with(|| format!("Invalid URL: {url}"))?;
-    let client = reqwest::Client::builder()
+    let mut client_builder = reqwest::Client::builder()
         .danger_accept_invalid_certs(danger_accept_invalid_certs)
-        .http1_ignore_invalid_headers_in_responses(danger_accept_invalid_certs)
-        .build()
-        .into_diagnostic()?;
+        .http1_ignore_invalid_headers_in_responses(danger_accept_invalid_certs);
+    if let Some(ref ua) = user_agent {
+        client_builder = client_builder.user_agent(ua);
+    }
+    let client = client_builder.build().into_diagnostic()?;
     let re = Regex::new(r"[<>?.~!@#$%^&*\\/|;:']").unwrap();
     let regurl = re.replace_all(&url, "").to_string();
 
@@ -181,7 +187,16 @@ pub async fn take_screenshot(
         if is_bulk {
             pb.suspend(|| show_line(&url, response.status(), &filename, elapsed));
         } else {
-            pb.suspend(|| show_info(&url, &title, response.status(), &filename, elapsed));
+            pb.suspend(|| {
+                show_info(
+                    &url,
+                    &title,
+                    response.status(),
+                    &filename,
+                    elapsed,
+                    &user_agent,
+                )
+            });
         }
     }
 
@@ -190,7 +205,14 @@ pub async fn take_screenshot(
     Ok(())
 }
 
-fn show_info(url: &str, title: &str, status: StatusCode, filename: &str, elapsed: Duration) {
+fn show_info(
+    url: &str,
+    title: &str,
+    status: StatusCode,
+    filename: &str,
+    elapsed: Duration,
+    user_agent: &Option<String>,
+) {
     let elapsed_secs = elapsed.as_secs_f64();
     let mut builder = Builder::default();
     builder.push_record(["URL", url]);
@@ -198,6 +220,9 @@ fn show_info(url: &str, title: &str, status: StatusCode, filename: &str, elapsed
     builder.push_record(["Status", &format!("{status}")]);
     builder.push_record(["Saved as", filename]);
     builder.push_record(["Time", &format!("{elapsed_secs:.2}s")]);
+    if let Some(ua) = user_agent {
+        builder.push_record(["User-Agent", ua]);
+    }
     let table = builder.build().with(Style::modern()).to_string();
     println!("{table}");
 }
@@ -215,10 +240,5 @@ fn show_line(url: &str, status: StatusCode, filename: &str, elapsed: Duration) {
 }
 
 fn show_line_error(error: &str) {
-    println!(
-        "{} {} {}",
-        "✗".red(),
-        "ERR".red(),
-        error,
-    );
+    println!("{} {} {}", "✗".red(), "ERR".red(), error,);
 }
