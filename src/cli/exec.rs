@@ -42,6 +42,8 @@ pub async fn run(
     let (browser, mut handler) = Browser::launch(
         BrowserConfig::builder()
             .no_sandbox()
+            .arg("--disable-dev-shm-usage")
+            .arg("--disable-gpu")
             .window_size(width, height)
             .chrome_executable(browser)
             .viewport(Viewport {
@@ -60,11 +62,7 @@ pub async fn run(
     let browser = Arc::new(browser);
 
     task::spawn(async move {
-        while let Some(h) = handler.next().await {
-            if h.is_err() {
-                break;
-            }
-        }
+        while handler.next().await.is_some() {}
     });
 
     let dump_dir = Path::new(&outdir);
