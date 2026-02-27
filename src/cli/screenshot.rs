@@ -79,19 +79,30 @@ pub async fn take_screenshot_in_bulk(
             )
             .await
             {
+                // Build full error chain so the root cause is visible
+                let full_err = {
+                    let mut msg = error.to_string();
+                    let mut source: Option<&dyn std::error::Error> = error.source();
+                    while let Some(cause) = source {
+                        msg.push_str(": ");
+                        msg.push_str(&cause.to_string());
+                        source = cause.source();
+                    }
+                    msg
+                };
                 if json && !silent {
                     let err = ScreenshotError {
                         url,
-                        error: error.to_string(),
+                        error: full_err,
                     };
                     println!("{}", serde_json::to_string(&err).unwrap());
                 } else if is_bulk && !silent {
                     pb.suspend(|| {
-                        output::show_line_error(&error.to_string());
+                        output::show_line_error(&full_err);
                     });
                 } else {
                     pb.suspend(|| {
-                        eprintln!("{} {error}", "warning:".bold().yellow());
+                        eprintln!("{} {full_err}", "warning:".bold().yellow());
                     });
                 }
             }
