@@ -7,11 +7,15 @@ use colored::Colorize;
 use indicatif::{ProgressBar, ProgressStyle};
 use miette::{Context, IntoDiagnostic};
 use regex::Regex;
-use std::sync::Arc;
+use std::sync::{Arc, LazyLock};
 use std::time::{Duration, Instant};
 use tokio::sync::Semaphore;
 use tokio::time;
 use url::Url;
+
+/// Pre-compiled regex for sanitizing URLs into filenames.
+static FILENAME_RE: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"[<>?.~!@#$%^&*\\/|;:']").unwrap());
 
 pub async fn take_screenshot_in_bulk(
     browser: &Arc<Browser>,
@@ -30,6 +34,19 @@ pub async fn take_screenshot_in_bulk(
     json: bool,
     ua_pool: Arc<Vec<String>>,
 ) -> miette::Result<()> {
+    // Build HTTP client once — reuses connections across all URLs
+    let http_client = if !silent {
+        let mut builder = reqwest::Client::builder()
+            .danger_accept_invalid_certs(danger_accept_invalid_certs)
+            .http1_ignore_invalid_headers_in_responses(danger_accept_invalid_certs);
+        if let Some(ref proxy_url) = proxy {
+            builder = builder.proxy(reqwest::Proxy::all(proxy_url).into_diagnostic()?);
+        }
+        Some(Arc::new(builder.build().into_diagnostic()?))
+    } else {
+        None
+    };
+
     let total = urls.len() as u64;
     let pb = if silent || json {
         ProgressBar::hidden()
@@ -56,7 +73,7 @@ pub async fn take_screenshot_in_bulk(
         let js = javascript.clone();
         let pb = Arc::clone(&pb);
         let ua = user_agent.clone();
-        let px = proxy.clone();
+        let client = http_client.clone();
         let pool = Arc::clone(&ua_pool);
         let handle = tokio::spawn(async move {
             pb.set_message(url.clone());
@@ -68,14 +85,13 @@ pub async fn take_screenshot_in_bulk(
                 silent,
                 full_page,
                 screenshot_type,
-                danger_accept_invalid_certs,
                 js,
                 &pb,
                 is_bulk,
                 ua,
-                px,
                 json,
                 &pool,
+                client.as_deref(),
             )
             .await
             {
@@ -130,14 +146,13 @@ async fn take_screenshot(
     silent: bool,
     full_page: bool,
     screenshot_type: ScreenshotType,
-    danger_accept_invalid_certs: bool,
     javascript: Option<String>,
     pb: &ProgressBar,
     is_bulk: bool,
     user_agent: Option<String>,
-    proxy: Option<String>,
     json: bool,
     ua_pool: &[String],
+    http_client: Option<&reqwest::Client>,
 ) -> miette::Result<()> {
     let url = if !url.starts_with("http://") && !url.starts_with("https://") {
         format!("https://{url}")
@@ -156,20 +171,8 @@ async fn take_screenshot(
     let parsed_url = Url::parse(&url)
         .into_diagnostic()
         .wrap_err_with(|| format!("Invalid URL: {url}"))?;
-    let mut client_builder = reqwest::Client::builder()
-        .danger_accept_invalid_certs(danger_accept_invalid_certs)
-        .http1_ignore_invalid_headers_in_responses(danger_accept_invalid_certs);
-    if let Some(ref ua) = user_agent {
-        client_builder = client_builder.user_agent(ua);
-    }
-    if let Some(ref proxy_url) = proxy {
-        let proxy = reqwest::Proxy::all(proxy_url).into_diagnostic()?;
-        client_builder = client_builder.proxy(proxy);
-    }
-    let client = client_builder.build().into_diagnostic()?;
-    let re = Regex::new(r"[<>?.~!@#$%^&*\\/|;:']").unwrap();
-    let regurl = re.replace_all(&url, "").to_string();
 
+    let regurl = FILENAME_RE.replace_all(&url, "").to_string();
     let filename = format!(
         "{}.png",
         regurl
@@ -236,47 +239,59 @@ async fn take_screenshot(
 
     if !silent {
         let elapsed = start.elapsed();
-        let response = time::timeout(
-            Duration::from_secs(timeout),
-            client.get(parsed_url.clone()).send(),
-        )
-        .await
-        .into_diagnostic()
-        .wrap_err_with(|| format!("Timed out URL = {url}"))?
-        .into_diagnostic()?;
 
+        // Get title while page is still open
         let title = match page.get_title().await {
             Ok(Some(t)) => t,
             _ => "No title".to_string(),
         };
 
-        if json {
-            let result = ScreenshotResult {
-                url: url.clone(),
-                title,
-                status: response.status().as_u16(),
-                filename: filename.clone(),
-                elapsed_secs: elapsed.as_secs_f64(),
-                user_agent: user_agent.clone(),
-            };
-            println!("{}", serde_json::to_string(&result).unwrap());
-        } else if is_bulk {
-            pb.suspend(|| output::show_line(&url, response.status(), &filename, elapsed));
-        } else {
-            pb.suspend(|| {
-                output::show_info(
-                    &url,
-                    &title,
-                    response.status(),
-                    &filename,
-                    elapsed,
-                    &user_agent,
-                )
-            });
-        }
-    }
+        // Close page early to free the browser tab for the next URL
+        page.close().await.into_diagnostic()?;
 
-    page.close().await.into_diagnostic()?;
+        // HTTP status check uses the shared client (no per-URL setup cost)
+        if let Some(client) = http_client {
+            let mut req = client.get(parsed_url.clone());
+            if let Some(ref ua) = user_agent {
+                req = req.header("user-agent", ua.as_str());
+            }
+            let response = time::timeout(
+                Duration::from_secs(timeout),
+                req.send(),
+            )
+            .await
+            .into_diagnostic()
+            .wrap_err_with(|| format!("Timed out URL = {url}"))?
+            .into_diagnostic()?;
+
+            if json {
+                let result = ScreenshotResult {
+                    url: url.clone(),
+                    title,
+                    status: response.status().as_u16(),
+                    filename: filename.clone(),
+                    elapsed_secs: elapsed.as_secs_f64(),
+                    user_agent: user_agent.clone(),
+                };
+                println!("{}", serde_json::to_string(&result).unwrap());
+            } else if is_bulk {
+                pb.suspend(|| output::show_line(&url, response.status(), &filename, elapsed));
+            } else {
+                pb.suspend(|| {
+                    output::show_info(
+                        &url,
+                        &title,
+                        response.status(),
+                        &filename,
+                        elapsed,
+                        &user_agent,
+                    )
+                });
+            }
+        }
+    } else {
+        page.close().await.into_diagnostic()?;
+    }
 
     Ok(())
 }
