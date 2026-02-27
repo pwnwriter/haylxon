@@ -1,6 +1,5 @@
 use cli::{args, exec};
 mod cli;
-mod log;
 
 use clap::Parser;
 
@@ -11,5 +10,9 @@ async fn main() -> miette::Result<()> {
     }))?;
 
     let cli = args::Cli::parse();
+    if let Err(e) = cli.validate_input() {
+        eprintln!("{}", cli::ascii::splash());
+        return Err(e);
+    }
     exec::run(cli).await
 }

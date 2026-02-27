@@ -5,10 +5,10 @@ pub fn splash() -> String {
 
     let logo = format!(
         r#"
-    ┓┏    ┓      
-    ┣┫┏┓┓┏┃┓┏┏┓┏┓
-    ┛┗┗┻┗┫┗┛┗┗┛┛┗ v{}
-         ┛       
+▖▖    ▜       
+▙▌▀▌▌▌▐ ▚▘▛▌▛▌
+▌▌█▌▙▌▐▖▞▖▙▌▌▌ v{}
+    ▄▌        
     Shoot before the blink
                 @pwnwriter/haylxon
  "#,

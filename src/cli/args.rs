@@ -18,8 +18,7 @@ pub struct Input {
     author,
     version,
     about = ascii::splash(),
-    propagate_version = true,
-    arg_required_else_help = true
+    propagate_version = true
 )]
 pub struct Cli {
     #[command(flatten)]
@@ -94,6 +93,18 @@ pub struct Cli {
     pub json: bool,
 }
 
+impl Cli {
+    pub fn validate_input(&self) -> miette::Result<()> {
+        if self.input.url.is_none() && self.input.file_path.is_none() && !self.stdin {
+            return Err(miette::miette!(
+                help = "Provide a URL, file, or pipe URLs via stdin:\n  hxn -u https://example.com\n  hxn -f urls.txt\n  cat urls.txt | hxn --stdin\n\nRun `hxn --help` for all options.",
+                "no input provided"
+            ));
+        }
+        Ok(())
+    }
+}
+
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
 #[allow(non_camel_case_types)]
 pub enum ScreenshotType {
@@ -113,12 +124,8 @@ mod tests {
 
     #[test]
     fn test_no_input_urls() {
-        let args = Cli::try_parse_from(["-b my_browser"]);
-        assert!(args.is_err());
-        assert_eq!(
-            args.unwrap_err().kind(),
-            ErrorKind::DisplayHelpOnMissingArgumentOrSubcommand
-        );
+        let cli = Cli::try_parse_from(["hxn"]).unwrap();
+        assert!(cli.validate_input().is_err());
     }
 
     #[test]

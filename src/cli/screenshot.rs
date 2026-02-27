@@ -1,68 +1,17 @@
 use super::args::ScreenshotType;
-use crate::log;
+use super::output::{self, ScreenshotError, ScreenshotResult};
+use super::user_agent;
 use chromiumoxide::page::ScreenshotParams;
 use chromiumoxide::{browser::Browser, cdp::browser_protocol::page::CaptureScreenshotFormat};
 use colored::Colorize;
 use indicatif::{ProgressBar, ProgressStyle};
 use miette::{Context, IntoDiagnostic};
 use regex::Regex;
-use reqwest::StatusCode;
 use std::sync::Arc;
 use std::time::{Duration, Instant};
 use tokio::sync::Semaphore;
-use tabled::{builder::Builder, settings::Style};
 use tokio::time;
 use url::Url;
-
-const USER_AGENTS: &[&str] = &[
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
-    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:133.0) Gecko/20100101 Firefox/133.0",
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:133.0) Gecko/20100101 Firefox/133.0",
-    "Mozilla/5.0 (X11; Linux x86_64; rv:133.0) Gecko/20100101 Firefox/133.0",
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.2 Safari/605.1.15",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 Edg/131.0.0.0",
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 Edg/131.0.0.0",
-    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 Edg/131.0.0.0",
-];
-
-pub(super) fn built_in_user_agents() -> &'static [&'static str] {
-    USER_AGENTS
-}
-
-pub(super) fn pick_random_user_agent() -> &'static str {
-    let nanos = std::time::SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH)
-        .unwrap()
-        .subsec_nanos() as usize;
-    USER_AGENTS[nanos % USER_AGENTS.len()]
-}
-
-fn pick_from_pool(pool: &[String]) -> &str {
-    let nanos = std::time::SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH)
-        .unwrap()
-        .subsec_nanos() as usize;
-    &pool[nanos % pool.len()]
-}
-
-#[derive(serde::Serialize)]
-struct ScreenshotResult {
-    url: String,
-    title: String,
-    status: u16,
-    filename: String,
-    elapsed_secs: f64,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    user_agent: Option<String>,
-}
-
-#[derive(serde::Serialize)]
-struct ScreenshotError {
-    url: String,
-    error: String,
-}
 
 pub async fn take_screenshot_in_bulk(
     browser: &Arc<Browser>,
@@ -138,10 +87,12 @@ pub async fn take_screenshot_in_bulk(
                     println!("{}", serde_json::to_string(&err).unwrap());
                 } else if is_bulk && !silent {
                     pb.suspend(|| {
-                        show_line_error(&error.to_string());
+                        output::show_line_error(&error.to_string());
                     });
                 } else {
-                    pb.suspend(|| log::warn(error.to_string()));
+                    pb.suspend(|| {
+                        eprintln!("{} {error}", "warning:".bold().yellow());
+                    });
                 }
             }
             pb.inc(1);
@@ -160,7 +111,7 @@ pub async fn take_screenshot_in_bulk(
     Ok(())
 }
 
-pub async fn take_screenshot(
+async fn take_screenshot(
     browser: &Browser,
     url: String,
     timeout: u64,
@@ -185,7 +136,7 @@ pub async fn take_screenshot(
 
     // Resolve effective user-agent: per-URL pool rotation takes priority
     let user_agent = if !ua_pool.is_empty() {
-        Some(pick_from_pool(ua_pool).to_string())
+        Some(user_agent::pick_from_pool(ua_pool).to_string())
     } else {
         user_agent
     };
@@ -245,14 +196,14 @@ pub async fn take_screenshot(
         if !json {
             match result {
                 Ok(_) => pb.suspend(|| {
-                    log::info(
-                        "JavaScript executed successfully".to_string(),
-                        colored::Color::Magenta,
+                    eprintln!(
+                        "{} JavaScript executed successfully",
+                        "info:".bold().magenta()
                     )
                 }),
-                Err(e) => {
-                    pb.suspend(|| log::warn(format!("JavaScript execution failed: {:?}", e)))
-                }
+                Err(e) => pb.suspend(|| {
+                    eprintln!("{} JavaScript execution failed: {e:?}", "warning:".bold().yellow())
+                }),
             }
         }
     }
@@ -296,10 +247,10 @@ pub async fn take_screenshot(
             };
             println!("{}", serde_json::to_string(&result).unwrap());
         } else if is_bulk {
-            pb.suspend(|| show_line(&url, response.status(), &filename, elapsed));
+            pb.suspend(|| output::show_line(&url, response.status(), &filename, elapsed));
         } else {
             pb.suspend(|| {
-                show_info(
+                output::show_info(
                     &url,
                     &title,
                     response.status(),
@@ -314,42 +265,4 @@ pub async fn take_screenshot(
     page.close().await.into_diagnostic()?;
 
     Ok(())
-}
-
-fn show_info(
-    url: &str,
-    title: &str,
-    status: StatusCode,
-    filename: &str,
-    elapsed: Duration,
-    user_agent: &Option<String>,
-) {
-    let elapsed_secs = elapsed.as_secs_f64();
-    let mut builder = Builder::default();
-    builder.push_record(["URL", url]);
-    builder.push_record(["Title", title]);
-    builder.push_record(["Status", &format!("{status}")]);
-    builder.push_record(["Saved as", filename]);
-    builder.push_record(["Time", &format!("{elapsed_secs:.2}s")]);
-    if let Some(ua) = user_agent {
-        builder.push_record(["User-Agent", ua]);
-    }
-    let table = builder.build().with(Style::modern()).to_string();
-    println!("{table}");
-}
-
-fn show_line(url: &str, status: StatusCode, filename: &str, elapsed: Duration) {
-    let elapsed_secs = elapsed.as_secs_f64();
-    println!(
-        "{} {} {} {} {}",
-        "✓".green(),
-        format!("{}", status.as_u16()).green(),
-        url,
-        format!("→ {}", filename).cyan(),
-        format!("{:.2}s", elapsed_secs).yellow()
-    );
-}
-
-fn show_line_error(error: &str) {
-    println!("{} {} {}", "✗".red(), "ERR".red(), error,);
 }

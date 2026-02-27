@@ -1,7 +1,8 @@
 use super::args::{Cli, Input};
+use super::helpers::{combine_urls_with_ports, read_urls_from_file, read_urls_from_stdin};
+use super::output::print_config_table;
 use super::screenshot::take_screenshot_in_bulk;
-use crate::cli::hxn_helper::combine_urls_with_ports;
-use crate::log::info;
+use super::user_agent;
 use chromiumoxide::{
     browser::{Browser, BrowserConfig},
     handler::viewport::Viewport,
@@ -11,30 +12,7 @@ use futures::StreamExt;
 use miette::{Context, IntoDiagnostic};
 use std::sync::Arc;
 use std::{env, path::Path};
-use tabled::{builder::Builder, settings::Style};
 use tokio::{fs, task};
-
-fn print_config_table(
-    url_count: usize,
-    source: &str,
-    outdir: &str,
-    tabs: usize,
-    user_agent: &Option<String>,
-    ua_pool_size: usize,
-) {
-    let mut builder = Builder::default();
-    builder.push_record(["URLs", &url_count.to_string()]);
-    builder.push_record(["Source", source]);
-    builder.push_record(["Output", outdir]);
-    builder.push_record(["Tabs", &tabs.to_string()]);
-    if let Some(ua) = user_agent {
-        builder.push_record(["User-Agent", ua]);
-    } else if ua_pool_size > 0 {
-        builder.push_record(["User-Agent", &format!("random-per-url ({ua_pool_size} agents)")]);
-    }
-    let table = builder.build().with(Style::modern()).to_string();
-    println!("{table}");
-}
 
 pub async fn run(
     Cli {
@@ -59,35 +37,7 @@ pub async fn run(
     }: Cli,
 ) -> miette::Result<()> {
     // Resolve --user-agent into a fixed UA + a per-URL rotation pool
-    let (user_agent, ua_pool) = match user_agent.as_deref() {
-        Some("random") => {
-            let ua = super::screenshot::pick_random_user_agent().to_string();
-            (Some(ua), Arc::new(Vec::new()))
-        }
-        Some("random-per-url") => {
-            let built_in: Vec<String> = super::screenshot::built_in_user_agents()
-                .iter()
-                .map(|s| s.to_string())
-                .collect();
-            (None, Arc::new(built_in))
-        }
-        Some(path) if Path::new(path).is_file() => {
-            let contents = std::fs::read_to_string(path)
-                .into_diagnostic()
-                .wrap_err_with(|| format!("Failed to read user-agent file: {path}"))?;
-            let agents: Vec<String> = contents
-                .lines()
-                .map(|l| l.trim().to_string())
-                .filter(|l| !l.is_empty())
-                .collect();
-            if agents.is_empty() {
-                return Err(miette::miette!("User-agent file is empty: {path}"));
-            }
-            (None, Arc::new(agents))
-        }
-        Some(custom) => (Some(custom.to_string()), Arc::new(Vec::new())),
-        None => (None, Arc::new(Vec::new())),
-    };
+    let (user_agent, ua_pool) = user_agent::resolve(user_agent)?;
 
     let browser = Path::new(&binary_path);
     if !browser.exists() {
@@ -133,39 +83,29 @@ pub async fn run(
 
     if dump_dir.exists() {
         if !json {
-            info(
-                format!(
-                    "A directory already exists as {} bumping ...",
-                    outdir.bold()
-                ),
-                colored::Color::BrightRed,
+            eprintln!(
+                "{} A directory already exists as {}, bumping...",
+                "info:".bold().bright_red(),
+                outdir.bold()
             );
         }
     } else {
-        match fs::create_dir(dump_dir).await {
-            Ok(_) => {
-                if !json {
-                    info(
-                        format!("Bump dir {}, created successfully ..", outdir.bold()),
-                        colored::Color::Green,
-                    );
-                }
-            }
-            Err(err) => {
-                if !json {
-                    info(
-                        format!("Failed to create directory: {}", err),
-                        colored::Color::Red,
-                    );
-                }
-                return Err(err).into_diagnostic();
-            }
+        fs::create_dir(dump_dir)
+            .await
+            .into_diagnostic()
+            .wrap_err_with(|| format!("failed to create output directory: {outdir}"))?;
+        if !json {
+            eprintln!(
+                "{} Bump dir {}, created successfully",
+                "info:".bold().green(),
+                outdir.bold()
+            );
         }
     }
 
     let is_screenshot_taken = if stdin {
         env::set_current_dir(dump_dir).into_diagnostic()?;
-        let urls = super::hxn_helper::read_urls_from_stdin(ports)?;
+        let urls = read_urls_from_stdin(ports)?;
         if !silent && !json {
             print_config_table(urls.len(), "stdin", &outdir, tabs, &user_agent, ua_pool.len());
         }
@@ -190,7 +130,7 @@ pub async fn run(
     } else {
         match (url, file_path) {
             (None, Some(file_path)) => {
-                let urls = super::hxn_helper::read_urls_from_file(&file_path, ports)?;
+                let urls = read_urls_from_file(&file_path, ports)?;
                 if !silent && !json {
                     print_config_table(urls.len(), &file_path, &outdir, tabs, &user_agent, ua_pool.len());
                 }
@@ -244,16 +184,15 @@ pub async fn run(
         }
     };
 
-    match is_screenshot_taken {
-        Ok(_) => {
-            if !silent && !json {
-                info(
-                    format!("Screenshots Taken and saved in directory {}", outdir.bold()),
-                    colored::Color::Cyan,
-                );
-            }
-            Ok(())
-        }
-        Err(e) => Err(e),
+    is_screenshot_taken?;
+
+    if !silent && !json {
+        eprintln!(
+            "{} Screenshots taken and saved in directory {}",
+            "info:".bold().cyan(),
+            outdir.bold()
+        );
     }
+
+    Ok(())
 }
