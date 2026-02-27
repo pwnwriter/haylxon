@@ -67,6 +67,7 @@ pub async fn run(
         user_agent,
         random_user_agent,
         proxy,
+        json,
     }: Cli,
 ) -> miette::Result<()> {
     let user_agent = if let Some(ua) = user_agent {
@@ -121,24 +122,32 @@ pub async fn run(
     let dump_dir = Path::new(&outdir);
 
     if dump_dir.exists() {
-        info(
-            format!(
-                "A directory already exists as {} bumping ...",
-                outdir.bold()
-            ),
-            colored::Color::BrightRed,
-        );
+        if !json {
+            info(
+                format!(
+                    "A directory already exists as {} bumping ...",
+                    outdir.bold()
+                ),
+                colored::Color::BrightRed,
+            );
+        }
     } else {
         match fs::create_dir(dump_dir).await {
-            Ok(_) => info(
-                format!("Bump dir {}, created successfully ..", outdir.bold()),
-                colored::Color::Green,
-            ),
+            Ok(_) => {
+                if !json {
+                    info(
+                        format!("Bump dir {}, created successfully ..", outdir.bold()),
+                        colored::Color::Green,
+                    );
+                }
+            }
             Err(err) => {
-                info(
-                    format!("Failed to create directory: {}", err),
-                    colored::Color::Red,
-                );
+                if !json {
+                    info(
+                        format!("Failed to create directory: {}", err),
+                        colored::Color::Red,
+                    );
+                }
                 return Err(err).into_diagnostic();
             }
         }
@@ -147,7 +156,7 @@ pub async fn run(
     let is_screenshot_taken = if stdin {
         env::set_current_dir(dump_dir).into_diagnostic()?;
         let urls = super::hxn_helper::read_urls_from_stdin(ports)?;
-        if !silent {
+        if !silent && !json {
             print_config_table(urls.len(), "stdin", &outdir, tabs, &user_agent);
         }
         take_screenshot_in_bulk(
@@ -164,13 +173,14 @@ pub async fn run(
             true,
             user_agent,
             proxy,
+            json,
         )
         .await
     } else {
         match (url, file_path) {
             (None, Some(file_path)) => {
                 let urls = super::hxn_helper::read_urls_from_file(&file_path, ports)?;
-                if !silent {
+                if !silent && !json {
                     print_config_table(urls.len(), &file_path, &outdir, tabs, &user_agent);
                 }
                 env::set_current_dir(dump_dir).into_diagnostic()?;
@@ -188,6 +198,7 @@ pub async fn run(
                     true,
                     user_agent,
                     proxy,
+                    json,
                 )
                 .await
             }
@@ -212,6 +223,7 @@ pub async fn run(
                     false,
                     user_agent,
                     proxy,
+                    json,
                 )
                 .await
             }
@@ -221,7 +233,7 @@ pub async fn run(
 
     match is_screenshot_taken {
         Ok(_) => {
-            if !silent {
+            if !silent && !json {
                 info(
                     format!("Screenshots Taken and saved in directory {}", outdir.bold()),
                     colored::Color::Cyan,

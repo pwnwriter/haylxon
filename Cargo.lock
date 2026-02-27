@@ -615,6 +615,8 @@ dependencies = [
  "miette",
  "regex",
  "reqwest",
+ "serde",
+ "serde_json",
  "tabled",
  "tokio",
  "url",

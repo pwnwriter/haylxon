@@ -13,6 +13,23 @@ use tabled::{builder::Builder, settings::Style};
 use tokio::time;
 use url::Url;
 
+#[derive(serde::Serialize)]
+struct ScreenshotResult {
+    url: String,
+    title: String,
+    status: u16,
+    filename: String,
+    elapsed_secs: f64,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    user_agent: Option<String>,
+}
+
+#[derive(serde::Serialize)]
+struct ScreenshotError {
+    url: String,
+    error: String,
+}
+
 pub async fn take_screenshot_in_bulk(
     browser: &Arc<Browser>,
     urls: Vec<String>,
@@ -27,9 +44,10 @@ pub async fn take_screenshot_in_bulk(
     is_bulk: bool,
     user_agent: Option<String>,
     proxy: Option<String>,
+    json: bool,
 ) -> miette::Result<()> {
     let total = urls.len() as u64;
-    let pb = if silent {
+    let pb = if silent || json {
         ProgressBar::hidden()
     } else {
         let pb = ProgressBar::new(total);
@@ -59,7 +77,7 @@ pub async fn take_screenshot_in_bulk(
                 pb.set_message(url.clone());
                 if let Err(error) = take_screenshot(
                     &browser,
-                    url,
+                    url.clone(),
                     timeout,
                     delay,
                     silent,
@@ -71,10 +89,17 @@ pub async fn take_screenshot_in_bulk(
                     is_bulk,
                     ua.clone(),
                     px.clone(),
+                    json,
                 )
                 .await
                 {
-                    if is_bulk && !silent {
+                    if json && !silent {
+                        let err = ScreenshotError {
+                            url,
+                            error: error.to_string(),
+                        };
+                        println!("{}", serde_json::to_string(&err).unwrap());
+                    } else if is_bulk && !silent {
                         pb.suspend(|| {
                             show_line_error(&error.to_string());
                         });
@@ -112,6 +137,7 @@ pub async fn take_screenshot(
     is_bulk: bool,
     user_agent: Option<String>,
     proxy: Option<String>,
+    json: bool,
 ) -> miette::Result<()> {
     let start = Instant::now();
     let parsed_url = Url::parse(&url)
@@ -153,14 +179,18 @@ pub async fn take_screenshot(
     // Evaluate JavaScript if provided
     if let Some(js) = javascript {
         let result = page.evaluate(js.as_str()).await;
-        match result {
-            Ok(_) => pb.suspend(|| {
-                log::info(
-                    "JavaScript executed successfully".to_string(),
-                    colored::Color::Magenta,
-                )
-            }),
-            Err(e) => pb.suspend(|| log::warn(format!("JavaScript execution failed: {:?}", e))),
+        if !json {
+            match result {
+                Ok(_) => pb.suspend(|| {
+                    log::info(
+                        "JavaScript executed successfully".to_string(),
+                        colored::Color::Magenta,
+                    )
+                }),
+                Err(e) => {
+                    pb.suspend(|| log::warn(format!("JavaScript execution failed: {:?}", e)))
+                }
+            }
         }
     }
 
@@ -192,7 +222,17 @@ pub async fn take_screenshot(
             _ => "No title".to_string(),
         };
 
-        if is_bulk {
+        if json {
+            let result = ScreenshotResult {
+                url: url.clone(),
+                title,
+                status: response.status().as_u16(),
+                filename: filename.clone(),
+                elapsed_secs: elapsed.as_secs_f64(),
+                user_agent: user_agent.clone(),
+            };
+            println!("{}", serde_json::to_string(&result).unwrap());
+        } else if is_bulk {
             pb.suspend(|| show_line(&url, response.status(), &filename, elapsed));
         } else {
             pb.suspend(|| {

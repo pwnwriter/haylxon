@@ -92,6 +92,10 @@ pub struct Cli {
     /// Proxy URL (e.g., http://127.0.0.1:8080, socks5://127.0.0.1:9050)
     #[arg(long)]
     pub proxy: Option<String>,
+
+    /// Output results as NDJSON (one JSON object per line)
+    #[arg(long)]
+    pub json: bool,
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
