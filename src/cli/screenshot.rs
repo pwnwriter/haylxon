@@ -14,6 +14,39 @@ use tabled::{builder::Builder, settings::Style};
 use tokio::time;
 use url::Url;
 
+const USER_AGENTS: &[&str] = &[
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:133.0) Gecko/20100101 Firefox/133.0",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:133.0) Gecko/20100101 Firefox/133.0",
+    "Mozilla/5.0 (X11; Linux x86_64; rv:133.0) Gecko/20100101 Firefox/133.0",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.2 Safari/605.1.15",
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 Edg/131.0.0.0",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 Edg/131.0.0.0",
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 Edg/131.0.0.0",
+];
+
+pub(super) fn built_in_user_agents() -> &'static [&'static str] {
+    USER_AGENTS
+}
+
+pub(super) fn pick_random_user_agent() -> &'static str {
+    let nanos = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap()
+        .subsec_nanos() as usize;
+    USER_AGENTS[nanos % USER_AGENTS.len()]
+}
+
+fn pick_from_pool(pool: &[String]) -> &str {
+    let nanos = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap()
+        .subsec_nanos() as usize;
+    &pool[nanos % pool.len()]
+}
+
 #[derive(serde::Serialize)]
 struct ScreenshotResult {
     url: String,
@@ -46,6 +79,7 @@ pub async fn take_screenshot_in_bulk(
     user_agent: Option<String>,
     proxy: Option<String>,
     json: bool,
+    ua_pool: Arc<Vec<String>>,
 ) -> miette::Result<()> {
     let total = urls.len() as u64;
     let pb = if silent || json {
@@ -74,6 +108,7 @@ pub async fn take_screenshot_in_bulk(
         let pb = Arc::clone(&pb);
         let ua = user_agent.clone();
         let px = proxy.clone();
+        let pool = Arc::clone(&ua_pool);
         let handle = tokio::spawn(async move {
             pb.set_message(url.clone());
             if let Err(error) = take_screenshot(
@@ -91,6 +126,7 @@ pub async fn take_screenshot_in_bulk(
                 ua,
                 px,
                 json,
+                &pool,
             )
             .await
             {
@@ -139,11 +175,19 @@ pub async fn take_screenshot(
     user_agent: Option<String>,
     proxy: Option<String>,
     json: bool,
+    ua_pool: &[String],
 ) -> miette::Result<()> {
     let url = if !url.starts_with("http://") && !url.starts_with("https://") {
         format!("https://{url}")
     } else {
         url
+    };
+
+    // Resolve effective user-agent: per-URL pool rotation takes priority
+    let user_agent = if !ua_pool.is_empty() {
+        Some(pick_from_pool(ua_pool).to_string())
+    } else {
+        user_agent
     };
 
     let start = Instant::now();
@@ -176,11 +220,23 @@ pub async fn take_screenshot(
         ScreenshotType::Jpeg => CaptureScreenshotFormat::Jpeg,
         ScreenshotType::Webg => CaptureScreenshotFormat::Webp,
     };
+
+    // Create blank page, set per-page user-agent via CDP, then navigate
     let page = browser
-        .new_page(parsed_url.clone())
+        .new_page("")
         .await
         .into_diagnostic()
         .wrap_err_with(|| format!("Failed to open page: {url}"))?;
+    if let Some(ref ua) = user_agent {
+        page.set_user_agent(ua)
+            .await
+            .into_diagnostic()
+            .wrap_err("Failed to set user-agent")?;
+    }
+    page.goto(parsed_url.clone())
+        .await
+        .into_diagnostic()
+        .wrap_err_with(|| format!("Failed to navigate to: {url}"))?;
     tokio::time::sleep(Duration::from_secs(delay)).await;
 
     // Evaluate JavaScript if provided

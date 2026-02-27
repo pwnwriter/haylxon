@@ -10,23 +10,9 @@ use colored::Colorize;
 use futures::StreamExt;
 use miette::{Context, IntoDiagnostic};
 use std::sync::Arc;
-use std::time::Instant;
 use std::{env, path::Path};
 use tabled::{builder::Builder, settings::Style};
 use tokio::{fs, task};
-
-const USER_AGENTS: &[&str] = &[
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
-    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:133.0) Gecko/20100101 Firefox/133.0",
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:133.0) Gecko/20100101 Firefox/133.0",
-    "Mozilla/5.0 (X11; Linux x86_64; rv:133.0) Gecko/20100101 Firefox/133.0",
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.2 Safari/605.1.15",
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 Edg/131.0.0.0",
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 Edg/131.0.0.0",
-    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 Edg/131.0.0.0",
-];
 
 fn print_config_table(
     url_count: usize,
@@ -34,6 +20,7 @@ fn print_config_table(
     outdir: &str,
     tabs: usize,
     user_agent: &Option<String>,
+    ua_pool_size: usize,
 ) {
     let mut builder = Builder::default();
     builder.push_record(["URLs", &url_count.to_string()]);
@@ -42,6 +29,8 @@ fn print_config_table(
     builder.push_record(["Tabs", &tabs.to_string()]);
     if let Some(ua) = user_agent {
         builder.push_record(["User-Agent", ua]);
+    } else if ua_pool_size > 0 {
+        builder.push_record(["User-Agent", &format!("random-per-url ({ua_pool_size} agents)")]);
     }
     let table = builder.build().with(Style::modern()).to_string();
     println!("{table}");
@@ -65,18 +54,39 @@ pub async fn run(
         accept_invalid_certs,
         javascript,
         user_agent,
-        random_user_agent,
         proxy,
         json,
     }: Cli,
 ) -> miette::Result<()> {
-    let user_agent = if let Some(ua) = user_agent {
-        Some(ua)
-    } else if random_user_agent {
-        let idx = Instant::now().elapsed().subsec_nanos() as usize % USER_AGENTS.len();
-        Some(USER_AGENTS[idx].to_string())
-    } else {
-        None
+    // Resolve --user-agent into a fixed UA + a per-URL rotation pool
+    let (user_agent, ua_pool) = match user_agent.as_deref() {
+        Some("random") => {
+            let ua = super::screenshot::pick_random_user_agent().to_string();
+            (Some(ua), Arc::new(Vec::new()))
+        }
+        Some("random-per-url") => {
+            let built_in: Vec<String> = super::screenshot::built_in_user_agents()
+                .iter()
+                .map(|s| s.to_string())
+                .collect();
+            (None, Arc::new(built_in))
+        }
+        Some(path) if Path::new(path).is_file() => {
+            let contents = std::fs::read_to_string(path)
+                .into_diagnostic()
+                .wrap_err_with(|| format!("Failed to read user-agent file: {path}"))?;
+            let agents: Vec<String> = contents
+                .lines()
+                .map(|l| l.trim().to_string())
+                .filter(|l| !l.is_empty())
+                .collect();
+            if agents.is_empty() {
+                return Err(miette::miette!("User-agent file is empty: {path}"));
+            }
+            (None, Arc::new(agents))
+        }
+        Some(custom) => (Some(custom.to_string()), Arc::new(Vec::new())),
+        None => (None, Arc::new(Vec::new())),
     };
 
     let browser = Path::new(&binary_path);
@@ -157,7 +167,7 @@ pub async fn run(
         env::set_current_dir(dump_dir).into_diagnostic()?;
         let urls = super::hxn_helper::read_urls_from_stdin(ports)?;
         if !silent && !json {
-            print_config_table(urls.len(), "stdin", &outdir, tabs, &user_agent);
+            print_config_table(urls.len(), "stdin", &outdir, tabs, &user_agent, ua_pool.len());
         }
         take_screenshot_in_bulk(
             &browser,
@@ -174,6 +184,7 @@ pub async fn run(
             user_agent,
             proxy,
             json,
+            ua_pool.clone(),
         )
         .await
     } else {
@@ -181,7 +192,7 @@ pub async fn run(
             (None, Some(file_path)) => {
                 let urls = super::hxn_helper::read_urls_from_file(&file_path, ports)?;
                 if !silent && !json {
-                    print_config_table(urls.len(), &file_path, &outdir, tabs, &user_agent);
+                    print_config_table(urls.len(), &file_path, &outdir, tabs, &user_agent, ua_pool.len());
                 }
                 env::set_current_dir(dump_dir).into_diagnostic()?;
                 take_screenshot_in_bulk(
@@ -199,6 +210,7 @@ pub async fn run(
                     user_agent,
                     proxy,
                     json,
+                    ua_pool.clone(),
                 )
                 .await
             }
@@ -224,6 +236,7 @@ pub async fn run(
                     user_agent,
                     proxy,
                     json,
+                    ua_pool.clone(),
                 )
                 .await
             }

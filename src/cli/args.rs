@@ -81,13 +81,9 @@ pub struct Cli {
     #[arg(long)]
     pub javascript: Option<String>,
 
-    /// Custom user-agent string
-    #[arg(long, conflicts_with = "random_user_agent")]
+    /// User-agent: "random", "random-per-url", path to a UA file, or a custom string
+    #[arg(long)]
     pub user_agent: Option<String>,
-
-    /// Use a random user-agent from a built-in list
-    #[arg(long, conflicts_with = "user_agent")]
-    pub random_user_agent: bool,
 
     /// Proxy URL (e.g., http://127.0.0.1:8080, socks5://127.0.0.1:9050)
     #[arg(long)]
