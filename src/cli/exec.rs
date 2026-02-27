@@ -66,6 +66,7 @@ pub async fn run(
         javascript,
         user_agent,
         random_user_agent,
+        proxy,
     }: Cli,
 ) -> miette::Result<()> {
     let user_agent = if let Some(ua) = user_agent {
@@ -102,6 +103,10 @@ pub async fn run(
 
     if let Some(ref ua) = user_agent {
         browser_config = browser_config.arg(format!("--user-agent={ua}"));
+    }
+
+    if let Some(ref proxy_url) = proxy {
+        browser_config = browser_config.arg(format!("--proxy-server={proxy_url}"));
     }
 
     let (browser, mut handler) =
@@ -158,6 +163,7 @@ pub async fn run(
             javascript,
             true,
             user_agent,
+            proxy,
         )
         .await
     } else {
@@ -181,6 +187,7 @@ pub async fn run(
                     javascript,
                     true,
                     user_agent,
+                    proxy,
                 )
                 .await
             }
@@ -204,6 +211,7 @@ pub async fn run(
                     javascript,
                     false,
                     user_agent,
+                    proxy,
                 )
                 .await
             }

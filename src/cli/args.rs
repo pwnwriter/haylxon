@@ -88,6 +88,10 @@ pub struct Cli {
     /// Use a random user-agent from a built-in list
     #[arg(long, conflicts_with = "user_agent")]
     pub random_user_agent: bool,
+
+    /// Proxy URL (e.g., http://127.0.0.1:8080, socks5://127.0.0.1:9050)
+    #[arg(long)]
+    pub proxy: Option<String>,
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]

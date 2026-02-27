@@ -26,6 +26,7 @@ pub async fn take_screenshot_in_bulk(
     javascript: Option<String>,
     is_bulk: bool,
     user_agent: Option<String>,
+    proxy: Option<String>,
 ) -> miette::Result<()> {
     let total = urls.len() as u64;
     let pb = if silent {
@@ -52,6 +53,7 @@ pub async fn take_screenshot_in_bulk(
         let js = javascript.clone();
         let pb = Arc::clone(&pb);
         let ua = user_agent.clone();
+        let px = proxy.clone();
         let handle = tokio::spawn(async move {
             for url in urls {
                 pb.set_message(url.clone());
@@ -68,6 +70,7 @@ pub async fn take_screenshot_in_bulk(
                     &pb,
                     is_bulk,
                     ua.clone(),
+                    px.clone(),
                 )
                 .await
                 {
@@ -108,6 +111,7 @@ pub async fn take_screenshot(
     pb: &ProgressBar,
     is_bulk: bool,
     user_agent: Option<String>,
+    proxy: Option<String>,
 ) -> miette::Result<()> {
     let start = Instant::now();
     let parsed_url = Url::parse(&url)
@@ -118,6 +122,10 @@ pub async fn take_screenshot(
         .http1_ignore_invalid_headers_in_responses(danger_accept_invalid_certs);
     if let Some(ref ua) = user_agent {
         client_builder = client_builder.user_agent(ua);
+    }
+    if let Some(ref proxy_url) = proxy {
+        let proxy = reqwest::Proxy::all(proxy_url).into_diagnostic()?;
+        client_builder = client_builder.proxy(proxy);
     }
     let client = client_builder.build().into_diagnostic()?;
     let re = Regex::new(r"[<>?.~!@#$%^&*\\/|;:']").unwrap();
