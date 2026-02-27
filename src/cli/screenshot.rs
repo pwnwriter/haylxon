@@ -185,7 +185,7 @@ async fn take_screenshot(
 
     // Create blank page, set per-page user-agent via CDP, then navigate
     let page = browser
-        .new_page("")
+        .new_page("about:blank")
         .await
         .into_diagnostic()
         .wrap_err_with(|| format!("Failed to open page: {url}"))?;
