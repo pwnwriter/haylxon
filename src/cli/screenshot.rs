@@ -9,6 +9,7 @@ use regex::Regex;
 use reqwest::StatusCode;
 use std::sync::Arc;
 use std::time::{Duration, Instant};
+use tokio::sync::Semaphore;
 use tabled::{builder::Builder, settings::Style};
 use tokio::time;
 use url::Url;
@@ -63,52 +64,52 @@ pub async fn take_screenshot_in_bulk(
     };
     let pb = Arc::new(pb);
 
-    let url_chunks: Vec<Vec<_>> = urls.chunks(tabs).map(ToOwned::to_owned).collect();
-    let mut handles = Vec::with_capacity(url_chunks.len());
+    let semaphore = Arc::new(Semaphore::new(tabs));
+    let mut handles = Vec::with_capacity(urls.len());
 
-    for urls in url_chunks {
+    for url in urls {
+        let permit = semaphore.clone().acquire_owned().await.into_diagnostic()?;
         let browser = Arc::clone(browser);
         let js = javascript.clone();
         let pb = Arc::clone(&pb);
         let ua = user_agent.clone();
         let px = proxy.clone();
         let handle = tokio::spawn(async move {
-            for url in urls {
-                pb.set_message(url.clone());
-                if let Err(error) = take_screenshot(
-                    &browser,
-                    url.clone(),
-                    timeout,
-                    delay,
-                    silent,
-                    full_page,
-                    screenshot_type,
-                    danger_accept_invalid_certs,
-                    js.clone(),
-                    &pb,
-                    is_bulk,
-                    ua.clone(),
-                    px.clone(),
-                    json,
-                )
-                .await
-                {
-                    if json && !silent {
-                        let err = ScreenshotError {
-                            url,
-                            error: error.to_string(),
-                        };
-                        println!("{}", serde_json::to_string(&err).unwrap());
-                    } else if is_bulk && !silent {
-                        pb.suspend(|| {
-                            show_line_error(&error.to_string());
-                        });
-                    } else {
-                        pb.suspend(|| log::warn(error.to_string()));
-                    }
+            pb.set_message(url.clone());
+            if let Err(error) = take_screenshot(
+                &browser,
+                url.clone(),
+                timeout,
+                delay,
+                silent,
+                full_page,
+                screenshot_type,
+                danger_accept_invalid_certs,
+                js,
+                &pb,
+                is_bulk,
+                ua,
+                px,
+                json,
+            )
+            .await
+            {
+                if json && !silent {
+                    let err = ScreenshotError {
+                        url,
+                        error: error.to_string(),
+                    };
+                    println!("{}", serde_json::to_string(&err).unwrap());
+                } else if is_bulk && !silent {
+                    pb.suspend(|| {
+                        show_line_error(&error.to_string());
+                    });
+                } else {
+                    pb.suspend(|| log::warn(error.to_string()));
                 }
-                pb.inc(1);
             }
+            pb.inc(1);
+            drop(permit);
         });
 
         handles.push(handle);
@@ -139,6 +140,12 @@ pub async fn take_screenshot(
     proxy: Option<String>,
     json: bool,
 ) -> miette::Result<()> {
+    let url = if !url.starts_with("http://") && !url.starts_with("https://") {
+        format!("https://{url}")
+    } else {
+        url
+    };
+
     let start = Instant::now();
     let parsed_url = Url::parse(&url)
         .into_diagnostic()
