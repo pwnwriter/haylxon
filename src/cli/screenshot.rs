@@ -202,7 +202,10 @@ async fn take_screenshot(
                     )
                 }),
                 Err(e) => pb.suspend(|| {
-                    eprintln!("{} JavaScript execution failed: {e:?}", "warning:".bold().yellow())
+                    eprintln!(
+                        "{} JavaScript execution failed: {e:?}",
+                        "warning:".bold().yellow()
+                    )
                 }),
             }
         }

@@ -36,7 +36,10 @@ pub fn print_config_table(
     if let Some(ua) = user_agent {
         builder.push_record(["User-Agent", ua]);
     } else if ua_pool_size > 0 {
-        builder.push_record(["User-Agent", &format!("random-per-url ({ua_pool_size} agents)")]);
+        builder.push_record([
+            "User-Agent",
+            &format!("random-per-url ({ua_pool_size} agents)"),
+        ]);
     }
     let table = builder.build().with(Style::modern()).to_string();
     println!("{table}");

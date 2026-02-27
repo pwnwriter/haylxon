@@ -14,8 +14,7 @@ pub fn combine_urls_with_ports(urls: Vec<String>, ports: Option<String>) -> Vec<
         if ports.contains("..") {
             let parts: Vec<&str> = ports.split("..").collect();
             if let (Some(start), Some(end)) = (parts.first(), parts.last()) {
-                if let (Ok(start_num), Ok(end_num)) = (start.parse::<u32>(), end.parse::<u32>())
-                {
+                if let (Ok(start_num), Ok(end_num)) = (start.parse::<u32>(), end.parse::<u32>()) {
                     let port_range: Vec<u32> = (start_num..=end_num).collect();
                     return urls
                         .iter()

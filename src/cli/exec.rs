@@ -107,7 +107,14 @@ pub async fn run(
         env::set_current_dir(dump_dir).into_diagnostic()?;
         let urls = read_urls_from_stdin(ports)?;
         if !silent && !json {
-            print_config_table(urls.len(), "stdin", &outdir, tabs, &user_agent, ua_pool.len());
+            print_config_table(
+                urls.len(),
+                "stdin",
+                &outdir,
+                tabs,
+                &user_agent,
+                ua_pool.len(),
+            );
         }
         take_screenshot_in_bulk(
             &browser,
@@ -132,7 +139,14 @@ pub async fn run(
             (None, Some(file_path)) => {
                 let urls = read_urls_from_file(&file_path, ports)?;
                 if !silent && !json {
-                    print_config_table(urls.len(), &file_path, &outdir, tabs, &user_agent, ua_pool.len());
+                    print_config_table(
+                        urls.len(),
+                        &file_path,
+                        &outdir,
+                        tabs,
+                        &user_agent,
+                        ua_pool.len(),
+                    );
                 }
                 env::set_current_dir(dump_dir).into_diagnostic()?;
                 take_screenshot_in_bulk(
