@@ -121,104 +121,152 @@ wget -qO- "$(curl -qfsSL "https://api.github.com/repos/pwnwriter/haylxon/release
 
   ***I'm using brave browser for all the demonstration. You can use any chromium based browsers.***
   &nbsp;
-- <details> <summary><code> Take screenshots of single url 🔗 </code></summary>
+- <details> <summary><code> Single url </code></summary>
    &nbsp;
 
   ```bash
   hxn -b $(which brave) -u https://example.com
   ```
-     ![screenshot_2023-11-03_12-28-18](https://github.com/pwnwriter/haylxon/assets/90331517/e9fd87e3-a99a-4fd9-a100-dbe2d3947a58)
 
 </details>
 
-- <details> <summary><code> Take screenshots of multiple urls 📂 </code></summary>
+- <details> <summary><code> Multiple urls from file </code></summary>
    &nbsp;
 
   ```bash
   hxn -b $(which brave) -f urls.txt
   ```
 
-  ![screenshot_2023-11-03_12-36-09](https://github.com/pwnwriter/haylxon/assets/90331517/cb94f0ee-5546-4854-9678-62c15665611f)
-
-
 </details>
 
-- <details> <summary><code> Show fancy output ⚙️ </code></summary>
-  &nbsp;
-  
-   ```bash
-   hxn -b $(which brave) -f urls.txt --verbose
-     ```
-
-   ![screenshot_2023-11-03_12-29-16](https://github.com/pwnwriter/haylxon/assets/90331517/38120572-72c5-4412-b583-02a14f88869e)
-
-</details>
-
-- <details> <summary><code> Read urls from stdin ⚓ </code></summary>
+- <details> <summary><code> Read urls from stdin </code></summary>
   &nbsp;
   
    ```bash
    cat urls.txt | hxn -b $(which brave) --stdin
    ```
-  
-  ![stdin](https://github.com/pwnwriter/haylxon/assets/90331517/db5b8542-af54-420a-8478-7bef4ef6fe0c)
 
-  
 </details>
 
-- <details> <summary><code> Define x/y dimentions 🐀 </code></summary>
+- <details> <summary><code> Custom dimensions </code></summary>
   &nbsp;
  
    ```bash
    cat urls.txt | hxn -b $(which brave) -x 144 -y 400 --stdin
    ```
-  
-  ![dimention](https://github.com/pwnwriter/haylxon/assets/90331517/c436100e-d647-40b2-9987-f52f81e09490)
 
-  
 </details>
 
 
-- <details> <summary><code> Define your ports ✳️ </code></summary>
+- <details> <summary><code> With ports </code></summary>
   &nbsp;
  
    ```bash
    hxn -b $(which brave) -f urls.txt --ports 8080,8081
    ```
-  
-  ![screenshot_2024-01-09_20-36-27](https://github.com/pwnwriter/haylxon/assets/90331517/2c0579ae-ca88-472a-a448-29d8accfcab6)
 
-  
 </details>
 
-- <details> <summary><code> Arbitary javascript 🏺 </code></summary>
+- <details> <summary><code> Arbitrary javascript </code></summary>
     &nbsp;
-   
+
    ```bash
-   hxn -b $(which brave) -u <url> --javascript "javascript code here". 
+   hxn -b $(which brave) -u <url> --javascript "javascript code here"
+   ```
 
-     ```
-   <img width="723" alt="Screenshot 2024-06-20 at 13 52 00" src="https://github.com/pwnwriter/haylxon/assets/90331517/d86c7416-b79f-4bb4-8191-059f6be74bba">
-
-
-  
 </details>
 
+- <details> <summary><code> Fullpage screenshots </code></summary>
+    &nbsp;
 
-- <details> <summary><code> hxn in termux 🐤 </code></summary>
+   ```bash
+   hxn -b $(which brave) -u https://example.com --fullpage
+   ```
+
+</details>
+
+- <details> <summary><code> Screenshot format </code></summary>
+    &nbsp;
+
+   ```bash
+   hxn -b $(which brave) -u https://example.com --screenshot-type jpeg
+   ```
+
+</details>
+
+- <details> <summary><code> Proxy </code></summary>
+    &nbsp;
+
+   ```bash
+   hxn -b $(which brave) -u https://example.com --proxy socks5://127.0.0.1:9050
+   ```
+
+</details>
+
+- <details> <summary><code> Custom user agent </code></summary>
+    &nbsp;
+
+   ```bash
+   hxn -b $(which brave) -f urls.txt --user-agent "random"
+   ```
+
+</details>
+
+- <details> <summary><code> JSON output </code></summary>
+    &nbsp;
+
+   ```bash
+   hxn -b $(which brave) -f urls.txt --json
+   ```
+
+</details>
+
+- <details> <summary><code> Silent mode </code></summary>
+    &nbsp;
+
+   ```bash
+   hxn -b $(which brave) -f urls.txt --silent
+   ```
+
+</details>
+
+- <details> <summary><code> Timeout and delay </code></summary>
+    &nbsp;
+
+   ```bash
+   hxn -b $(which brave) -f urls.txt --timeout 200 --delay 5
+   ```
+
+</details>
+
+- <details> <summary><code> Parallel tabs </code></summary>
+    &nbsp;
+
+   ```bash
+   hxn -b $(which brave) -f urls.txt --tabs 8
+   ```
+
+</details>
+
+- <details> <summary><code> Accept invalid certs </code></summary>
+    &nbsp;
+
+   ```bash
+   hxn -b $(which brave) -f urls.txt --accept-invalid-certs
+   ```
+
+</details>
+
+- <details> <summary><code> hxn in termux </code></summary>
     &nbsp;
    Install dependencies - 
     &nbsp;
    
    ```bash
    pkg install tur-repo -y ; pkg install chromium -y
-   ln -s "$PREFIX/bin/chromium-browser" "$PREFIX/bin/chromium"  
+   ln -s "$PREFIX/bin/chromium-browser" "$PREFIX/bin/chromium"
    ```
 
-  ![screenshot_2023-11-16_12-11-55](https://github.com/pwnwriter/haylxon/assets/90331517/c38bbd53-aaef-4883-baf5-adf51a768e62)
-
-
-  
 </details>
 
 
