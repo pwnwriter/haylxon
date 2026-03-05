@@ -1,29 +1,13 @@
 use cli::{args, exec};
 mod cli;
 
-use clap::Parser;
+use clap::{CommandFactory, Parser};
 
-const AVAILABLE_OPTIONS: &str = "\
-Available options:
-  -u, --url <URL>              Website URL
-  -f, --file-path <FILE>       Path of the file containing URLs
-      --stdin                   Read urls from standard input
-  -b, --binary-path <PATH>     Browser binary path
-  -o, --outdir <DIR>           Output directory to save screenshots
-  -t, --tabs <N>               Maximum number of parallel tabs
-      --timeout <SECS>          Define timeout for urls
-      --delay <SECS>            Define delay for client side loading
-      --ports <PORTS>           Ports as a range (x..y) or absolute (x,y,z)
-      --user-agent <UA>         \"random\", \"random-per-url\", path to UA file, or custom string
-      --proxy <URL>             Proxy URL (http, socks5)
-      --fullpage                Take fullpage screenshot
-      --screenshot-type <TYPE>  png, jpeg, or webg
-      --javascript <JS>         Run arbitrary javascript
-      --json                    Output results as NDJSON
-      --accept-invalid-certs    Accept invalid certs, trust dns
-  -s, --silent                  Suppress extra output
-
-Run `hxn --help` for full details.";
+fn available_options() -> String {
+    let mut buf = Vec::new();
+    args::Cli::command().write_help(&mut buf).unwrap();
+    String::from_utf8(buf).unwrap()
+}
 
 #[tokio::main]
 async fn main() -> miette::Result<()> {
@@ -50,8 +34,9 @@ async fn main() -> miette::Result<()> {
                 .next()
                 .and_then(|l| l.strip_prefix("error: "))
                 .unwrap_or(&raw);
+            let help = available_options();
             return Err(miette::miette!(
-                help = AVAILABLE_OPTIONS,
+                help = help,
                 "{msg}"
             ));
         }
