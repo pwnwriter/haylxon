@@ -1,15 +1,15 @@
 [package]
 name = "hxn"
-version = "1.0.0"
+version = "1.1.0"
 edition = "2021"
-authors = [ "PwnWriter < hey@pwnwriter.xyz >" ]
+authors = [ "PwnWriter < hi@pwnwriter.me >" ]
 description = "Blazingly fast tool to grab screenshots of url/webpages from terminal."
 readme = "README.md"
 repository = "https://github.com/pwnwriter/haylxon"
 homepage = "https://github.com/pwnwriter/haylxon.git"
 license = "MIT"
-keywords = ["screenshots", "bug-bounty", "recon", "pwn", "OSINT" ]
-categories = ["accessibility", "web-programming", "command-line" ]
+keywords = ["screenshot", "recon", "bug-bounty", "osint", "automation"]
+categories = ["command-line-utilities", "web-programming", "network-programming"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

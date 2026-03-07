@@ -6,6 +6,75 @@
 
 ## ☃️ Miscellaneous Tasks
 
+- [`2c2ac71`](https://github.com/pwnwriter/hysp/commit/2c2ac71a870b66548171068efdeb0e6727deb7c1): Removed unused devshell pkgs.
+
+- [`1d894e0`](https://github.com/pwnwriter/hysp/commit/1d894e05d1cd583f6c41facece670b46885968bc): Updated website link.
+
+- [`97d7166`](https://github.com/pwnwriter/hysp/commit/97d7166506b1414f46b456f2850ac9f0aac67f09): Ignore direnv dir.
+
+- [`1cce9be`](https://github.com/pwnwriter/hysp/commit/1cce9bebe6b722d7aeca6bffc6c681121dea3601): Show no. of urls in verbose mode.
+
+- [`063a1f6`](https://github.com/pwnwriter/hysp/commit/063a1f6485d672fee208ddbbd670391a865dcc21): Darwin we do not need darwin setup no more.
+
+- [`1174843`](https://github.com/pwnwriter/hysp/commit/11748438ccb43440ca503c55287f5e9b7923d58d): Show clap help menu on no possible arg.
+
+- [`e809170`](https://github.com/pwnwriter/hysp/commit/e809170414c35e1f70118ec63f975f59c9928020): Show full error when obstruct.
+
+- [`9c7ba12`](https://github.com/pwnwriter/hysp/commit/9c7ba124261aefd28804647aac8fbcbd60d416a1): Open blank page properly.
+
+- [`c494356`](https://github.com/pwnwriter/hysp/commit/c494356242c4a4032f8e1dd8fa5fcb8fd6cb674b): Get available options from clap itself don't hardcode.
+
+
+## ✨Refactor
+
+- [`d5d2dc1`](https://github.com/pwnwriter/hysp/commit/d5d2dc1ebf7f9795efab49681b2d6ebf7be13459): Use nix for devenv, ci workflows.
+
+- [`b242c8e`](https://github.com/pwnwriter/hysp/commit/b242c8e759b197c0d18a2d37048b2d3aa6b9d57c): Fixed syntax and indentation.
+
+- [`4023f34`](https://github.com/pwnwriter/hysp/commit/4023f3495b0db820967a0dc1feb17e0805d231c1): Fixed flake for default devshell ;  ci for tests.
+
+- [`d708fcb`](https://github.com/pwnwriter/hysp/commit/d708fcb0b66ceaa3e84a0c5cd74f1907ce6943ab): Use miette instead of anyhow.
+
+- [`0e6a2a9`](https://github.com/pwnwriter/hysp/commit/0e6a2a9c038e1ca994742294a5614b00c1da3615): Split core logic into different parts, new ascii.
+
+- [`6fb59b7`](https://github.com/pwnwriter/hysp/commit/6fb59b7a82a6716511477a62f0b1287ecaccd206): Cargo-fmt all the way.
+
+
+## 🐶Performance
+
+- [`b7b1c66`](https://github.com/pwnwriter/hysp/commit/b7b1c66d77de734c5e87876456eb57f25480770e): Use determinate system's nix cache for faster build.
+
+
+## 👨🏻‍🔧**Bug Fixes**
+
+- [`f0d2a2f`](https://github.com/pwnwriter/hysp/commit/f0d2a2f679ae672bea7087c88248548e07b5270d): Resolve "oneshot canceled" by not breaking handler loop on transient errors.
+
+
+## 🦁Features
+
+- [`fc62fd0`](https://github.com/pwnwriter/hysp/commit/fc62fd0d4e9a9cc0b938ab6530f5102d67c727f0): Use direnv for faster nav.
+
+- [`06cee2b`](https://github.com/pwnwriter/hysp/commit/06cee2bc66906f3a2f772e2615c034af68588fc1): Nix default package/shell for the app.
+
+- [`f5903dc`](https://github.com/pwnwriter/hysp/commit/f5903dc1401647389ac4555bbc07f9d97c5f21e1): Docs for running on nix.
+
+- [`1a6996f`](https://github.com/pwnwriter/hysp/commit/1a6996f52bbd765f831899c3567f83f7feb79e88): Docs for flakes, without flakes usages for nix.
+
+- [`4f7f597`](https://github.com/pwnwriter/hysp/commit/4f7f597513e869ec206b28267ad3c1147c3e6b4d): Show table like ui for urls ss output.
+
+- [`8aa4255`](https://github.com/pwnwriter/hysp/commit/8aa4255e63209ca75b70731ac27321ea94e5adf9): Add support for proxy.
+
+- [`02eedf1`](https://github.com/pwnwriter/hysp/commit/02eedf1aaab848c4e8de35c2337f96ca1fdf7531): Add support for output in json format.
+
+- [`bd943dc`](https://github.com/pwnwriter/hysp/commit/bd943dcdd48199bf3a7fcf70703edaa8d3f145c0): Handle urls protocol before taking ss, normalize ss taking.
+
+- [`897ef4f`](https://github.com/pwnwriter/hysp/commit/897ef4f84a409db1ffa16b541fc8925d3f050f67): Lsp config using lazy nvim.
+
+- [`a38a28c`](https://github.com/pwnwriter/hysp/commit/a38a28c1f45498ef277db54ef4cae467a2c6aa7b): New features usages and follow up commands.
+
+
+## ☃️ Miscellaneous Tasks
+
 - [`4ee2bb4`](https://github.com/pwnwriter/hysp/commit/4ee2bb494a7cf2379ddf5d68a283b6b717004b4c): Fixed typo for v. release ; use 5 max prs for deps.
 
 - [`462669c`](https://github.com/pwnwriter/hysp/commit/462669c1a4c99c98026c41a2cadbfc47df01c46f): Help for possible port values type.
@@ -34,6 +103,10 @@
 - [`cee4172`](https://github.com/pwnwriter/hysp/commit/cee4172cadfceb0e16ec4898ae5e53b7774c0fbe): Guide on arbitary js option.
 
 - [`d0b5f1b`](https://github.com/pwnwriter/hysp/commit/d0b5f1be98f30b535cf6e978d650e22ea47eab29): Faq section and answers.
+
+- [`d78c741`](https://github.com/pwnwriter/hysp/commit/d78c741998f6c4c39197f5cb533d992f247d3cf5): Release notes for new release.
+
+- [`0381a15`](https://github.com/pwnwriter/hysp/commit/0381a15739ac3c07523a315878cd8fe505bf956f): Release new version.
 
 
 ## ☃️ Miscellaneous Tasks
