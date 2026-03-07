@@ -51,22 +51,28 @@ jobs:
       - name: Prepare release assets
         shell: bash
         run: |
-          mkdir release/
-          cp {LICENSE,README.md} release/
-          cp target/${{ matrix.config.TARGET }}/release/hxn release/
-          mv release/ haylxon-${{ env.RELEASE_VERSION }}/
+          mkdir release
+          cp LICENSE README.md release/
+
+          if [[ "${{ matrix.config.OS }}" == "windows-latest" ]]; then
+            cp target/${{ matrix.config.TARGET }}/release/hxn.exe release/
+          else
+            cp target/${{ matrix.config.TARGET }}/release/hxn release/
+          fi
+
+          mv release haylxon-${{ env.RELEASE_VERSION }}
 
       - name: Create release artifacts
         shell: bash
         run: |
-          if [ "${{ matrix.config.OS }}" = "windows-latest" ]; then
+          if [[ "${{ matrix.config.OS }}" == "windows-latest" ]]; then
             7z a -tzip "haylxon-${{ env.RELEASE_VERSION }}-${{ matrix.config.TARGET }}.zip" \
               haylxon-${{ env.RELEASE_VERSION }}
           else
-            tar -czvf haylxon-${{ env.RELEASE_VERSION }}-${{ matrix.config.TARGET }}.tar.gz \
+            tar -czvf "haylxon-${{ env.RELEASE_VERSION }}-${{ matrix.config.TARGET }}.tar.gz" \
               haylxon-${{ env.RELEASE_VERSION }}/
-            shasum -a 512 haylxon-${{ env.RELEASE_VERSION }}-${{ matrix.config.TARGET }}.tar.gz \
-              > haylxon-${{ env.RELEASE_VERSION }}-${{ matrix.config.TARGET }}.tar.gz.sha512
+            shasum -a 512 "haylxon-${{ env.RELEASE_VERSION }}-${{ matrix.config.TARGET }}.tar.gz" \
+              > "haylxon-${{ env.RELEASE_VERSION }}-${{ matrix.config.TARGET }}.tar.gz.sha512"
           fi
 
       - name: Upload the release
@@ -86,8 +92,13 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@v3
 
-      - name: Publish
-        uses: actions-rs/cargo@v1
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
         with:
-          command: publish
-          args: --locked --token ${{ secrets.CARGO_TOKEN }}
+          toolchain: stable
+          override: true
+
+      - name: Publish
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_TOKEN }}
+        run: cargo publish --locked

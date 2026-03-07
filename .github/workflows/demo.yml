@@ -1,0 +1,55 @@
+name: Generate demo GIF
+
+on:
+  push:
+    branches: [main]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  generate-demo:
+    if: contains(github.event.head_commit.message, '[generate-demo]')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install Nix package manager
+        uses: DeterminateSystems/nix-installer-action@main
+
+      - name: Setup Nix cache
+        uses: DeterminateSystems/magic-nix-cache-action@main
+
+      - name: Build hxn
+        run: |
+          nix develop --command cargo build --release
+          echo "$PWD/target/release" >> "$GITHUB_PATH"
+
+      - name: Install Google Chrome
+        run: |
+          wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo gpg --dearmor -o /usr/share/keyrings/google-chrome.gpg
+          echo "deb [arch=amd64 signed-by=/usr/share/keyrings/google-chrome.gpg] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list
+          sudo apt-get update
+          sudo apt-get install -y google-chrome-stable
+
+      - name: Install VHS and dependencies
+        run: |
+          sudo apt-get install -y ffmpeg
+          go install github.com/charmbracelet/vhs@latest
+          echo "$HOME/go/bin" >> "$GITHUB_PATH"
+
+      - name: Generate demo GIF
+        run: vhs demo.tape
+
+      - name: Push demo.gif to showcase branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git fetch origin showcase || true
+          git checkout showcase 2>/dev/null || git checkout --orphan showcase
+          git reset --hard
+          cp "$GITHUB_WORKSPACE/demo.gif" demo.gif
+          git add demo.gif
+          git commit -m "chore: regenerate demo GIF"
+          git push origin showcase --force
