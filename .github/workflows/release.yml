@@ -84,6 +84,76 @@ jobs:
           overwrite: true
           tag: ${{ github.ref }}
 
+  update-release-body:
+    name: Update release body with download table
+    needs: publish-github
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Set the release version
+        run: echo "RELEASE_VERSION=${GITHUB_REF:11}" >> $GITHUB_ENV
+
+      - name: Generate release body with download table
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${{ github.ref_name }}"
+          VERSION="${{ env.RELEASE_VERSION }}"
+
+          # Fetch all release assets
+          ASSETS=$(gh release view "$TAG" --repo "${{ github.repository }}" --json assets -q '.assets[].name')
+
+          # Build the markdown table
+          BODY="## Installation
+
+          \`\`\`sh
+          cargo install hxn --locked
+          \`\`\`
+
+          Or download a prebuilt binary below.
+
+          ## Download
+
+          | Target | Binary | SHA-512 |
+          |--------|--------|---------|"
+
+          # Unix targets (tar.gz + sha512)
+          for TARGET in \
+            x86_64-unknown-linux-gnu x86_64-unknown-linux-musl \
+            i686-unknown-linux-gnu i686-unknown-linux-musl \
+            armv5te-unknown-linux-gnueabi armv7-unknown-linux-gnueabihf \
+            aarch64-unknown-linux-gnu aarch64-unknown-linux-musl \
+            x86_64-apple-darwin aarch64-apple-darwin; do
+
+            TARBALL="haylxon-${VERSION}-${TARGET}.tar.gz"
+            SHA_FILE="haylxon-${VERSION}-${TARGET}.tar.gz.sha512"
+            DOWNLOAD_URL="https://github.com/${{ github.repository }}/releases/download/${TAG}/${TARBALL}"
+            SHA_URL="https://github.com/${{ github.repository }}/releases/download/${TAG}/${SHA_FILE}"
+
+            if echo "$ASSETS" | grep -q "^${TARBALL}$"; then
+              BODY="${BODY}
+          | \`${TARGET}\` | [${TARBALL}](${DOWNLOAD_URL}) | [checksum](${SHA_URL}) |"
+            fi
+          done
+
+          # Windows targets (zip, no sha)
+          for TARGET in x86_64-pc-windows-msvc i686-pc-windows-msvc; do
+            ZIPFILE="haylxon-${VERSION}-${TARGET}.zip"
+            DOWNLOAD_URL="https://github.com/${{ github.repository }}/releases/download/${TAG}/${ZIPFILE}"
+
+            if echo "$ASSETS" | grep -q "^${ZIPFILE}$"; then
+              BODY="${BODY}
+          | \`${TARGET}\` | [${ZIPFILE}](${DOWNLOAD_URL}) | — |"
+            fi
+          done
+
+          # Strip leading whitespace from each line (caused by YAML indentation)
+          BODY=$(echo "$BODY" | sed 's/^          //')
+
+          # Update the release body
+          gh release edit "$TAG" --repo "${{ github.repository }}" --notes "$BODY"
+
   publish-crates-io:
     name: Publish on crates.io
     needs: publish-github
