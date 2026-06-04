@@ -9,6 +9,8 @@ jobs:
   publish-github:
     name: Publish on GitHub
     runs-on: ${{ matrix.config.OS }}
+    permissions:
+      contents: write
     strategy:
       fail-fast: false
       matrix:
@@ -76,13 +78,15 @@ jobs:
           fi
 
       - name: Upload the release
-        uses: svenstaro/upload-release-action@v2
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: haylxon-${{ env.RELEASE_VERSION }}-${{ matrix.config.TARGET }}.*
-          file_glob: true
-          overwrite: true
-          tag: ${{ github.ref }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          TAG="${{ github.ref_name }}"
+          gh release create "$TAG" --repo "${{ github.repository }}" --title "$TAG" --notes "" 2>/dev/null || true
+          for file in haylxon-${{ env.RELEASE_VERSION }}-${{ matrix.config.TARGET }}.*; do
+            gh release upload "$TAG" "$file" --repo "${{ github.repository }}" --clobber
+          done
 
   update-release-body:
     name: Update release body with download table
