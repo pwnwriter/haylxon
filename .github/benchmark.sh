@@ -18,7 +18,7 @@ EOF
 fi
 
 cleanup() {
-    rm -rf hxnshots gowitness-* screenshots
+    rm -rf hxnshots screenshots gowitness.sqlite3
 }
 
 echo "=== hxn vs gowitness benchmark ==="
@@ -31,23 +31,24 @@ echo "--- Single URL ---"
 hyperfine \
     --warmup "$WARMUP" \
     --runs "$RUNS" \
-    --cleanup 'rm -rf hxnshots gowitness-* screenshots' \
+    --cleanup 'rm -rf hxnshots screenshots gowitness.sqlite3' \
     --command-name "hxn" \
     "hxn -u https://example.com -b $CHROME_BIN -s" \
     --command-name "gowitness" \
-    "gowitness single https://example.com"
+    "gowitness scan single --url https://example.com --write-db=false"
 cleanup
 
 echo ""
 echo "--- Bulk ($(wc -l < "$URL_FILE") URLs, 4 tabs) ---"
+# gowitness reads from stdin for bulk
 hyperfine \
     --warmup "$WARMUP" \
     --runs "$RUNS" \
-    --cleanup 'rm -rf hxnshots gowitness-* screenshots' \
+    --cleanup 'rm -rf hxnshots screenshots gowitness.sqlite3' \
     --command-name "hxn (4 tabs)" \
     "hxn -f $URL_FILE -b $CHROME_BIN -s" \
     --command-name "gowitness (4 threads)" \
-    "gowitness file -f $URL_FILE --threads 4"
+    "cat $URL_FILE | gowitness scan file -f - --threads 4 --write-db=false"
 cleanup
 
 echo ""
@@ -55,9 +56,9 @@ echo "--- Bulk ($(wc -l < "$URL_FILE") URLs, 8 tabs) ---"
 hyperfine \
     --warmup "$WARMUP" \
     --runs "$RUNS" \
-    --cleanup 'rm -rf hxnshots gowitness-* screenshots' \
+    --cleanup 'rm -rf hxnshots screenshots gowitness.sqlite3' \
     --command-name "hxn (8 tabs)" \
     "hxn -f $URL_FILE -b $CHROME_BIN -s -t 8" \
     --command-name "gowitness (8 threads)" \
-    "gowitness file -f $URL_FILE --threads 8"
+    "cat $URL_FILE | gowitness scan file -f - --threads 8 --write-db=false"
 cleanup
