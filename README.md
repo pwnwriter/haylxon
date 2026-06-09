@@ -5,8 +5,8 @@
 **Shoot before the blink** — a fast, minimal screenshot tool for webpages using Chrome's headless mode. Supports local and remote browsers, tab pooling, and parallel execution.
 
 [![GitHub Release](https://img.shields.io/github/v/release/pwnwriter/haylxon?style=flat&labelColor=56534b&color=c1c1b6&logo=GitHub&logoColor=white)](https://github.com/pwnwriter/haylxon/releases)
-[![Crate](https://img.shields.io/crates/v/hxn?style=flat&labelColor=56534b&color=c1c1b6&logo=Rust&logoColor=white)](https://crates.io/crates/hxn/)
 [![License](https://img.shields.io/badge/License-MIT-white.svg)](https://github.com/pwnwriter/haylxon/blob/main/LICENSE)
+[![Crate](https://img.shields.io/crates/v/hxn?style=flat&labelColor=56534b&color=c1c1b6&logo=Rust&logoColor=white)](https://crates.io/crates/hxn/)
 [![ko-fi](https://img.shields.io/badge/support-pwnwriter%20-pink?logo=kofi&logoColor=white)](https://ko-fi.com/pwnwriter)
 
 ---
@@ -100,13 +100,16 @@ Connect to an already-running Chromium instance instead of launching one locally
 
 ```bash
 # On the remote machine
-chromium --headless --remote-debugging-port=9222 --remote-debugging-address=0.0.0.0 --no-sandbox
+chromium --headless --remote-debugging-port=9222 --no-sandbox
+
+# Chrome often ignores --remote-debugging-address=0.0.0.0, so expose it with socat
+socat TCP-LISTEN:9223,fork,reuseaddr,bind=0.0.0.0 TCP:127.0.0.1:9222 &
 
 # Auto-discover the WebSocket endpoint (recommended)
-hxn --remote-host 192.168.1.42:9222 -f urls.txt
+hxn --remote-host 192.168.1.42:9223 -f urls.txt
 
 # Or pass the WebSocket URL directly
-hxn --remote-url ws://192.168.1.42:9222/devtools/browser/<uuid> -u https://example.com
+hxn --remote-url ws://192.168.1.42:9223/devtools/browser/<uuid> -u https://example.com
 ```
 </details>
 
