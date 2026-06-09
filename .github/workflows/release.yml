@@ -1,4 +1,4 @@
-name: Continuous Deployment
+name: Release
 
 on:
   push:
@@ -6,171 +6,82 @@ on:
       - "v*.*.*"
 
 jobs:
-  publish-github:
-    name: Publish on GitHub
-    runs-on: ${{ matrix.config.OS }}
+  build:
+    name: ${{ matrix.target }}
+    runs-on: ${{ matrix.os }}
     permissions:
       contents: write
     strategy:
       fail-fast: false
       matrix:
-        config:
-          - { OS: ubuntu-latest, TARGET: "x86_64-unknown-linux-gnu" }
-          - { OS: ubuntu-latest, TARGET: "x86_64-unknown-linux-musl" }
-          - { OS: ubuntu-latest, TARGET: "i686-unknown-linux-gnu" }
-          - { OS: ubuntu-latest, TARGET: "i686-unknown-linux-musl" }
-          - { OS: ubuntu-latest, TARGET: "armv5te-unknown-linux-gnueabi" }
-          - { OS: ubuntu-latest, TARGET: "armv7-unknown-linux-gnueabihf" }
-          - { OS: ubuntu-latest, TARGET: "aarch64-unknown-linux-gnu" }
-          - { OS: ubuntu-latest, TARGET: "aarch64-unknown-linux-musl" }
-          - { OS: macos-latest, TARGET: "x86_64-apple-darwin" }
-          - { OS: macos-latest, TARGET: "aarch64-apple-darwin" }
-          - { OS: windows-latest, TARGET: "x86_64-pc-windows-msvc" }
-          - { OS: windows-latest, TARGET: "i686-pc-windows-msvc" }
+        include:
+          - { os: ubuntu-latest, target: x86_64-unknown-linux-gnu }
+          - { os: ubuntu-latest, target: x86_64-unknown-linux-musl }
+          - { os: ubuntu-latest, target: i686-unknown-linux-gnu }
+          - { os: ubuntu-latest, target: i686-unknown-linux-musl }
+          - { os: ubuntu-latest, target: armv5te-unknown-linux-gnueabi }
+          - { os: ubuntu-latest, target: armv7-unknown-linux-gnueabihf }
+          - { os: ubuntu-latest, target: aarch64-unknown-linux-gnu }
+          - { os: ubuntu-latest, target: aarch64-unknown-linux-musl }
+          - { os: macos-latest, target: x86_64-apple-darwin }
+          - { os: macos-latest, target: aarch64-apple-darwin }
+          - { os: windows-latest, target: x86_64-pc-windows-msvc }
+          - { os: windows-latest, target: i686-pc-windows-msvc }
 
     steps:
-      - name: Checkout the repository
-        uses: actions/checkout@v3
-
-      - name: Set the release version
-        shell: bash
-        run: echo "RELEASE_VERSION=${GITHUB_REF:11}" >> $GITHUB_ENV
+      - uses: actions/checkout@v4
 
       - name: Install Rust
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@stable
         with:
-          toolchain: stable
-          target: ${{ matrix.config.TARGET }}
-          override: true
+          targets: ${{ matrix.target }}
+
+      - name: Install cross
+        if: runner.os == 'Linux'
+        run: cargo install cross --locked
 
       - name: Build
-        uses: actions-rs/cargo@v1
-        with:
-          use-cross: true
-          command: build
-          args: --release --locked --target ${{ matrix.config.TARGET }}
-
-      - name: Prepare release assets
         shell: bash
         run: |
-          mkdir release
-          cp LICENSE README.md release/
-
-          if [[ "${{ matrix.config.OS }}" == "windows-latest" ]]; then
-            cp target/${{ matrix.config.TARGET }}/release/hxn.exe release/
+          if [[ "${{ runner.os }}" == "Linux" ]]; then
+            cross build --release --locked --target ${{ matrix.target }}
           else
-            cp target/${{ matrix.config.TARGET }}/release/hxn release/
+            cargo build --release --locked --target ${{ matrix.target }}
           fi
 
-          mv release haylxon-${{ env.RELEASE_VERSION }}
-
-      - name: Create release artifacts
+      - name: Package
         shell: bash
-        run: |
-          if [[ "${{ matrix.config.OS }}" == "windows-latest" ]]; then
-            7z a -tzip "haylxon-${{ env.RELEASE_VERSION }}-${{ matrix.config.TARGET }}.zip" \
-              haylxon-${{ env.RELEASE_VERSION }}
-          else
-            tar -czvf "haylxon-${{ env.RELEASE_VERSION }}-${{ matrix.config.TARGET }}.tar.gz" \
-              haylxon-${{ env.RELEASE_VERSION }}/
-            shasum -a 512 "haylxon-${{ env.RELEASE_VERSION }}-${{ matrix.config.TARGET }}.tar.gz" \
-              > "haylxon-${{ env.RELEASE_VERSION }}-${{ matrix.config.TARGET }}.tar.gz.sha512"
-          fi
+        run: .github/scripts/package.sh "${GITHUB_REF_NAME#v}" "${{ matrix.target }}"
 
-      - name: Upload the release
+      - name: Upload
+        shell: bash
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        shell: bash
-        run: |
-          TAG="${{ github.ref_name }}"
-          gh release create "$TAG" --repo "${{ github.repository }}" --title "$TAG" --notes "" 2>/dev/null || true
-          for file in haylxon-${{ env.RELEASE_VERSION }}-${{ matrix.config.TARGET }}.*; do
-            gh release upload "$TAG" "$file" --repo "${{ github.repository }}" --clobber
-          done
+        run: .github/scripts/upload.sh "${{ github.ref_name }}" "${{ github.repository }}" "${GITHUB_REF_NAME#v}" "${{ matrix.target }}"
 
-  update-release-body:
-    name: Update release body with download table
-    needs: publish-github
+  release-notes:
+    name: Release notes
+    needs: build
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
-      - name: Set the release version
-        run: echo "RELEASE_VERSION=${GITHUB_REF:11}" >> $GITHUB_ENV
+      - uses: actions/checkout@v4
 
-      - name: Generate release body with download table
+      - name: Generate release notes
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          TAG="${{ github.ref_name }}"
-          VERSION="${{ env.RELEASE_VERSION }}"
+        run: .github/scripts/release-notes.sh "${{ github.ref_name }}" "${{ github.repository }}"
 
-          # Fetch all release assets
-          ASSETS=$(gh release view "$TAG" --repo "${{ github.repository }}" --json assets -q '.assets[].name')
-
-          # Build the markdown table
-          BODY="## Installation
-
-          \`\`\`sh
-          cargo install hxn --locked
-          \`\`\`
-
-          Or download a prebuilt binary below.
-
-          ## Download
-
-          | Target | Binary | SHA-512 |
-          |--------|--------|---------|"
-
-          # Unix targets (tar.gz + sha512)
-          for TARGET in \
-            x86_64-unknown-linux-gnu x86_64-unknown-linux-musl \
-            i686-unknown-linux-gnu i686-unknown-linux-musl \
-            armv5te-unknown-linux-gnueabi armv7-unknown-linux-gnueabihf \
-            aarch64-unknown-linux-gnu aarch64-unknown-linux-musl \
-            x86_64-apple-darwin aarch64-apple-darwin; do
-
-            TARBALL="haylxon-${VERSION}-${TARGET}.tar.gz"
-            SHA_FILE="haylxon-${VERSION}-${TARGET}.tar.gz.sha512"
-            DOWNLOAD_URL="https://github.com/${{ github.repository }}/releases/download/${TAG}/${TARBALL}"
-            SHA_URL="https://github.com/${{ github.repository }}/releases/download/${TAG}/${SHA_FILE}"
-
-            if echo "$ASSETS" | grep -q "^${TARBALL}$"; then
-              BODY="${BODY}
-          | \`${TARGET}\` | [${TARBALL}](${DOWNLOAD_URL}) | [checksum](${SHA_URL}) |"
-            fi
-          done
-
-          # Windows targets (zip, no sha)
-          for TARGET in x86_64-pc-windows-msvc i686-pc-windows-msvc; do
-            ZIPFILE="haylxon-${VERSION}-${TARGET}.zip"
-            DOWNLOAD_URL="https://github.com/${{ github.repository }}/releases/download/${TAG}/${ZIPFILE}"
-
-            if echo "$ASSETS" | grep -q "^${ZIPFILE}$"; then
-              BODY="${BODY}
-          | \`${TARGET}\` | [${ZIPFILE}](${DOWNLOAD_URL}) | — |"
-            fi
-          done
-
-          # Strip leading whitespace from each line (caused by YAML indentation)
-          BODY=$(echo "$BODY" | sed 's/^          //')
-
-          # Update the release body
-          gh release edit "$TAG" --repo "${{ github.repository }}" --notes "$BODY"
-
-  publish-crates-io:
-    name: Publish on crates.io
-    needs: publish-github
+  publish:
+    name: Publish to crates.io
+    needs: build
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout the repository
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Install Rust
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          override: true
+        uses: dtolnay/rust-toolchain@stable
 
       - name: Publish
         env:
