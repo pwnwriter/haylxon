@@ -7,9 +7,8 @@ use crate::browser::pool::PagePool;
 use crate::browser::{local::LocalBrowser, remote::RemoteBrowser, BrowserProvider};
 use colored::Colorize;
 use miette::{Context, IntoDiagnostic};
-use std::path::Path;
 use std::sync::Arc;
-use std::{env, path};
+use std::{env, path::Path};
 use tokio::fs;
 
 pub async fn run(
@@ -47,7 +46,7 @@ pub async fn run(
     } else if let Some(host) = remote_host {
         Box::new(RemoteBrowser::from_host(host))
     } else {
-        let browser = path::Path::new(&binary_path);
+        let browser = Path::new(&binary_path);
         if !browser.exists() {
             return Err(miette::miette!(
                 "Unable to locate browser binary {binary_path}"
