@@ -1,4 +1,5 @@
 use cli::{args, exec};
+mod browser;
 mod cli;
 
 use clap::{CommandFactory, Parser};
@@ -21,8 +22,7 @@ async fn main() -> miette::Result<()> {
             // --help and --version: let clap handle normally
             if matches!(
                 e.kind(),
-                clap::error::ErrorKind::DisplayHelp
-                    | clap::error::ErrorKind::DisplayVersion
+                clap::error::ErrorKind::DisplayHelp | clap::error::ErrorKind::DisplayVersion
             ) {
                 e.exit();
             }
@@ -35,10 +35,7 @@ async fn main() -> miette::Result<()> {
                 .and_then(|l| l.strip_prefix("error: "))
                 .unwrap_or(&raw);
             let help = available_options();
-            return Err(miette::miette!(
-                help = help,
-                "{msg}"
-            ));
+            return Err(miette::miette!(help = help, "{msg}"));
         }
     };
 

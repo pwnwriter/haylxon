@@ -24,9 +24,19 @@ pub struct Cli {
     #[command(flatten)]
     pub input: Input,
 
-    /// Browser binary path
-    #[arg(short, long, default_value = "/usr/bin/chrome")]
+    /// Browser binary path (local mode)
+    #[arg(short, long, default_value = "/usr/bin/chrome", conflicts_with_all = ["remote_url", "remote_host"])]
     pub binary_path: String,
+
+    /// Connect to a remote browser via WebSocket URL
+    /// e.g. ws://10.0.0.5:9222/devtools/browser/<uuid>
+    #[arg(long, conflicts_with_all = ["binary_path", "remote_host"])]
+    pub remote_url: Option<String>,
+
+    /// Connect to a remote browser via host:port (auto-discovers WebSocket URL)
+    /// e.g. 10.0.0.5:9222
+    #[arg(long, conflicts_with_all = ["binary_path", "remote_url"])]
+    pub remote_host: Option<String>,
 
     /// Output directory to save screenshots
     #[arg(short, long, default_value = "hxnshots")]
@@ -91,6 +101,14 @@ pub struct Cli {
     /// Output results as NDJSON (one JSON object per line)
     #[arg(long)]
     pub json: bool,
+
+    /// Reuse browser tabs instead of creating a new one per URL
+    #[arg(long, default_value = "true")]
+    pub reuse_tabs: bool,
+
+    /// Maximum number of warm pages kept in the tab pool
+    #[arg(long, default_value = "8")]
+    pub pool_size: usize,
 }
 
 impl Cli {

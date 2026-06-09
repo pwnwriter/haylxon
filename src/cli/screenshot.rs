@@ -1,6 +1,7 @@
 use super::args::ScreenshotType;
 use super::output::{self, ScreenshotError, ScreenshotResult};
 use super::user_agent;
+use crate::browser::pool::PagePool;
 use chromiumoxide::page::ScreenshotParams;
 use chromiumoxide::{browser::Browser, cdp::browser_protocol::page::CaptureScreenshotFormat};
 use colored::Colorize;
@@ -19,6 +20,7 @@ static FILENAME_RE: LazyLock<Regex> =
 
 pub async fn take_screenshot_in_bulk(
     browser: &Arc<Browser>,
+    page_pool: Option<Arc<PagePool>>,
     urls: Vec<String>,
     tabs: usize,
     timeout: u64,
@@ -75,10 +77,12 @@ pub async fn take_screenshot_in_bulk(
         let ua = user_agent.clone();
         let client = http_client.clone();
         let pool = Arc::clone(&ua_pool);
+        let pp = page_pool.clone();
         let handle = tokio::spawn(async move {
             pb.set_message(url.clone());
             if let Err(error) = take_screenshot(
                 &browser,
+                pp.as_deref(),
                 url.clone(),
                 timeout,
                 delay,
@@ -140,6 +144,7 @@ pub async fn take_screenshot_in_bulk(
 
 async fn take_screenshot(
     browser: &Browser,
+    page_pool: Option<&PagePool>,
     url: String,
     timeout: u64,
     delay: u64,
@@ -186,12 +191,16 @@ async fn take_screenshot(
         ScreenshotType::Webg => CaptureScreenshotFormat::Webp,
     };
 
-    // Create blank page, set per-page user-agent via CDP, then navigate
-    let page = browser
-        .new_page("about:blank")
-        .await
-        .into_diagnostic()
-        .wrap_err_with(|| format!("Failed to open page: {url}"))?;
+    // Acquire a page from the pool (or create a new one)
+    let page = if let Some(pool) = page_pool {
+        pool.acquire().await?
+    } else {
+        browser
+            .new_page("about:blank")
+            .await
+            .into_diagnostic()
+            .wrap_err_with(|| format!("Failed to open page: {url}"))?
+    };
     if let Some(ref ua) = user_agent {
         page.set_user_agent(ua)
             .await
@@ -246,8 +255,12 @@ async fn take_screenshot(
             _ => "No title".to_string(),
         };
 
-        // Close page early to free the browser tab for the next URL
-        page.close().await.into_diagnostic()?;
+        // Release page back to pool (or close if no pool)
+        if let Some(pool) = page_pool {
+            pool.release(page).await;
+        } else {
+            page.close().await.into_diagnostic()?;
+        }
 
         // HTTP status check uses the shared client (no per-URL setup cost)
         if let Some(client) = http_client {
@@ -255,14 +268,11 @@ async fn take_screenshot(
             if let Some(ref ua) = user_agent {
                 req = req.header("user-agent", ua.as_str());
             }
-            let response = time::timeout(
-                Duration::from_secs(timeout),
-                req.send(),
-            )
-            .await
-            .into_diagnostic()
-            .wrap_err_with(|| format!("Timed out URL = {url}"))?
-            .into_diagnostic()?;
+            let response = time::timeout(Duration::from_secs(timeout), req.send())
+                .await
+                .into_diagnostic()
+                .wrap_err_with(|| format!("Timed out URL = {url}"))?
+                .into_diagnostic()?;
 
             if json {
                 let result = ScreenshotResult {
@@ -289,6 +299,8 @@ async fn take_screenshot(
                 });
             }
         }
+    } else if let Some(pool) = page_pool {
+        pool.release(page).await;
     } else {
         page.close().await.into_diagnostic()?;
     }

@@ -3,20 +3,20 @@ use super::helpers::{combine_urls_with_ports, read_urls_from_file, read_urls_fro
 use super::output::print_config_table;
 use super::screenshot::take_screenshot_in_bulk;
 use super::user_agent;
-use chromiumoxide::{
-    browser::{Browser, BrowserConfig},
-    handler::viewport::Viewport,
-};
+use crate::browser::pool::PagePool;
+use crate::browser::{local::LocalBrowser, remote::RemoteBrowser, BrowserProvider};
 use colored::Colorize;
-use futures::StreamExt;
 use miette::{Context, IntoDiagnostic};
+use std::path::Path;
 use std::sync::Arc;
-use std::{env, path::Path};
-use tokio::{fs, task};
+use std::{env, path};
+use tokio::fs;
 
 pub async fn run(
     Cli {
         binary_path,
+        remote_url,
+        remote_host,
         input: Input { url, file_path },
         stdin,
         outdir,
@@ -34,50 +34,42 @@ pub async fn run(
         user_agent,
         proxy,
         json,
+        reuse_tabs,
+        pool_size,
     }: Cli,
 ) -> miette::Result<()> {
     // Resolve --user-agent into a fixed UA + a per-URL rotation pool
     let (user_agent, ua_pool) = user_agent::resolve(user_agent)?;
 
-    let browser = Path::new(&binary_path);
-    if !browser.exists() {
-        return Err(miette::miette!(
-            "Unable to locate browser binary {binary_path}"
-        ));
-    }
-
-    let mut browser_config = BrowserConfig::builder();
-    browser_config = browser_config
-        .no_sandbox()
-        .arg("--disable-dev-shm-usage")
-        .arg("--disable-gpu")
-        .window_size(width, height)
-        .chrome_executable(browser)
-        .viewport(Viewport {
+    // --- Select browser provider ---
+    let provider: Box<dyn BrowserProvider> = if let Some(ws_url) = remote_url {
+        Box::new(RemoteBrowser::from_ws_url(ws_url))
+    } else if let Some(host) = remote_host {
+        Box::new(RemoteBrowser::from_host(host))
+    } else {
+        let browser = path::Path::new(&binary_path);
+        if !browser.exists() {
+            return Err(miette::miette!(
+                "Unable to locate browser binary {binary_path}"
+            ));
+        }
+        Box::new(LocalBrowser::new(
+            &binary_path,
             width,
             height,
-            device_scale_factor: None,
-            emulating_mobile: false,
-            is_landscape: false,
-            has_touch: false,
-        });
+            user_agent.as_deref(),
+            proxy.as_deref(),
+        )?)
+    };
 
-    if let Some(ref ua) = user_agent {
-        browser_config = browser_config.arg(format!("--user-agent={ua}"));
-    }
+    let browser = provider.connect().await?;
 
-    if let Some(ref proxy_url) = proxy {
-        browser_config = browser_config.arg(format!("--proxy-server={proxy_url}"));
-    }
-
-    let (browser, mut handler) =
-        Browser::launch(browser_config.build().map_err(|e| miette::miette!(e))?)
-            .await
-            .into_diagnostic()
-            .wrap_err(format!("Error instantiating browser {binary_path}"))?;
-    let browser = Arc::new(browser);
-
-    task::spawn(async move { while handler.next().await.is_some() {} });
+    // --- Optional page pool ---
+    let pool = if reuse_tabs {
+        Some(Arc::new(PagePool::new(browser.clone(), pool_size)))
+    } else {
+        None
+    };
 
     let dump_dir = Path::new(&outdir);
 
@@ -118,6 +110,7 @@ pub async fn run(
         }
         take_screenshot_in_bulk(
             &browser,
+            pool.clone(),
             urls,
             tabs,
             timeout,
@@ -151,6 +144,7 @@ pub async fn run(
                 env::set_current_dir(dump_dir).into_diagnostic()?;
                 take_screenshot_in_bulk(
                     &browser,
+                    pool.clone(),
                     urls,
                     tabs,
                     timeout,
@@ -177,6 +171,7 @@ pub async fn run(
                 env::set_current_dir(dump_dir).into_diagnostic()?;
                 take_screenshot_in_bulk(
                     &browser,
+                    pool.clone(),
                     urls,
                     tabs,
                     timeout,
