@@ -257,6 +257,41 @@ wget -qO- "$(curl -qfsSL "https://api.github.com/repos/pwnwriter/haylxon/release
 
 </details>
 
+- <details> <summary><code> Connect to a remote browser </code></summary>
+    &nbsp;
+
+   Start a headless Chromium instance on any machine:
+   ```bash
+   chromium --headless --remote-debugging-port=9222 --remote-debugging-address=0.0.0.0 --no-sandbox
+   ```
+
+   Connect via auto-discovery (recommended):
+   ```bash
+   hxn --remote-host 192.168.1.42:9222 -f urls.txt
+   ```
+
+   Or connect via a direct WebSocket URL:
+   ```bash
+   hxn --remote-url ws://192.168.1.42:9222/devtools/browser/<uuid> -u https://example.com
+   ```
+
+</details>
+
+- <details> <summary><code> Tab pooling </code></summary>
+    &nbsp;
+
+   Reuse browser tabs instead of creating new ones per URL (enabled by default):
+   ```bash
+   hxn -b $(which brave) -f urls.txt --pool-size 16
+   ```
+
+   Disable tab reuse:
+   ```bash
+   hxn -b $(which brave) -f urls.txt --reuse-tabs false
+   ```
+
+</details>
+
 - <details> <summary><code> hxn in termux </code></summary>
     &nbsp;
    Install dependencies - 
