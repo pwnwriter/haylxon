@@ -18,6 +18,7 @@ use url::Url;
 static FILENAME_RE: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"[<>?.~!@#$%^&*\\/|;:']").unwrap());
 
+#[allow(clippy::too_many_arguments)]
 pub async fn take_screenshot_in_bulk(
     browser: &Arc<Browser>,
     page_pool: Option<Arc<PagePool>>,
@@ -142,6 +143,7 @@ pub async fn take_screenshot_in_bulk(
     Ok(())
 }
 
+#[allow(clippy::too_many_arguments)]
 async fn take_screenshot(
     browser: &Browser,
     page_pool: Option<&PagePool>,

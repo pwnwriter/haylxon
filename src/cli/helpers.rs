@@ -31,14 +31,13 @@ pub fn combine_urls_with_ports(urls: Vec<String>, ports: Option<String>) -> Vec<
         }
 
         let vector_of_strings: Vec<&str> = ports.split(',').collect();
-        return urls
-            .iter()
+        urls.iter()
             .flat_map(|url| {
                 vector_of_strings
                     .iter()
                     .map(move |port| format!("{}:{}", url, port))
             })
-            .collect();
+            .collect()
     } else {
         urls
     }
