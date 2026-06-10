@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>haylxon - screenshot URLs from your terminal</title>
+    <meta name="description" content="Fast, minimal CLI tool for screenshotting webpages using Chrome's headless mode. Supports local and remote browsers, tab pooling, and parallel execution.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <nav>
+        <div class="nav-inner">
+            <a href="/" class="logo">haylxon</a>
+            <div class="nav-links">
+                <a href="#install">Install</a>
+                <a href="#usage">Usage</a>
+                <a href="https://github.com/pwnwriter/haylxon" target="_blank">GitHub</a>
+            </div>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <h1>Screenshot URLs from your terminal</h1>
+        <p class="subtitle">Fast, minimal, built in Rust. Local or remote browsers. Tab pooling. Parallel execution.</p>
+        <div class="install-prompt">
+            <code>cargo install hxn</code>
+        </div>
+    </section>
+
+    <section class="demo">
+        <div class="terminal">
+            <div class="terminal-bar">
+                <span class="dot red"></span>
+                <span class="dot yellow"></span>
+                <span class="dot green"></span>
+                <span class="terminal-title">hxn</span>
+            </div>
+            <pre><code><span class="t-prompt">$</span> hxn -u https://example.com -b $(which brave)
+
+<span class="t-rose">info:</span> Bump dir hxnshots, created successfully
+<span class="t-muted">+----------+--------------------+</span>
+<span class="t-muted">|</span> URL      <span class="t-muted">|</span> <span class="t-foam">https://example.com</span> <span class="t-muted">|</span>
+<span class="t-muted">|</span> Title    <span class="t-muted">|</span> Example Domain      <span class="t-muted">|</span>
+<span class="t-muted">|</span> Status   <span class="t-muted">|</span> <span class="t-pine">200 OK</span>              <span class="t-muted">|</span>
+<span class="t-muted">|</span> Saved as <span class="t-muted">|</span> httpsexamplecom.png <span class="t-muted">|</span>
+<span class="t-muted">|</span> Time     <span class="t-muted">|</span> <span class="t-gold">360ms</span>               <span class="t-muted">|</span>
+<span class="t-muted">+----------+--------------------+</span>
+<span class="t-pine">info:</span> Screenshots taken and saved in directory hxnshots</code></pre>
+        </div>
+    </section>
+
+    <section class="features">
+        <div class="feature-grid">
+            <div class="feature">
+                <span class="feature-num">01</span>
+                <h3>Remote browsers</h3>
+                <p>Connect to an already-running Chrome instance on another machine via CDP. No need to launch a browser locally.</p>
+            </div>
+            <div class="feature">
+                <span class="feature-num">02</span>
+                <h3>Tab pooling</h3>
+                <p>Reuse browser tabs across URLs instead of creating and destroying them. Pages reset between screenshots automatically.</p>
+            </div>
+            <div class="feature">
+                <span class="feature-num">03</span>
+                <h3>Parallel execution</h3>
+                <p>Run multiple tabs in parallel with configurable concurrency. Default 4, scale up to whatever your machine handles.</p>
+            </div>
+            <div class="feature">
+                <span class="feature-num">04</span>
+                <h3>Flexible input</h3>
+                <p>Single URL, file of URLs, or pipe from stdin. Works with any tool that outputs URLs.</p>
+            </div>
+            <div class="feature">
+                <span class="feature-num">05</span>
+                <h3>Multiple formats</h3>
+                <p>PNG, JPEG, WebP. Full page screenshots. NDJSON metadata output for automation and AI agents.</p>
+            </div>
+            <div class="feature">
+                <span class="feature-num">06</span>
+                <h3>Runs everywhere</h3>
+                <p>Linux, macOS, Windows, Termux. Single binary, no runtime dependencies beyond a Chromium browser.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="usage" id="usage">
+        <h2>Usage</h2>
+        <div class="tabs">
+            <button class="tab active" data-tab="basic">Basic</button>
+            <button class="tab" data-tab="remote">Remote</button>
+            <button class="tab" data-tab="bulk">Bulk</button>
+            <button class="tab" data-tab="output">Output</button>
+            <button class="tab" data-tab="advanced">Advanced</button>
+        </div>
+
+        <div class="tab-content active" id="tab-basic">
+            <div class="code-block">
+                <div class="code-header">Single URL</div>
+                <pre><code><span class="t-prompt">$</span> hxn -b $(which brave) -u https://example.com</code></pre>
+            </div>
+            <div class="code-block">
+                <div class="code-header">From a file</div>
+                <pre><code><span class="t-prompt">$</span> hxn -b $(which brave) -f urls.txt</code></pre>
+            </div>
+            <div class="code-block">
+                <div class="code-header">From stdin</div>
+                <pre><code><span class="t-prompt">$</span> cat urls.txt | hxn -b $(which brave) --stdin</code></pre>
+            </div>
+        </div>
+
+        <div class="tab-content" id="tab-remote">
+            <div class="code-block">
+                <div class="code-header">Start headless Chrome on the remote machine</div>
+                <pre><code><span class="t-prompt">$</span> chromium --headless --remote-debugging-port=9222 --no-sandbox
+<span class="t-muted"># expose the port if Chrome only binds to localhost</span>
+<span class="t-prompt">$</span> socat TCP-LISTEN:9223,fork,reuseaddr,bind=0.0.0.0 TCP:127.0.0.1:9222 &</code></pre>
+            </div>
+            <div class="code-block">
+                <div class="code-header">Connect via auto-discovery</div>
+                <pre><code><span class="t-prompt">$</span> hxn --remote-host 192.168.1.42:9223 -f urls.txt</code></pre>
+            </div>
+            <div class="code-block">
+                <div class="code-header">Connect via WebSocket URL</div>
+                <pre><code><span class="t-prompt">$</span> hxn --remote-url ws://192.168.1.42:9223/devtools/browser/&lt;uuid&gt; -u https://example.com</code></pre>
+            </div>
+        </div>
+
+        <div class="tab-content" id="tab-bulk">
+            <div class="code-block">
+                <div class="code-header">Parallel tabs</div>
+                <pre><code><span class="t-prompt">$</span> hxn -b $(which brave) -f urls.txt --tabs 8</code></pre>
+            </div>
+            <div class="code-block">
+                <div class="code-header">Custom pool size</div>
+                <pre><code><span class="t-prompt">$</span> hxn -b $(which brave) -f urls.txt --pool-size 16</code></pre>
+            </div>
+            <div class="code-block">
+                <div class="code-header">With ports</div>
+                <pre><code><span class="t-prompt">$</span> hxn -b $(which brave) -f urls.txt --ports 8080,8081</code></pre>
+            </div>
+        </div>
+
+        <div class="tab-content" id="tab-output">
+            <div class="code-block">
+                <div class="code-header">NDJSON output</div>
+                <pre><code><span class="t-prompt">$</span> hxn -b $(which brave) -f urls.txt --json</code></pre>
+            </div>
+            <div class="code-block">
+                <div class="code-header">Silent mode</div>
+                <pre><code><span class="t-prompt">$</span> hxn -b $(which brave) -f urls.txt --silent</code></pre>
+            </div>
+            <div class="code-block">
+                <div class="code-header">Screenshot format</div>
+                <pre><code><span class="t-prompt">$</span> hxn -b $(which brave) -u https://example.com --screenshot-type jpeg</code></pre>
+            </div>
+            <div class="code-block">
+                <div class="code-header">Full page</div>
+                <pre><code><span class="t-prompt">$</span> hxn -b $(which brave) -u https://example.com --fullpage</code></pre>
+            </div>
+        </div>
+
+        <div class="tab-content" id="tab-advanced">
+            <div class="code-block">
+                <div class="code-header">Proxy</div>
+                <pre><code><span class="t-prompt">$</span> hxn -b $(which brave) -u https://example.com --proxy socks5://127.0.0.1:9050</code></pre>
+            </div>
+            <div class="code-block">
+                <div class="code-header">Random user agent</div>
+                <pre><code><span class="t-prompt">$</span> hxn -b $(which brave) -f urls.txt --user-agent <span class="t-gold">"random"</span></code></pre>
+            </div>
+            <div class="code-block">
+                <div class="code-header">Run JavaScript before screenshot</div>
+                <pre><code><span class="t-prompt">$</span> hxn -b $(which brave) -u https://example.com \
+    --javascript <span class="t-gold">"document.querySelector('.banner')?.remove()"</span></code></pre>
+            </div>
+            <div class="code-block">
+                <div class="code-header">Custom viewport + timeout</div>
+                <pre><code><span class="t-prompt">$</span> hxn -b $(which brave) -f urls.txt -x 1920 -y 1080 --timeout 200 --delay 5</code></pre>
+            </div>
+        </div>
+    </section>
+
+    <section class="benchmark">
+        <h2>Benchmarks</h2>
+        <p class="bench-sub">vs <a href="https://github.com/sensepost/gowitness">gowitness</a>, measured with <a href="https://github.com/sharkdp/hyperfine">hyperfine</a> on GitHub Actions</p>
+        <div class="bench-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Benchmark</th>
+                        <th>hxn</th>
+                        <th>gowitness</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Single URL</td>
+                        <td>360ms</td>
+                        <td>3.99s</td>
+                        <td class="result">11x faster</td>
+                    </tr>
+                    <tr>
+                        <td>5 URLs, 4 tabs</td>
+                        <td>1.81s</td>
+                        <td>26.29s</td>
+                        <td class="result">14x faster</td>
+                    </tr>
+                    <tr>
+                        <td>5 URLs, 8 tabs</td>
+                        <td>1.70s</td>
+                        <td>14.67s</td>
+                        <td class="result">8x faster</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="install" id="install">
+        <h2>Install</h2>
+        <div class="install-grid">
+            <div class="install-option">
+                <h4>Cargo</h4>
+                <code>cargo install hxn</code>
+            </div>
+            <div class="install-option">
+                <h4>Binstall</h4>
+                <code>cargo binstall hxn</code>
+            </div>
+            <div class="install-option">
+                <h4>Nix</h4>
+                <code>nix profile install nixpkgs#haylxon</code>
+            </div>
+            <div class="install-option">
+                <h4>Binary</h4>
+                <code><a href="https://github.com/pwnwriter/haylxon/releases">Download from releases</a></code>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="footer-inner">
+            <div class="footer-links">
+                <a href="https://github.com/pwnwriter/haylxon" target="_blank">GitHub</a>
+                <a href="https://github.com/pwnwriter/haylxon/blob/main/LICENSE" target="_blank">MIT License</a>
+                <a href="https://pwnwriter.me" target="_blank">pwnwriter</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                tab.classList.add('active');
+                document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+            });
+        });
+    </script>
+
+</body>
+</html>
