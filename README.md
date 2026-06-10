@@ -100,10 +100,10 @@ Connect to an already-running Chromium instance instead of launching one locally
 
 ```bash
 # On the remote machine
-chromium --headless --remote-debugging-port=9222 --no-sandbox
+chromium --headless --remote-debugging-port=9223 --no-sandbox
 
 # Chrome often ignores --remote-debugging-address=0.0.0.0, so expose it with socat
-socat TCP-LISTEN:9223,fork,reuseaddr,bind=0.0.0.0 TCP:127.0.0.1:9222 &
+socat TCP-LISTEN:9223,fork,reuseaddr,bind=0.0.0.0 TCP:127.0.0.1:9223 &
 
 # Auto-discover the WebSocket endpoint (recommended)
 hxn --remote-host 192.168.1.42:9223 -f urls.txt
