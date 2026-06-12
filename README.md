@@ -1,8 +1,14 @@
-<img src="https://raw.githubusercontent.com/pwnwriter/haylxon/showcase/hxn-transparent.png"  width="200" align="right">
+<p align="center">
+  <img src="https://raw.githubusercontent.com/pwnwriter/haylxon/showcase/hxn-transparent.png" width="200" alt="Haylxon">
+</p>
 
-# Haylxon
+<h1 align="center">Haylxon</h1>
 
-**Shoot before the blink** — a fast, minimal screenshot tool for webpages using Chrome's headless mode. Supports local and remote browsers, tab pooling, and parallel execution.
+<p align="center">
+  <code>Shoot before the blink</code>
+</p>
+
+**Haylxon(hxn)** — is a fast, minimal screenshot tool for webpages using Chrome's headless mode. Supports local and remote browsers, tab pooling, and parallel execution.
 
 [![GitHub Release](https://img.shields.io/github/v/release/pwnwriter/haylxon?style=flat&labelColor=56534b&color=c1c1b6&logo=GitHub&logoColor=white)](https://github.com/pwnwriter/haylxon/releases)
 [![License](https://img.shields.io/badge/License-MIT-white.svg)](https://github.com/pwnwriter/haylxon/blob/main/LICENSE)
