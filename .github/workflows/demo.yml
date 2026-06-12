@@ -3,6 +3,12 @@ name: Generate demo GIF
 on:
   push:
     branches: [main]
+    paths:
+      - 'src/**'
+      - '*.nix'
+      - 'flake.*'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
 
 env:
   CARGO_TERM_COLOR: always
