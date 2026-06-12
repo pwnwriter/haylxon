@@ -116,9 +116,9 @@
         <div class="tab-content" id="tab-remote">
             <div class="code-block">
                 <div class="code-header">Start headless Chrome on the remote machine</div>
-                <pre><code><span class="t-prompt">$</span> chromium --headless --remote-debugging-port=9222 --no-sandbox
+                <pre><code><span class="t-prompt">$</span> chromium --headless --remote-debugging-port=9223 --no-sandbox
 <span class="t-muted"># expose the port if Chrome only binds to localhost</span>
-<span class="t-prompt">$</span> socat TCP-LISTEN:9223,fork,reuseaddr,bind=0.0.0.0 TCP:127.0.0.1:9222 &</code></pre>
+<span class="t-prompt">$</span> socat TCP-LISTEN:9223,fork,reuseaddr,bind=0.0.0.0 TCP:127.0.0.1:9223 &</code></pre>
             </div>
             <div class="code-block">
                 <div class="code-header">Connect via auto-discovery</div>
