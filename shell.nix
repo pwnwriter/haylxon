@@ -1,9 +1,13 @@
 { pkgs, ... }:
-pkgs.mkShell {
 
-  buildInputs = with pkgs; [ openssl ];
+pkgs.mkShell {
+  buildInputs = with pkgs; [
+    openssl
+  ];
 
   shellHook = ''
-    echo "You are inside the development shell!"
+    export PATH="$PWD/target/debug:$PATH"
+
+    echo "dev shell!"
   '';
 }
