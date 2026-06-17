@@ -18,11 +18,11 @@
     in
     {
       packages = forAllSystems (pkgs: {
-        default = pkgs.callPackage ./default.nix { };
+        default = pkgs.callPackage ./nix/default.nix { };
       });
 
       devShells = forAllSystems (pkgs: {
-        default = pkgs.callPackage ./shell.nix { };
+        default = pkgs.callPackage ./nix/shell.nix { };
       });
     };
 }
