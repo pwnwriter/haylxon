@@ -24,6 +24,7 @@
 - **Parallel** — configurable concurrency with `--tabs`
 - **Flexible input** — single URL, file, or stdin
 - **Output formats** — PNG, JPEG, WebP, fullpage, NDJSON metadata
+- **HTML reports** — optional screenshot gallery with status, titles, timing, and failures
 - **Portable** — Linux, macOS, Windows, Termux
 
 ## Installation
@@ -166,6 +167,9 @@ hxn -b $(which brave) -u https://example.com --javascript "document.querySelecto
 
 # NDJSON output
 hxn -b $(which brave) -f urls.txt --json
+
+# HTML gallery report
+hxn -b $(which brave) -f urls.txt --html-report
 
 # Silent mode
 hxn -b $(which brave) -f urls.txt --silent

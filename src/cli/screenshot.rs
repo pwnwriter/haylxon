@@ -1,5 +1,6 @@
 use super::args::ScreenshotType;
 use super::output::{self, ScreenshotError, ScreenshotResult};
+use super::report::ScreenshotOutcome;
 use super::user_agent;
 use crate::browser::pool::PagePool;
 use chromiumoxide::page::ScreenshotParams;
@@ -35,10 +36,11 @@ pub async fn take_screenshot_in_bulk(
     user_agent: Option<String>,
     proxy: Option<String>,
     json: bool,
+    html_report: bool,
     ua_pool: Arc<Vec<String>>,
-) -> miette::Result<()> {
+) -> miette::Result<Vec<ScreenshotOutcome>> {
     // Build HTTP client once — reuses connections across all URLs
-    let http_client = if !silent {
+    let http_client = if !silent || html_report {
         let mut builder = reqwest::Client::builder()
             .danger_accept_invalid_certs(danger_accept_invalid_certs)
             .http1_ignore_invalid_headers_in_responses(danger_accept_invalid_certs);
@@ -81,7 +83,7 @@ pub async fn take_screenshot_in_bulk(
         let pp = page_pool.clone();
         let handle = tokio::spawn(async move {
             pb.set_message(url.clone());
-            if let Err(error) = take_screenshot(
+            let outcome = match take_screenshot(
                 &browser,
                 pp.as_deref(),
                 url.clone(),
@@ -100,47 +102,53 @@ pub async fn take_screenshot_in_bulk(
             )
             .await
             {
-                // Build full error chain so the root cause is visible
-                let full_err = {
-                    let mut msg = error.to_string();
-                    let mut source: Option<&dyn std::error::Error> = error.source();
-                    while let Some(cause) = source {
-                        msg.push_str(": ");
-                        msg.push_str(&cause.to_string());
-                        source = cause.source();
-                    }
-                    msg
-                };
-                if json && !silent {
+                Ok(result) => ScreenshotOutcome::Success(result),
+                Err(error) => {
+                    // Build full error chain so the root cause is visible
+                    let full_err = {
+                        let mut msg = error.to_string();
+                        let mut source: Option<&dyn std::error::Error> = error.source();
+                        while let Some(cause) = source {
+                            msg.push_str(": ");
+                            msg.push_str(&cause.to_string());
+                            source = cause.source();
+                        }
+                        msg
+                    };
                     let err = ScreenshotError {
                         url,
                         error: full_err,
                     };
-                    println!("{}", serde_json::to_string(&err).unwrap());
-                } else if is_bulk && !silent {
-                    pb.suspend(|| {
-                        output::show_line_error(&full_err);
-                    });
-                } else {
-                    pb.suspend(|| {
-                        eprintln!("{} {full_err}", "warning:".bold().yellow());
-                    });
+                    if json && !silent {
+                        println!("{}", serde_json::to_string(&err).unwrap());
+                    } else if is_bulk && !silent {
+                        pb.suspend(|| {
+                            output::show_line_error(&err.error);
+                        });
+                    } else if !silent {
+                        pb.suspend(|| {
+                            eprintln!("{} {}", "warning:".bold().yellow(), err.error);
+                        });
+                    }
+                    ScreenshotOutcome::Error(err)
                 }
-            }
+            };
             pb.inc(1);
             drop(permit);
+            outcome
         });
 
         handles.push(handle);
     }
 
+    let mut outcomes = Vec::with_capacity(handles.len());
     for handle in handles {
-        handle.await.into_diagnostic()?;
+        outcomes.push(handle.await.into_diagnostic()?);
     }
 
     pb.finish_and_clear();
 
-    Ok(())
+    Ok(outcomes)
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -160,7 +168,7 @@ async fn take_screenshot(
     json: bool,
     ua_pool: &[String],
     http_client: Option<&reqwest::Client>,
-) -> miette::Result<()> {
+) -> miette::Result<ScreenshotResult> {
     let url = if !url.starts_with("http://") && !url.starts_with("https://") {
         format!("https://{url}")
     } else {
@@ -179,14 +187,7 @@ async fn take_screenshot(
         .into_diagnostic()
         .wrap_err_with(|| format!("Invalid URL: {url}"))?;
 
-    let regurl = FILENAME_RE.replace_all(&url, "").to_string();
-    let filename = format!(
-        "{}.png",
-        regurl
-            .replace("://", "-")
-            .replace('/', "_")
-            .replace(':', "-")
-    );
+    let filename = screenshot_filename(&url, screenshot_type);
     let screenshot_format = match screenshot_type {
         ScreenshotType::Png => CaptureScreenshotFormat::Png,
         ScreenshotType::Jpeg => CaptureScreenshotFormat::Jpeg,
@@ -248,64 +249,94 @@ async fn take_screenshot(
     .into_diagnostic()
     .wrap_err_with(|| format!("Failed to save screenshot for: {url}"))?;
 
-    if !silent {
-        let elapsed = start.elapsed();
+    let elapsed = start.elapsed();
 
-        // Get title while page is still open
-        let title = match page.get_title().await {
-            Ok(Some(t)) => t,
-            _ => "No title".to_string(),
-        };
+    // Get title while page is still open
+    let title = match page.get_title().await {
+        Ok(Some(t)) => t,
+        _ => "No title".to_string(),
+    };
 
-        // Release page back to pool (or close if no pool)
-        if let Some(pool) = page_pool {
-            pool.release(page).await;
-        } else {
-            page.close().await.into_diagnostic()?;
-        }
-
-        // HTTP status check uses the shared client (no per-URL setup cost)
-        if let Some(client) = http_client {
-            let mut req = client.get(parsed_url.clone());
-            if let Some(ref ua) = user_agent {
-                req = req.header("user-agent", ua.as_str());
-            }
-            let response = time::timeout(Duration::from_secs(timeout), req.send())
-                .await
-                .into_diagnostic()
-                .wrap_err_with(|| format!("Timed out URL = {url}"))?
-                .into_diagnostic()?;
-
-            if json {
-                let result = ScreenshotResult {
-                    url: url.clone(),
-                    title,
-                    status: response.status().as_u16(),
-                    filename: filename.clone(),
-                    elapsed_secs: elapsed.as_secs_f64(),
-                    user_agent: user_agent.clone(),
-                };
-                println!("{}", serde_json::to_string(&result).unwrap());
-            } else if is_bulk {
-                pb.suspend(|| output::show_line(&url, response.status(), &filename, elapsed));
-            } else {
-                pb.suspend(|| {
-                    output::show_info(
-                        &url,
-                        &title,
-                        response.status(),
-                        &filename,
-                        elapsed,
-                        &user_agent,
-                    )
-                });
-            }
-        }
-    } else if let Some(pool) = page_pool {
+    // Release page back to pool (or close if no pool)
+    if let Some(pool) = page_pool {
         pool.release(page).await;
     } else {
         page.close().await.into_diagnostic()?;
     }
 
-    Ok(())
+    let status = if let Some(client) = http_client {
+        let mut req = client.get(parsed_url.clone());
+        if let Some(ref ua) = user_agent {
+            req = req.header("user-agent", ua.as_str());
+        }
+        let response = time::timeout(Duration::from_secs(timeout), req.send())
+            .await
+            .into_diagnostic()
+            .wrap_err_with(|| format!("Timed out URL = {url}"))?
+            .into_diagnostic()?;
+        response.status()
+    } else {
+        reqwest::StatusCode::OK
+    };
+
+    let result = ScreenshotResult {
+        url: url.clone(),
+        title,
+        status: status.as_u16(),
+        filename: filename.clone(),
+        elapsed_secs: elapsed.as_secs_f64(),
+        user_agent: user_agent.clone(),
+    };
+
+    if !silent {
+        if json {
+            println!("{}", serde_json::to_string(&result).unwrap());
+        } else if is_bulk {
+            pb.suspend(|| output::show_line(&url, status, &filename, elapsed));
+        } else {
+            pb.suspend(|| {
+                output::show_info(&url, &result.title, status, &filename, elapsed, &user_agent)
+            });
+        }
+    }
+
+    Ok(result)
+}
+
+fn screenshot_filename(url: &str, screenshot_type: ScreenshotType) -> String {
+    let regurl = FILENAME_RE.replace_all(url, "").to_string();
+    let extension = match screenshot_type {
+        ScreenshotType::Png => "png",
+        ScreenshotType::Jpeg => "jpeg",
+        ScreenshotType::Webg => "webp",
+    };
+
+    format!(
+        "{}.{extension}",
+        regurl
+            .replace("://", "-")
+            .replace('/', "_")
+            .replace(':', "-")
+    )
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn screenshot_filename_uses_selected_extension() {
+        assert_eq!(
+            screenshot_filename("https://example.com/login", ScreenshotType::Png),
+            "httpsexamplecomlogin.png"
+        );
+        assert_eq!(
+            screenshot_filename("https://example.com/login", ScreenshotType::Jpeg),
+            "httpsexamplecomlogin.jpeg"
+        );
+        assert_eq!(
+            screenshot_filename("https://example.com/login", ScreenshotType::Webg),
+            "httpsexamplecomlogin.webp"
+        );
+    }
 }

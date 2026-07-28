@@ -1,6 +1,7 @@
 use super::args::{Cli, Input};
 use super::helpers::{combine_urls_with_ports, read_urls_from_file, read_urls_from_stdin};
 use super::output::print_config_table;
+use super::report;
 use super::screenshot::take_screenshot_in_bulk;
 use super::user_agent;
 use crate::browser::pool::PagePool;
@@ -33,6 +34,7 @@ pub async fn run(
         user_agent,
         proxy,
         json,
+        html_report,
         reuse_tabs,
         pool_size,
     }: Cli,
@@ -123,6 +125,7 @@ pub async fn run(
             user_agent,
             proxy,
             json,
+            html_report,
             ua_pool.clone(),
         )
         .await
@@ -157,6 +160,7 @@ pub async fn run(
                     user_agent,
                     proxy,
                     json,
+                    html_report,
                     ua_pool.clone(),
                 )
                 .await
@@ -184,6 +188,7 @@ pub async fn run(
                     user_agent,
                     proxy,
                     json,
+                    html_report,
                     ua_pool.clone(),
                 )
                 .await
@@ -192,7 +197,18 @@ pub async fn run(
         }
     };
 
-    is_screenshot_taken?;
+    let outcomes = is_screenshot_taken?;
+
+    if html_report {
+        report::write_html_report("index.html", &outcomes)?;
+        if !silent && !json {
+            eprintln!(
+                "{} HTML report written to {}",
+                "info:".bold().cyan(),
+                "index.html".bold()
+            );
+        }
+    }
 
     if !silent && !json {
         eprintln!(

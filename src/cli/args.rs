@@ -103,6 +103,10 @@ pub struct Cli {
     #[arg(long)]
     pub json: bool,
 
+    /// Generate an HTML gallery report as index.html in the output directory
+    #[arg(long)]
+    pub html_report: bool,
+
     /// Reuse browser tabs instead of creating a new one per URL
     #[arg(long, default_value = "true")]
     pub reuse_tabs: bool,
@@ -111,7 +115,6 @@ pub struct Cli {
     #[arg(long, default_value = "8")]
     pub pool_size: usize,
 }
-
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
 #[allow(non_camel_case_types)]
@@ -159,5 +162,13 @@ mod tests {
     fn test_file_path_as_source() {
         let args = Cli::try_parse_from(["-b my_browser", "-f /my/file"]);
         assert!(args.is_ok());
+    }
+
+    #[test]
+    fn test_html_report_flag() {
+        let args =
+            Cli::try_parse_from(["-b my_browser", "-u https://example.com", "--html-report"])
+                .unwrap();
+        assert!(args.html_report);
     }
 }

@@ -3,7 +3,7 @@ use reqwest::StatusCode;
 use std::time::Duration;
 use tabled::{builder::Builder, settings::Style};
 
-#[derive(serde::Serialize)]
+#[derive(Debug, serde::Serialize)]
 pub struct ScreenshotResult {
     pub url: String,
     pub title: String,
@@ -14,7 +14,7 @@ pub struct ScreenshotResult {
     pub user_agent: Option<String>,
 }
 
-#[derive(serde::Serialize)]
+#[derive(Debug, serde::Serialize)]
 pub struct ScreenshotError {
     pub url: String,
     pub error: String,
