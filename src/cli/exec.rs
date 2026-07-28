@@ -1,7 +1,7 @@
 use super::args::{Cli, Input};
 use super::helpers::{combine_urls_with_ports, read_urls_from_file, read_urls_from_stdin};
 use super::output::print_config_table;
-use super::report;
+use super::report::{self, ScreenshotOutcome};
 use super::screenshot::take_screenshot_in_bulk;
 use super::user_agent;
 use crate::browser::pool::PagePool;
@@ -211,12 +211,73 @@ pub async fn run(
     }
 
     if !silent && !json {
-        eprintln!(
-            "{} Screenshots taken and saved in directory {}",
-            "info:".bold().cyan(),
-            outdir.bold()
-        );
+        print_completion_summary(&outdir, &outcomes);
     }
 
     Ok(())
+}
+
+fn print_completion_summary(outdir: &str, outcomes: &[ScreenshotOutcome]) {
+    let (captured, failed) = completion_counts(outcomes);
+
+    if captured > 0 {
+        eprintln!(
+            "{} {captured} screenshot(s) saved in directory {}",
+            "info:".bold().cyan(),
+            outdir.bold()
+        );
+        if failed > 0 {
+            eprintln!("{} {failed} capture(s) failed", "warning:".bold().yellow());
+        }
+    } else if failed > 0 {
+        eprintln!(
+            "{} no screenshots were captured ({failed} failed)",
+            "warning:".bold().yellow()
+        );
+    }
+}
+
+fn completion_counts(outcomes: &[ScreenshotOutcome]) -> (usize, usize) {
+    let captured = outcomes
+        .iter()
+        .filter(|outcome| matches!(outcome, ScreenshotOutcome::Success(_)))
+        .count();
+    let failed = outcomes.len().saturating_sub(captured);
+    (captured, failed)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::cli::output::{ScreenshotError, ScreenshotResult};
+
+    #[test]
+    fn completion_counts_all_failures() {
+        let outcomes = vec![ScreenshotOutcome::Error(ScreenshotError {
+            url: "https://ok.oo".to_string(),
+            error: "net::ERR_NAME_NOT_RESOLVED".to_string(),
+        })];
+
+        assert_eq!(completion_counts(&outcomes), (0, 1));
+    }
+
+    #[test]
+    fn completion_counts_mixed_results() {
+        let outcomes = vec![
+            ScreenshotOutcome::Success(ScreenshotResult {
+                url: "https://example.com".to_string(),
+                title: "Example".to_string(),
+                status: 200,
+                filename: "example.png".to_string(),
+                elapsed_secs: 0.1,
+                user_agent: None,
+            }),
+            ScreenshotOutcome::Error(ScreenshotError {
+                url: "https://bad.invalid".to_string(),
+                error: "failed".to_string(),
+            }),
+        ];
+
+        assert_eq!(completion_counts(&outcomes), (1, 1));
+    }
 }
